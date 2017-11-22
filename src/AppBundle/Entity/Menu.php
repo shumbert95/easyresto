@@ -56,6 +56,8 @@ class Menu
     public function setId($id)
     {
         $this->id = $id;
+        
+        return $this;
     }
 
     /**
@@ -72,6 +74,8 @@ class Menu
     public function setName($name)
     {
         $this->name = $name;
+        
+        return $this;
     }
 
     /**
@@ -88,6 +92,8 @@ class Menu
     public function setDescription($description)
     {
         $this->description = $description;
+        
+        return $this;
     }
 
     /**
@@ -104,6 +110,8 @@ class Menu
     public function setPrice($price)
     {
         $this->price = $price;
+        
+        return $this;
     }
 
     /**
@@ -120,6 +128,8 @@ class Menu
     public function setRestaurant($restaurant)
     {
         $this->restaurant = $restaurant;
+        
+        return $this;
     }
 
 }
