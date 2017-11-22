@@ -23,17 +23,31 @@ class Reservation{
     protected $paid;
 
     /**
-     * @ORM\Column(type="string", length="255")
+     * @ORM\Column(type="decimal", scale="2")
      */
     protected $total;
+    
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="date", type="datetime")
+     */
+    protected $date;
+    
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="date_add", type="datetime")
+     */
+    protected $dateCanceled;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Client", mappedBy="reservation")
      */
     protected $client;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Restaurant", mappedBy="reservation")
      */
     protected $restaurant;
 
@@ -51,14 +65,6 @@ class Reservation{
     }
 
     /**
-     * @param mixed $id
-     */
-    public function setId($id)
-    {
-        $this->id = $id;
-    }
-
-    /**
      * @return mixed
      */
     public function getPaid()
@@ -72,6 +78,8 @@ class Reservation{
     public function setPaid($paid)
     {
         $this->paid = $paid;
+        
+        return $this;
     }
 
     /**
@@ -88,6 +96,8 @@ class Reservation{
     public function setTotal($total)
     {
         $this->total = $total;
+        
+        return $this;
     }
 
     /**
@@ -104,6 +114,8 @@ class Reservation{
     public function setClient($client)
     {
         $this->client = $client;
+        
+        return $this;
     }
 
     /**
@@ -120,6 +132,44 @@ class Reservation{
     public function setRestaurant($restaurant)
     {
         $this->restaurant = $restaurant;
+        
+        return $this;
+    }
+    
+    /**
+     * @return mixed
+     */
+    public function getDate()
+    {
+        return $this->date;
+    }
+
+    /**
+     * @param mixed $date
+     */
+    public function setDate($date)
+    {
+        $this->date = $date;
+        
+        return $this;
+    }
+    
+    /**
+     * @return mixed
+     */
+    public function getDateCanceled()
+    {
+        return $this->dateCanceled;
+    }
+
+    /**
+     * @param mixed $dateCanceled
+     */
+    public function setDateCanceled($dateCanceled)
+    {
+        $this->dateCanceled = $dateCanceled;
+        
+        return $this;
     }
 }
 
