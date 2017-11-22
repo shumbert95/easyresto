@@ -25,10 +25,12 @@ class User extends BaseUser
 
     const TYPE_CLIENT = 1;
     const TYPE_EMPLOYEE = 2;
+    const TYPE_RESTORER = 3;
 
     public static $types = array(
         self::TYPE_CLIENT => 'Client',
         self::TYPE_EMPLOYEE => 'Employé',
+        self::TYPE_RESTORER => 'Restaurateur'
     );
 
     public function __construct()
