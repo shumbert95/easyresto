@@ -17,8 +17,52 @@ class User extends BaseUser
      */
     protected $id;
 
+    protected $type;
+
+    protected $firstName;
+
+    protected $lastName;
+
+    const TYPE_CLIENT = 1;
+    const TYPE_EMPLOYEE = 2;
+
+    public static $types = array(
+        self::TYPE_CLIENT => 'Client',
+        self::TYPE_EMPLOYEE => 'Employé',
+    );
+
     public function __construct()
     {
         parent::__construct();
+    }
+
+    public function getType() {
+        return $this->type;
+    }
+
+    public function setType($type) {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    public function getFirstName() {
+        return $this->firstName;
+    }
+
+    public function setFirstName($firstName) {
+        $this->firstName = $firstName;
+
+        return $this;
+    }
+
+    public function getLastName() {
+        return $this->lastName;
+    }
+
+    public function setLastName($lastName) {
+        $this->lastName = $lastName;
+
+        return $this;
     }
 }
