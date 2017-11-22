@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="fos_user")
+ * @ORM\Table(name="client")
  */
 class Client
 {
@@ -17,14 +17,39 @@ class Client
      */
     protected $id;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="address", type="string", length=255)
+     */
     protected $address;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="address_complement", type="string", length=255)
+     */
     protected $addressComplement;
 
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="postal_code", type="integer")
+     */
     protected $postalCode;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="city", type="string", length=255)
+     */
     protected $city;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="phone", type="string", length=255)
+     */
     protected $phone;
 
     /**
