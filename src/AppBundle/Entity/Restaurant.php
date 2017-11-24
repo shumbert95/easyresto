@@ -6,35 +6,11 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Category
- *
- * @ORM\Table(name="meal")
- * @ORM\Entity(repositoryClass="AppBundle\Repository\MealRepository")
+ * @ORM\Entity
+ * @ORM\Table(name="restaurant")
  */
 class Restaurant
 {
-
-    /**
-     * Many Restaurant have Many Users.
-     * @ManyToMany(targetEntity="User")
-     * @JoinTable(name="restaurant_users",
-     *      joinColumns={@JoinColumn(name="user_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@JoinColumn(name="restaurant_id", referencedColumnName="id", unique=true)}
-     *      )
-     */
-    protected $user;
-
-
-    /**
-     * @ORM\OneToMany(targetEntity="RestaurantCategory", mappedBy="restaurant")
-     */
-    protected $mealCategories;
-
-    public function __construct()
-    {
-        $this->mealCategories = new ArrayCollection();
-    }
-
     /**
      * @var int
      *
@@ -43,6 +19,22 @@ class Restaurant
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     protected $id;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\User")
+     * @ORM\JoinTable(name="restaurant_users",
+     *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="restaurant_id", referencedColumnName="id")}
+     *      )
+     */
+    protected $user;
+
+
+    /**
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\CategoryRestaurant", mappedBy="restaurants")
+     */
+    protected $mealCategories;
+
 
     /**
      * @var string
@@ -108,6 +100,11 @@ class Restaurant
      * @ORM\Column(name="status", type="boolean")
      */
     protected $status;
+
+    public function __construct()
+    {
+        $this->mealCategories = new ArrayCollection();
+    }
 
     /**
      * @return mixed

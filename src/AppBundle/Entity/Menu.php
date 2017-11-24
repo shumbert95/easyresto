@@ -18,7 +18,7 @@ class Menu
     protected $id;
 
     /**
-     * @ORM\Column(type="string", length="255")
+     * @ORM\Column(type="string", length=255)
      */
     protected $name;
 
@@ -28,14 +28,20 @@ class Menu
     protected $description;
 
     /**
-     * @ORM\Column(type="decimal", scale="2")
+     * @ORM\Column(type="decimal", scale=2)
      */
     protected $price;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\ManyToOne(targetEntity="Restaurant")
+     * @ORM\JoinColumn(name="restaurant_id", referencedColumnName="id")
      */
     protected $restaurant;
+
+    /**
+     * @ORM\OneToOne(targetEntity="AppBundle\Entity\CategoryMealMenu")
+     */
+    protected $category;
 
 
     public function __construct(){

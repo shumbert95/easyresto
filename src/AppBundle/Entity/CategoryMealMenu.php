@@ -19,7 +19,7 @@ class CategoryMealMenu
     /**
      * @var string
      *
-     * @ORM\Column(name="code", type="string", length=255)
+     * @ORM\Column(name="code", type="string", length=255, unique=true)
      */
     protected $code;
 

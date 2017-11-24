@@ -15,14 +15,14 @@ class Meal
 {
 
     /**
-     * @ORM\ManyToOne(targetEntity="Restaurant)
+     * @ORM\ManyToOne(targetEntity="Restaurant")
      * @ORM\JoinColumn(name="restaurant_id", referencedColumnName="id")
      */
     protected $restaurant;
 
 
     /**
-     * @ORM\OneToMany(targetEntity="MealCategory", mappedBy="meal")
+     * @ORM\OneToMany(targetEntity="CategoryMealMenu", mappedBy="meals")
      */
     protected $mealCategories;
 

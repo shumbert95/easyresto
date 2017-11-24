@@ -23,7 +23,7 @@ class Reservation{
     protected $paid;
 
     /**
-     * @ORM\Column(type="decimal", scale="2")
+     * @ORM\Column(type="decimal", scale=2)
      */
     protected $total;
     
@@ -47,7 +47,8 @@ class Reservation{
     protected $client;
 
     /**
-     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Restaurant", mappedBy="reservation")
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Restaurant")
+     * @ORM\JoinColumn(name="restaurant_id", referencedColumnName="id")
      */
     protected $restaurant;
 
