@@ -20,7 +20,7 @@ class UserController extends ApiBaseController
      *
      * @return View
      *
-     * @REST\Post("/users", name="api_create_user")
+     * @REST\Post("/users/create", name="api_create_user")
      * @REST\RequestParam(name="email")
      * @REST\RequestParam(name="firstName")
      * @REST\RequestParam(name="lastName")
