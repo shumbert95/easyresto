@@ -2,7 +2,9 @@
 namespace AppBundle\Form;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 
 class RegistrationType extends AbstractType
@@ -12,7 +14,7 @@ class RegistrationType extends AbstractType
         $builder
             ->add(
                 'firstName',
-                null,
+                TextType::class,
                 [
                     'required' => true,
                     'label' => 'Prénom'
@@ -20,15 +22,23 @@ class RegistrationType extends AbstractType
             )
             ->add(
                 'lastName',
-                null,
+                TextType::class,
                 [
                     'required' => true,
                     'label' => 'Nom'
                 ]
             )
             ->add(
+                'email',
+                TextType::class,
+                [
+                    'required' => true,
+                    'label' => 'Email'
+                ]
+            )
+            ->add(
                 'type',
-                null,
+                IntegerType::class,
                 [
                     'required' => true,
                     'label' => 'Type',
