@@ -14,7 +14,7 @@ class ApiHelper
      * @param array $groups
      * @return View
      */
-    public function success($data = null, $statusCode = 200, $groups = array()) {
+    public function success($data = null, $statusCode = 200) {
         $view = View::create();
         $view->setStatusCode($statusCode);
         $view->setFormat('json');
@@ -23,15 +23,6 @@ class ApiHelper
             $view->setData(array(
                 'result' => $data
             ));
-        }
-
-        if ($groups) {
-            if (!is_array($groups)) {
-                $groups = array($groups);
-            }
-            $context = new Context();
-            $context->setGroups($groups);
-            $view->setContext($context);
         }
 
         return $view;
@@ -43,7 +34,7 @@ class ApiHelper
      * @param array $groups
      * @return View
      */
-    public function error($error = null, $statusCode = 400, $groups = array()) {
+    public function error($error = null, $statusCode = 400) {
         $view = View::create();
         $view->setStatusCode($statusCode);
         $view->setFormat('json');
@@ -52,15 +43,6 @@ class ApiHelper
             $view->setData(array(
                 'error' => $error
             ));
-        }
-
-        if ($groups) {
-            if (!is_array($groups)) {
-                $groups = array($groups);
-            }
-            $context = new SerializationContext();
-            $context->setGroups($groups);
-            $view->setSerializationContext($context);
         }
 
         return $view;
