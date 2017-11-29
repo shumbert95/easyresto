@@ -5,10 +5,6 @@ parameters:
 
 services:
 
-    app.form.registration:
-        class: AppBundle\Form\RegistrationType
-        tags:
-            - { name: form.type, alias: app_user_registration }
     # default configuration for services in *this* file
     _defaults:
         # automatically injects dependencies in your services
@@ -40,8 +36,13 @@ services:
 
     app.mail.manager:
         class: AppBundle\Services\MailManager
-        arguments: ['@service_container', @templating]
+        arguments: ['@service_container', '@templating']
 
     app.user.manager:
         class: AppBundle\Services\UserManager
         arguments: ['@service_container', '@app.mail.manager']
+
+    app.form.registration:
+        class: AppBundle\Form\RegistrationType
+        tags:
+            - { name: form.type, alias: app_user_registration }
