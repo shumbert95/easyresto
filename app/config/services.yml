@@ -4,15 +4,16 @@ parameters:
     #parameter_name: value
 
 services:
+
     # default configuration for services in *this* file
     _defaults:
         # automatically injects dependencies in your services
-        autowire: true
+        autowire: false
         # automatically registers your services as commands, event subscribers, etc.
-        autoconfigure: true
+        autoconfigure: false
         # this means you cannot fetch services directly from the container via $container->get()
         # if you need to do this, you can override this setting on individual services
-        public: false
+        public: true
 
     # makes classes in src/AppBundle available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -29,7 +30,19 @@ services:
         public: true
         tags: ['controller.service_arguments']
 
-    # add more services, or override services that need manual wiring
-    # AppBundle\Service\ExampleService:
-    #     arguments:
-    #         $someArgument: 'some_value'
+    app.base.manager:
+        class: AppBundle\Services\BaseManager
+        arguments: ['@service_container']
+
+    app.mail.manager:
+        class: AppBundle\Services\MailManager
+        arguments: ['@service_container', '@templating']
+
+    app.user.manager:
+        class: AppBundle\Services\UserManager
+        arguments: ['@service_container', '@app.mail.manager']
+
+    app.form.registration:
+        class: AppBundle\Form\RegistrationType
+        tags:
+            - { name: form.type, alias: app_user_registration }

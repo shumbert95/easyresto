@@ -1,5 +1,5 @@
 app:
-    resource: '@AppBundle/Controller/'
+    resource: '@AppBundle/API/'
     type: annotation
 
 fos_user:
