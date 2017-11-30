@@ -40,29 +40,6 @@ class UserManager extends BaseManager
     /**
      * @param User $user
      *
-     * @return string
-     */
-    public function getToken(User $user)
-    {
-        $encoder = $this->getContainer()->get('lexik_jwt_authentication.encoder');
-
-        $tokenData = array(
-            'user_id' => $user->getId(),
-            'email' => $user->getEmail(),
-            'first_name' => $user->getFirstName(),
-            'last_name' => $user->getLastName(),
-            'type' => $user->getType(),
-            'roles' => $user->getRoles()
-        );
-
-        $token = $encoder->encode($tokenData);
-
-        return $token;
-    }
-
-    /**
-     * @param User $user
-     *
      * @return bool
      */
     public function sendEmailResetting(User $user)
