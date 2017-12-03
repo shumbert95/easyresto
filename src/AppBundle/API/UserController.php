@@ -44,7 +44,6 @@ class UserController extends ApiBaseController
         $form->submit($params);
 
         if (!$form->isValid()) {
-            die('test');
             return $this->helper->error($form->getErrors());
         }
 
