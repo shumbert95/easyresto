@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\RestaurantRepository")
  * @ORM\Table(name="restaurant")
  */
 class Restaurant
@@ -27,7 +28,7 @@ class Restaurant
      *      inverseJoinColumns={@ORM\JoinColumn(name="restaurant_id", referencedColumnName="id")}
      *      )
      */
-    protected $user;
+    protected $users;
 
 
     /**
@@ -46,16 +47,16 @@ class Restaurant
     /**
      * @var string
      *
-     * @ORM\Column(name="town", type="string", length=255)
+     * @ORM\Column(name="city", type="string", length=255)
      */
-    protected $town;
+    protected $city;
 
     /**
      * @var int
      *
      * @ORM\Column(name="post_code", type="integer", length=10)
      */
-    protected $postCode;
+    protected $postalCode;
 
     /**
      * @var string
@@ -63,6 +64,14 @@ class Restaurant
      * @ORM\Column(name="address", type="string", length=255)
      */
     protected $address;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="address_complement", type="string", length=255)
+     */
+    protected $addressComplement;
+
 
     /**
      * @var string
