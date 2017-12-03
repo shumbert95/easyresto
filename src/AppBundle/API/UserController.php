@@ -3,8 +3,10 @@
 namespace AppBundle\API;
 
 use AppBundle\API\ApiBaseController;
+use AppBundle\Entity\Restaurant;
 use AppBundle\Entity\User;
 use AppBundle\Form\RegistrationType;
+use AppBundle\Form\RestaurantType;
 use FOS\RestBundle\Controller\Annotations as REST;
 use FOS\RestBundle\Request\ParamFetcher;
 use FOS\RestBundle\View\View;
@@ -37,10 +39,12 @@ class UserController extends ApiBaseController
         $params = $paramFetcher->all();
         $form = $this->createForm(RegistrationType::class, $user);
         $user->setPlainPassword($params['password']);
+        $user->setEnabled(1);
         unset($params['password']);
         $form->submit($params);
 
         if (!$form->isValid()) {
+            die('test');
             return $this->helper->error($form->getErrors());
         }
 
@@ -57,8 +61,10 @@ class UserController extends ApiBaseController
      * @REST\Get("/users", name="api_list_users")
      *
      */
-    public function getUsers() {
+    public function getUsers()
+    {
         $users = $this->getUserRepository()->findAll();
         return $this->helper->success($users, 200);
     }
+
 }
