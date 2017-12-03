@@ -34,9 +34,13 @@ class Restaurant
 
 
     /**
-     * @ORM\OneToMany(targetEntity="AppBundle\Entity\CategoryRestaurant", mappedBy="restaurants")
+     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\CategoryRestaurant")
+     * @ORM\JoinTable(name="restaurant_categories",
+     *      joinColumns={@ORM\JoinColumn(name="category_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="restaurant_id", referencedColumnName="id")}
+     *      )
      */
-    protected $mealCategories;
+    protected $categories;
 
     /**
      * @var string
@@ -112,39 +116,76 @@ class Restaurant
 
     public function __construct()
     {
-        $this->mealCategories = new ArrayCollection();
+        $this->categories = new ArrayCollection();
+        $this->users = new ArrayCollection();
     }
 
     /**
      * @return mixed
      */
-    public function getUser()
+    public function getUsers()
     {
-        return $this->user;
+        return $this->users;
     }
 
     /**
      * @param mixed $user
      */
-    public function setUser($user)
+    public function setUsers($users)
     {
-        $this->user = $user;
+        $this->users = $users;
+    }
+
+    public function addUser($user)
+    {
+        if (!$this->users->contains($user)) {
+            $this->users->add($user);
+        }
+
+        return $this;
+    }
+
+    public function removeUser($user)
+    {
+        if ($this->users->contains($user)) {
+            $this->users->remove($user);
+        }
+
+        return $this;
     }
 
     /**
      * @return mixed
      */
-    public function getMealCategories()
+    public function getCategories()
     {
-        return $this->mealCategories;
+        return $this->categories;
     }
 
     /**
-     * @param mixed $mealCategories
+     * @param mixed $categories
      */
-    public function setMealCategories($mealCategories)
+    public function setCategories($categories)
     {
-        $this->mealCategories = $mealCategories;
+        $this->categories = $categories;
+    }
+
+    public function addCategory($category)
+    {
+        if (!$this->categories->contains($category)) {
+            $this->categories->add($category);
+        }
+
+        return $this;
+    }
+
+    public function removeCategory($category)
+    {
+        if ($this->categories->contains($category)) {
+            $this->categories->remove($category);
+        }
+
+        return $this;
     }
 
     /**
