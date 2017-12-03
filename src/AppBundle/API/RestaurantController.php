@@ -46,11 +46,64 @@ class RestaurantController extends ApiBaseController
         $restaurant->setStatus(1);
         $restaurant->setOpen(1);
 
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+
+        $restaurant->addUser($user);
 
         $em = $this->getEntityManager();
         $em->persist($restaurant);
         $em->flush();
 
         return $this->helper->success($restaurant, 200);
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return View
+     *
+     * @REST\Post("/restaurant/schedule", name="api_update_schedule")
+     */
+    public function updateSchedule(Request $request)
+    {
+        $errors = array();
+        $request_data = $request->request->all();
+
+        if (!isset($request_data['id']) || empty($request_data['id'])) {
+            $errors[] = 'Missing parameter "id"';
+        }
+
+        if (!$request_data['schedule']) {
+            $errors[] = 'Missing parameter "schedule"';
+        }
+
+        if (count($errors)) {
+            return $this->helper->error($errors, 400);
+        }
+
+        $restaurant = $this->getRestaurantRepository()->find($request_data['id']);
+
+        if (!$restaurant instanceof Restaurant) {
+            $this->helper->elementNotFound('Restaurant', 404);
+        }
+
+        $restaurant->setSchedule($request_data['schedule']);
+
+        $this->getEntityManager()->persist($restaurant);
+        $this->getEntityManager()->flush();
+
+        return $this->helper->success($restaurant, 200);
+    }
+
+    /**
+     * @return View
+     *
+     * @REST\Get("/restaurants", name="api_list_restaurants")
+     *
+     */
+    public function getRestaurants()
+    {
+        $restaurants = $this->getRestaurantRepository()->findAll();
+        return $this->helper->success($restaurants, 200);
     }
 }
