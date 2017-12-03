@@ -27,7 +27,7 @@ class Client
     /**
      * @var string
      *
-     * @ORM\Column(name="address_complement", type="string", length=255)
+     * @ORM\Column(name="address_complement", type="string", length=255, nullable=true)
      */
     protected $addressComplement;
 

@@ -4,6 +4,8 @@ namespace AppBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 /**
  * @ORM\Entity
@@ -36,31 +38,30 @@ class Restaurant
      */
     protected $mealCategories;
 
-
     /**
      * @var string
-     *
+     * @Assert\NotBlank()
      * @ORM\Column(name="name", type="string", length=255)
      */
     protected $name;
 
     /**
      * @var string
-     *
+     * @Assert\NotBlank()
      * @ORM\Column(name="city", type="string", length=255)
      */
     protected $city;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="post_code", type="integer", length=10)
+     * @Assert\NotBlank()
+     * @ORM\Column(name="postal_code", type="integer", length=10)
      */
     protected $postalCode;
 
     /**
      * @var string
-     *
+     * @Assert\NotBlank()
      * @ORM\Column(name="address", type="string", length=255)
      */
     protected $address;
@@ -68,29 +69,28 @@ class Restaurant
     /**
      * @var string
      *
-     * @ORM\Column(name="address_complement", type="string", length=255)
+     * @ORM\Column(name="address_complement", type="string", length=255, nullable=true)
      */
     protected $addressComplement;
 
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="telephone", type="string")
+     * @Assert\NotBlank()
+     * @ORM\Column(name="phone", type="string")
      */
-    protected $telephone;
+    protected $phone;
 
     /**
      * @var string
-     *
+     * @Assert\NotBlank()
      * @ORM\Column(name="description", type="text")
      */
     protected $description;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="schedule", type="string", length=255)
+     * @var array
+     * @ORM\Column(name="schedule", type="array", nullable=true)
      */
     protected $schedule;
 
@@ -182,33 +182,33 @@ class Restaurant
     /**
      * @return string
      */
-    public function getTown()
+    public function getCity()
     {
-        return $this->town;
+        return $this->city;
     }
 
     /**
      * @param string $town
      */
-    public function setTown($town)
+    public function setCity($city)
     {
-        $this->town = $town;
+        $this->city = $city;
     }
 
     /**
      * @return int
      */
-    public function getPostCode()
+    public function getPostalCode()
     {
-        return $this->postCode;
+        return $this->postalCode;
     }
 
     /**
-     * @param int $postCode
+     * @param int $postalCode
      */
-    public function setPostCode($postCode)
+    public function setPostalCode($postalCode)
     {
-        $this->postCode = $postCode;
+        $this->postalCode = $postalCode;
     }
 
     /**
@@ -228,19 +228,37 @@ class Restaurant
     }
 
     /**
-     * @return string
+     * @return String
      */
-    public function getTelephone()
+    public function getAddressComplement()
     {
-        return $this->telephone;
+        return $this->addressComplement;
     }
 
     /**
-     * @param string $telephone
+     * @param String $addressComplement
      */
-    public function setTelephone($telephone)
+    public function setAddressComplement($addressComplement)
     {
-        $this->telephone = $telephone;
+        $this->addressComplement = $addressComplement;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPhone()
+    {
+        return $this->phone;
+    }
+
+    /**
+     * @param string $phone
+     */
+    public function setPhone($phone)
+    {
+        $this->phone = $phone;
     }
 
     /**
