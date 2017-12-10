@@ -60,3 +60,6 @@ security:
         - { path: ^/resetting, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/login_check, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api, role: ROLE_USER }
+        - { path: ^/restaurant, role: ROLE_USER }
+        - { path: ^/user, role: ROLE_USER }
+        - { path: ^/client, role: ROLE_USER }
