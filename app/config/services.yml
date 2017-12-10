@@ -52,3 +52,7 @@ services:
         arguments: [ '@request_stack', '@service_container' ]
         tags:
             - { name: kernel.event_listener, event: lexik_jwt_authentication.on_jwt_created, method: onJWTCreated }
+
+    app.loadDataFixture:
+        class: AppBundle\DataFixtures\AppFixtures
+        tags: [doctrine.fixture.orm]
