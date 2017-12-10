@@ -3,6 +3,8 @@ namespace AppBundle\Entity;
 
 use FOS\UserBundle\Model\User as BaseUser;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 /**
  * @ORM\Entity
@@ -19,7 +21,7 @@ class Client
 
     /**
      * @var string
-     *
+     * @Assert\NotBlank()
      * @ORM\Column(name="address", type="string", length=255)
      */
     protected $address;
@@ -27,27 +29,27 @@ class Client
     /**
      * @var string
      *
-     * @ORM\Column(name="address_complement", type="string", length=255)
+     * @ORM\Column(name="address_complement", type="string", length=255, nullable=true)
      */
     protected $addressComplement;
 
     /**
      * @var int
-     *
+     * @Assert\NotBlank()
      * @ORM\Column(name="postal_code", type="integer")
      */
     protected $postalCode;
 
     /**
      * @var string
-     *
+     * @Assert\NotBlank()
      * @ORM\Column(name="city", type="string", length=255)
      */
     protected $city;
 
     /**
      * @var string
-     *
+     * @Assert\NotBlank()
      * @ORM\Column(name="phone", type="string", length=255)
      */
     protected $phone;
@@ -57,9 +59,15 @@ class Client
      */
     protected $user;
 
+    /**
+     * @var boolean
+     * @ORM\Column(name="status", type="boolean")
+     */
+    protected $status;
+
     public function __construct()
     {
-        parent::__construct();
+        $this->status = true;
     }
 
     /**
@@ -176,5 +184,10 @@ class Client
         $this->user = $user;
 
         return $this;
+    }
+
+    public function __toString()
+    {
+        return ''.$this->user->getLastName() . ' ' . $this->user->getFirstName();
     }
 }

@@ -4,37 +4,16 @@ namespace AppBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 /**
- * Category
- *
- * @ORM\Table(name="meal")
- * @ORM\Entity(repositoryClass="AppBundle\Repository\MealRepository")
+ * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\RestaurantRepository")
+ * @ORM\Table(name="restaurant")
  */
 class Restaurant
 {
-
-    /**
-     * Many Restaurant have Many Users.
-     * @ManyToMany(targetEntity="User")
-     * @JoinTable(name="restaurant_users",
-     *      joinColumns={@JoinColumn(name="user_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@JoinColumn(name="restaurant_id", referencedColumnName="id", unique=true)}
-     *      )
-     */
-    protected $user;
-
-
-    /**
-     * @ORM\OneToMany(targetEntity="RestaurantCategory", mappedBy="restaurant")
-     */
-    protected $mealCategories;
-
-    public function __construct()
-    {
-        $this->mealCategories = new ArrayCollection();
-    }
-
     /**
      * @var int
      *
@@ -45,29 +24,48 @@ class Restaurant
     protected $id;
 
     /**
+     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\User")
+     * @ORM\JoinTable(name="restaurant_users",
+     *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="restaurant_id", referencedColumnName="id")}
+     *      )
+     */
+    protected $users;
+
+
+    /**
+     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\CategoryRestaurant")
+     * @ORM\JoinTable(name="restaurant_categories",
+     *      joinColumns={@ORM\JoinColumn(name="category_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="restaurant_id", referencedColumnName="id")}
+     *      )
+     */
+    protected $categories;
+
+    /**
      * @var string
-     *
+     * @Assert\NotBlank()
      * @ORM\Column(name="name", type="string", length=255)
      */
     protected $name;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="town", type="string", length=255)
+     * @Assert\NotBlank()
+     * @ORM\Column(name="city", type="string", length=255)
      */
-    protected $town;
+    protected $city;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="post_code", type="integer", length=10)
+     * @Assert\NotBlank()
+     * @ORM\Column(name="postal_code", type="integer", length=10)
      */
-    protected $postCode;
+    protected $postalCode;
 
     /**
      * @var string
-     *
+     * @Assert\NotBlank()
      * @ORM\Column(name="address", type="string", length=255)
      */
     protected $address;
@@ -75,21 +73,28 @@ class Restaurant
     /**
      * @var string
      *
-     * @ORM\Column(name="telephone", type="string")
+     * @ORM\Column(name="address_complement", type="string", length=255, nullable=true)
      */
-    protected $telephone;
+    protected $addressComplement;
+
 
     /**
      * @var string
-     *
+     * @Assert\NotBlank()
+     * @ORM\Column(name="phone", type="string")
+     */
+    protected $phone;
+
+    /**
+     * @var string
+     * @Assert\NotBlank()
      * @ORM\Column(name="description", type="text")
      */
     protected $description;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="schedule", type="string", length=255)
+     * @var array
+     * @ORM\Column(name="schedule", type="text", nullable=true)
      */
     protected $schedule;
 
@@ -109,36 +114,78 @@ class Restaurant
      */
     protected $status;
 
+    public function __construct()
+    {
+        $this->categories = new ArrayCollection();
+        $this->users = new ArrayCollection();
+    }
+
     /**
      * @return mixed
      */
-    public function getUser()
+    public function getUsers()
     {
-        return $this->user;
+        return $this->users;
     }
 
     /**
      * @param mixed $user
      */
-    public function setUser($user)
+    public function setUsers($users)
     {
-        $this->user = $user;
+        $this->users = $users;
+    }
+
+    public function addUser($user)
+    {
+        if (!$this->users->contains($user)) {
+            $this->users->add($user);
+        }
+
+        return $this;
+    }
+
+    public function removeUser($user)
+    {
+        if ($this->users->contains($user)) {
+            $this->users->remove($user);
+        }
+
+        return $this;
     }
 
     /**
      * @return mixed
      */
-    public function getMealCategories()
+    public function getCategories()
     {
-        return $this->mealCategories;
+        return $this->categories;
     }
 
     /**
-     * @param mixed $mealCategories
+     * @param mixed $categories
      */
-    public function setMealCategories($mealCategories)
+    public function setCategories($categories)
     {
-        $this->mealCategories = $mealCategories;
+        $this->categories = $categories;
+    }
+
+    public function addCategory($category)
+    {
+        if (!$this->categories->contains($category)) {
+            $this->categories->add($category);
+        }
+
+        return $this;
+    }
+
+    public function removeCategory($category)
+    {
+        if ($this->categories->contains($category)) {
+            $this->categories->remove($category);
+        }
+
+        return $this;
     }
 
     /**
@@ -176,33 +223,33 @@ class Restaurant
     /**
      * @return string
      */
-    public function getTown()
+    public function getCity()
     {
-        return $this->town;
+        return $this->city;
     }
 
     /**
      * @param string $town
      */
-    public function setTown($town)
+    public function setCity($city)
     {
-        $this->town = $town;
+        $this->city = $city;
     }
 
     /**
      * @return int
      */
-    public function getPostCode()
+    public function getPostalCode()
     {
-        return $this->postCode;
+        return $this->postalCode;
     }
 
     /**
-     * @param int $postCode
+     * @param int $postalCode
      */
-    public function setPostCode($postCode)
+    public function setPostalCode($postalCode)
     {
-        $this->postCode = $postCode;
+        $this->postalCode = $postalCode;
     }
 
     /**
@@ -222,19 +269,37 @@ class Restaurant
     }
 
     /**
-     * @return string
+     * @return String
      */
-    public function getTelephone()
+    public function getAddressComplement()
     {
-        return $this->telephone;
+        return $this->addressComplement;
     }
 
     /**
-     * @param string $telephone
+     * @param String $addressComplement
      */
-    public function setTelephone($telephone)
+    public function setAddressComplement($addressComplement)
     {
-        $this->telephone = $telephone;
+        $this->addressComplement = $addressComplement;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPhone()
+    {
+        return $this->phone;
+    }
+
+    /**
+     * @param string $phone
+     */
+    public function setPhone($phone)
+    {
+        $this->phone = $phone;
     }
 
     /**
@@ -301,5 +366,8 @@ class Restaurant
         $this->status = $status;
     }
 
-
+    public function __toString()
+    {
+        return ''.$this->name;
+    }
 }

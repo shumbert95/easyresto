@@ -17,10 +17,25 @@ class User extends BaseUser
      */
     protected $id;
 
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="type", type="integer")
+     */
     protected $type;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="first_name", type="string", length=255)
+     */
     protected $firstName;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="last_name", type="string", length=255)
+     */
     protected $lastName;
 
     const TYPE_CLIENT = 1;
@@ -66,5 +81,10 @@ class User extends BaseUser
         $this->lastName = $lastName;
 
         return $this;
+    }
+
+    public function __toString()
+    {
+        return ''.$this->firstName . ' ' . $this->lastName;
     }
 }

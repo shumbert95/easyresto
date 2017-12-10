@@ -1,9 +1,12 @@
 app:
-    resource: '@AppBundle/Controller/'
+    resource: '@AppBundle/API/'
     type: annotation
 
 fos_user:
     resource: "@FOSUserBundle/Resources/config/routing/all.xml"
+
+api_login_check:
+    path: /api/login_check
 
 admin_area:
     resource: "@SonataAdminBundle/Resources/config/routing/sonata_admin.xml"
