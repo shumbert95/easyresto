@@ -7,9 +7,8 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Category
- *
+ * @ORM\Entity
  * @ORM\Table(name="meal")
- * @ORM\Entity(repositoryClass="AppBundle\Repository\MealRepository")
  */
 class Meal
 {
@@ -22,14 +21,13 @@ class Meal
 
 
     /**
-     * @ORM\OneToMany(targetEntity="CategoryMealMenu", mappedBy="meals")
+     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\CategoryMealMenu")
+     * @ORM\JoinTable(name="meal_categories",
+     *      joinColumns={@ORM\JoinColumn(name="category_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="meal_id", referencedColumnName="id")}
+     *      )
      */
-    protected $mealCategories;
-
-    public function __construct()
-    {
-        $this->mealCategories = new ArrayCollection();
-    }
+    protected $categories;
 
     /**
      * @var int
@@ -89,6 +87,11 @@ class Meal
      */
     protected $status;
 
+    public function __construct()
+    {
+        $this->categories = new ArrayCollection();
+    }
+
     /**
      * @return \AppBundle\Entity\Restaurant
      */
@@ -106,19 +109,37 @@ class Meal
     }
 
     /**
-     * @return \AppBundle\Entity\MealCategory
+     * @return \AppBundle\Entity\CategoryMealMenu
      */
-    public function getMealCategories()
+    public function getCategories()
     {
-        return $this->mealCategories;
+        return $this->categories;
     }
 
     /**
-     * @param \AppBundle\Entity\MealCategory $mealCategories
+     * @param \AppBundle\Entity\CategoryMealMenu $categories
      */
-    public function setMealCategories($mealCategories)
+    public function setCategories($categories)
     {
-        $this->mealCategories = $mealCategories;
+        $this->categories = $categories;
+    }
+
+    public function addCategory($category)
+    {
+        if (!$this->categories->contains($category)) {
+            $this->categories->add($category);
+        }
+
+        return $this;
+    }
+
+    public function removeCategory($category)
+    {
+        if ($this->categories->contains($category)) {
+            $this->categories->remove($category);
+        }
+
+        return $this;
     }
 
     /**
@@ -249,7 +270,9 @@ class Meal
         $this->status = $status;
     }
 
-
-
+    public function __toString()
+    {
+        return ''.$this->name;
+    }
 
 }

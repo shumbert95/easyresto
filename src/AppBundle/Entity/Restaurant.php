@@ -94,7 +94,7 @@ class Restaurant
 
     /**
      * @var array
-     * @ORM\Column(name="schedule", type="array", nullable=true)
+     * @ORM\Column(name="schedule", type="text", nullable=true)
      */
     protected $schedule;
 
@@ -366,5 +366,8 @@ class Restaurant
         $this->status = $status;
     }
 
-
+    public function __toString()
+    {
+        return ''.$this->name;
+    }
 }
