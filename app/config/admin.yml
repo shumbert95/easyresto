@@ -1,0 +1,62 @@
+sonata_admin:
+    title: Administration
+    dashboard:
+        groups:
+            users:
+              label: Utilisateurs
+              label_catalogue: admin
+              item:
+                  - app.admin.user
+                  - app.admin.client
+            restaurants:
+                label: Restaurants
+                label_catalogue: admin
+                item:
+                  - app.admin.restaurant
+                  - app.admin.category.meal.menu
+                  - app.admin.category.restaurant
+                  - app.admin.meal
+                  - app.admin.menu
+
+services:
+    app.admin.user:
+        class: AppBundle\Admin\UserAdmin
+        arguments: [~, AppBundle\Entity\User, ~]
+        tags:
+            - { name: sonata.admin, manager_type: orm, label: Utilisateurs }
+
+    app.admin.restaurant:
+        class: AppBundle\Admin\RestaurantAdmin
+        arguments: [~, AppBundle\Entity\Restaurant, ~]
+        tags:
+            - { name: sonata.admin, manager_type: orm, label: Restaurants }
+
+    app.admin.client:
+        class: AppBundle\Admin\ClientAdmin
+        arguments: [~, AppBundle\Entity\Client, ~]
+        tags:
+            - { name: sonata.admin, manager_type: orm, label: Clients }
+
+    app.admin.category.meal.menu:
+        class: AppBundle\Admin\CategoryMealMenuAdmin
+        arguments: [~, AppBundle\Entity\CategoryMealMenu, ~]
+        tags:
+            - { name: sonata.admin, manager_type: orm, label: Categories Plats/Menus }
+
+    app.admin.category.restaurant:
+        class: AppBundle\Admin\CategoryRestaurantAdmin
+        arguments: [~, AppBundle\Entity\CategoryRestaurant, ~]
+        tags:
+            - { name: sonata.admin, manager_type: orm, label: Categories Restaurant }
+
+    app.admin.meal:
+        class: AppBundle\Admin\MealAdmin
+        arguments: [~, AppBundle\Entity\Meal, ~]
+        tags:
+            - { name: sonata.admin, manager_type: orm, label: Plats }
+
+    app.admin.menu:
+        class: AppBundle\Admin\MenuAdmin
+        arguments: [~, AppBundle\Entity\Menu, ~]
+        tags:
+            - { name: sonata.admin, manager_type: orm, label: Menus }

@@ -185,4 +185,9 @@ class Client
 
         return $this;
     }
+
+    public function __toString()
+    {
+        return ''.$this->user->getLastName() . ' ' . $this->user->getFirstName();
+    }
 }
