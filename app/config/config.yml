@@ -101,7 +101,7 @@ fos_rest:
         rules:
             -
               path: '^/'
-              priorities: ['json']
+              priorities: ['json', 'html']
               fallback_format: json
               prefer_extension: false
             -
