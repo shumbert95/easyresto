@@ -28,6 +28,26 @@ class MailManager extends BaseManager
         $this->template = $template;
     }
 
+    public function sendConfirmationEmailMessage(UserInterface $user)
+    {
+        $this->sendMail('user-activation', $user, [
+            'link' => $this->router->generate('fos_user_registration_confirm', array('token' => $user->getConfirmationToken()), true)
+        ]);
+    }
+    public function sendResettingEmailMessage(UserInterface $user)
+    {
+        $this->sendMail('password-request', $user, [
+            'link' => $this->router->generate('fos_user_resetting_reset', array('token' => $user->getConfirmationToken()), true)
+        ]);
+    }
+
+    public function generateBody(Mail $mail, $parameters){
+        return $this->template->render('mails/mail-template.html.twig', [
+            'title' => $mail->getSubject(),
+            'content' => $this->buildBody($mail->getContent(), $parameters),
+        ]);
+    }
+
     /**
      * @param String $code
      * @param $recipients
