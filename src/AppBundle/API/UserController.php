@@ -32,11 +32,19 @@ class UserController extends ApiBaseController
     public function createUser(ParamFetcher $paramFetcher) {
 
 
+
+
+        $params = $paramFetcher->all();
+
+        $user = $this->getUserRepository()->findOneByEmail($params['email']);
+
+        if ($user instanceof User) {
+            return $this->helper->error('This email is already used');
+        }
+
         $fosUserManager = $this->get('fos_user.user_manager');
 
         $user = new User();
-
-        $params = $paramFetcher->all();
         $form = $this->createForm(RegistrationType::class, $user);
         $user->setPlainPassword($params['password']);
         unset($params['password']);
