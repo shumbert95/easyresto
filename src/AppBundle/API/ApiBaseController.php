@@ -29,4 +29,7 @@ class ApiBaseController extends FOSRestController
     public function getRestaurantRepository() {
         return $this->getDoctrine()->getRepository('AppBundle:Restaurant');
     }
+    public function getClientRepository() {
+        return $this->getDoctrine()->getRepository('AppBundle:Client');
+    }
 }
