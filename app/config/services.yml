@@ -36,7 +36,7 @@ services:
 
     app.mail.manager:
         class: AppBundle\Services\MailManager
-        arguments: ['@service_container', '@templating']
+        arguments: ['@service_container', '@templating', '@mailer', '@router.default', '@fos_user.util.token_generator', '%mailer_user%', '%mailer_user%', '%base_url%']
 
     app.user.manager:
         class: AppBundle\Services\UserManager

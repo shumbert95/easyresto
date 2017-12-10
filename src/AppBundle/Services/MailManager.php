@@ -3,6 +3,10 @@
 namespace AppBundle\Services;
 
 use AppBundle\Entity\Mail;
+use AppBundle\Entity\User;
+use FOS\UserBundle\Util\TokenGeneratorInterface;
+use Symfony\Bundle\FrameworkBundle\Routing\Router;
+use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use AppBundle\Services\BaseManager;
@@ -17,34 +21,50 @@ class MailManager extends BaseManager
      * @var TwigEngine $template
      */
     private $template;
+    /**
+     * @var \Swift_Mailer $mailer
+     */
+    private $mailer;
+    /**
+     * @var Router
+     */
+    private $router;
 
     /**
-     * @param ContainerInterface $container
-     * @param TwigEngine $template
+     * @var TokenGeneratorInterface
      */
-    public function __construct(ContainerInterface $container, TwigEngine $template)
+    private $tokenGenerator;
+
+    private $fromEmail;
+
+    private $fromName;
+
+    private $baseUrl;
+
+    /**
+     * @param EntityManager $em
+     * @param TwigEngine $template
+     * @param \Swift_Mailer $mailer
+     * @param Router $router
+     * @param TokenGeneratorInterface $tokenGenerator
+     */
+    public function __construct(Container $container, TwigEngine $template, \Swift_Mailer $mailer, Router $router, TokenGeneratorInterface $tokenGenerator, $fromEmail, $fromName, $baseUrl)
     {
         parent::__construct($container);
         $this->template = $template;
+        $this->router = $router;
+        $this->mailer  = $mailer;
+        $this->fromEmail = $fromEmail;
+        $this->fromName = $fromName;
+        $this->baseUrl = $baseUrl;
+        $this->tokenGenerator = $tokenGenerator;
     }
 
-    public function sendConfirmationEmailMessage(UserInterface $user)
+    public function sendConfirmationEmailMessage(User $user)
     {
-        $this->sendMail('user-activation', $user, [
-            'link' => $this->router->generate('fos_user_registration_confirm', array('token' => $user->getConfirmationToken()), true)
-        ]);
-    }
-    public function sendResettingEmailMessage(UserInterface $user)
-    {
-        $this->sendMail('password-request', $user, [
-            'link' => $this->router->generate('fos_user_resetting_reset', array('token' => $user->getConfirmationToken()), true)
-        ]);
-    }
-
-    public function generateBody(Mail $mail, $parameters){
-        return $this->template->render('mails/mail-template.html.twig', [
-            'title' => $mail->getSubject(),
-            'content' => $this->buildBody($mail->getContent(), $parameters),
+        $user->setConfirmationToken($this->tokenGenerator->generateToken());
+        $this->sendMail('mail.confirmation', 'Valider votre compte', $user, [
+            'link' => $this->baseUrl . $this->router->generate('fos_user_registration_check_email', array('token' => $user->getConfirmationToken()), true)
         ]);
     }
 
@@ -55,49 +75,27 @@ class MailManager extends BaseManager
      * @throws \Exception
      * @throws \Twig\Error\Error
      */
-    public function sendMail($code, $recipients, array $parameters = [])
+    public function sendMail($template, $subject, $recipients, array $parameters = [])
     {
-        $mail = $this->getEntityManager()->getRepository('AppBundle:Mail')->findOneBy(array('code' => $code));
         $container = $this->getContainer();
-        $mailer = $container->get('mailer');
-
-        if (!$mail instanceof Mail) {
-            return;
-        }
+        $mailer = $this->mailer;
 
         if (!is_array($recipients) || 1 === count($recipients)) {
-            $recipients = [$recipients[0]];
+            $recipients = array($recipients);
         }
 
         $message = \Swift_Message::newInstance();
         foreach ($recipients as $recipient) {
             $mailer->send(
-                $message->setSubject($mail->getSubject())
-                    ->setFrom([$mail->getFromEmail() => $mail->getFromName()])
+                $message->setSubject($subject)
                     ->setTo($recipient->getEmail())
+                    ->setFrom([$this->fromEmail => $this->fromName])
                     ->setBody(
-                        $this->template->render('mails/mail-template.html.twig', [
-                            'title' => $mail->getSubject(),
-                            'content' => $this->buildBody($mail->getContent(), $parameters),
-                        ]),
+                        $this->template->render('mails/'.$template.'.html.twig', $parameters),
                         'text/html',
                         'utf-8'
                     )
             );
         }
-    }
-
-    /**
-     * @param $template
-     * @param array $parameters
-     * @return string
-     */
-    private function buildBody($template, array $parameters)
-    {
-        return nl2br(str_replace(
-            array_map(function ($parameter) {return '%' . $parameter . '%';}, array_keys($parameters)),
-            array_values($parameters),
-            $template
-        ));
     }
 }
