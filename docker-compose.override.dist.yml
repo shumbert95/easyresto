@@ -1,0 +1,11 @@
+apache:
+  ports:
+    - "80:80"
+
+phpmyadmin:
+  ports:
+    - "8080:80"
+
+elasticsearch:
+  ports:
+    - "9200:9200"

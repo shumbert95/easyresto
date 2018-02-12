@@ -1,0 +1,25 @@
+apache:
+  build: ./docker/build/apache
+  links:
+    - mysql
+  volumes:
+    - ./docker/etc/apache/virtualhost.conf:/etc/apache2/sites-enabled/000-default.conf:ro
+    - ./docker/etc/php/php.ini:/usr/local/etc/php/php.ini
+    - ./docker/etc/php/php-cli.ini:/usr/local/etc/php/php-cli.ini
+    - ./log/apache:/var/log/apache2
+    - ./app:/var/www/app
+
+mysql:
+  image: mysql:5.7
+  volumes:
+    - ./docker/etc/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+    - ./docker/volume/mysql:/var/lib/mysql/
+    - ./data:/data
+  environment:
+    MYSQL_ROOT_PASSWORD: azerty
+    MYSQL_DATABASE: api_easyresto
+
+phpmyadmin:
+  image: nazarpc/phpmyadmin
+  links:
+    - mysql
