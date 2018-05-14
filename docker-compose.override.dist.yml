@@ -1,8 +1,8 @@
 apache:
   ports:
-    - "80:80"
+    - "8001:80"
 
 phpmyadmin:
   ports:
-    - "8080:80"
+    - "8002:80"
 
