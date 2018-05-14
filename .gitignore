@@ -1,0 +1,4 @@
+docker/volume/*
+app/vendor/*
+log/*
+docker-compose.override.yml
