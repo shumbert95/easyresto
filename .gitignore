@@ -2,3 +2,8 @@ docker/volume/*
 app/vendor/*
 log/*
 docker-compose.override.yml
+app/.idea/*
+.idea/*
+app/var/*
+app/app/config/parameters.yml
+/app/web/bundles/*
