@@ -1,7 +1,7 @@
 <?php
 namespace AppBundle\Form;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -42,6 +42,42 @@ class RegistrationType extends AbstractType
                 [
                     'required' => true,
                     'label' => 'Type',
+                ]
+
+            )
+            ->add(
+                'civility',
+                IntegerType::class,
+                [
+                    'required' => true,
+                    'label' => 'Civilité',
+                ]
+
+            )
+            ->add(
+                'birthDate',
+                DateType::class,
+                [
+                    'required' => false,
+                    'label' => 'Année de naissance',
+                ]
+
+            )
+            ->add(
+                'phoneNumber',
+                IntegerType::class,
+                [
+                    'required' => true,
+                    'label' => 'Numéro de téléphone',
+                ]
+
+            )
+            ->add(
+                'postalCode',
+                IntegerType::class,
+                [
+                    'required' => true,
+                    'label' => 'Code Postal',
                 ]
 
             )

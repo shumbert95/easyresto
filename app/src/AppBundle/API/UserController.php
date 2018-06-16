@@ -20,14 +20,16 @@ class UserController extends ApiBaseController
     /**
      * @param ParamFetcher $paramFetcher
      *
-     * @return View
      *
-     * @REST\Post("/users/create", name="api_create_user")
+     * @REST\Post("/user/create", name="api_create_user")
      * @REST\RequestParam(name="email")
      * @REST\RequestParam(name="firstName")
      * @REST\RequestParam(name="lastName")
      * @REST\RequestParam(name="password")
      * @REST\RequestParam(name="type")
+     * @REST\RequestParam(name="civility")
+     * @REST\RequestParam(name="phoneNumber")
+     * @REST\RequestParam(name="postalCode")
      */
     public function createUser(ParamFetcher $paramFetcher) {
 
@@ -57,9 +59,17 @@ class UserController extends ApiBaseController
         $user->setUsername($params['email']);
         $fosUserManager->updateUser($user);
 
-        $this->container->get('app.mail.manager')->sendConfirmationEmailMessage($user);
+        //$this->container->get('app.mail.manager')->sendConfirmationEmailMessage($user);
 
-        return $this->helper->success($user, 200);
+        return $this->json(array(
+            'newUser' => array(
+                'id' => $user->getId(),
+                'firstName' => $user->getFirstName(),
+                'lastName' => $user->getLastName(),
+                'birthDate' => $user->getLastName(),
+                'email' => $user->getEmail(),
+            )
+        ));
 
     }
 

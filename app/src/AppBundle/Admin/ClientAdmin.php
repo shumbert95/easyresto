@@ -16,7 +16,9 @@ class ClientAdmin extends AbstractAdmin
         $formMapper->add('addressComplement', 'text', ['label' => 'Complément d\'adresse', 'required' => false]);
         $formMapper->add('postalCode', 'text', ['label' => 'Code postal', 'required' => true]);
         $formMapper->add('city', 'text', ['label' => 'Ville', 'required' => true]);
+        $formMapper->add('phone', 'text', ['label' => 'Téléphone', 'required' => true]);
         $formMapper->add('user', null, ['label' => 'Utilisateur', 'required' => true]);
+        $formMapper->add('status', null, ['label' => 'Actif', 'required' => true]);
     }
 
     protected function configureDatagridFilters(DatagridMapper $datagridMapper)
@@ -25,6 +27,8 @@ class ClientAdmin extends AbstractAdmin
         $datagridMapper->add('city');
         $datagridMapper->add('user');
         $datagridMapper->add('postalCode');
+        $datagridMapper->add('phone');
+        $datagridMapper->add('status');
     }
 
     public function configureListFields(ListMapper $list)
@@ -32,6 +36,8 @@ class ClientAdmin extends AbstractAdmin
         $list->addIdentifier('id', null, ['label' => 'ID'])
             ->addIdentifier('user', null, ['label' => 'Utilisateur'])
             ->add('city', null, ['label' => 'Ville'])
-            ->add('postalCode', null, ['label' => 'Code postal']);
+            ->add('postalCode', null, ['label' => 'Code postal'])
+            ->add('phone', null, ['label' => 'Téléphone'])
+            ->add('status', null, ['label' => 'Actif']);
     }
 }

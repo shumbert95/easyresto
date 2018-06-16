@@ -169,6 +169,24 @@ class Client
     }
 
     /**
+     * @return bool
+     */
+    public function isStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param bool $status
+     */
+    public function setStatus($status)
+    {
+        $this->status = $status;
+    }
+
+    
+
+    /**
      * @return \AppBundle\Entity\User
      */
     public function getUser()
@@ -186,8 +204,8 @@ class Client
         return $this;
     }
 
-    public function __toString()
+    /*public function __toString()
     {
         return ''.$this->user->getLastName() . ' ' . $this->user->getFirstName();
-    }
+    }*/
 }
