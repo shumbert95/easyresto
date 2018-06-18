@@ -4,6 +4,7 @@ namespace AppBundle\Entity;
 use FOS\UserBundle\Model\User as BaseUser;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints\Date;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity
@@ -47,9 +48,23 @@ class User extends BaseUser
     protected $lastName;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="address", type="string", length=255, nullable=true)
+     */
+    protected $address;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="address_complement", type="string", length=255, nullable=true)
+     */
+    protected $addressComplement;
+
+    /**
      * @var Date
      *
-     * @ORM\Column(name="birthDate", type="date", length=255)
+     * @ORM\Column(name="birthDate", type="date", length=255, nullable=true)
      */
     protected $birthDate;
 
@@ -76,13 +91,14 @@ class User extends BaseUser
     );
 
     const TYPE_CLIENT = 1;
-    const TYPE_EMPLOYEE = 2;
-    const TYPE_RESTORER = 3;
+    const TYPE_RESTORER = 2;
+    const TYPE_EMPLOYEE = 3;
+
 
     public static $types = array(
         self::TYPE_CLIENT => 'Client',
-        self::TYPE_EMPLOYEE => 'Employé',
-        self::TYPE_RESTORER => 'Restaurateur'
+        self::TYPE_RESTORER => 'Restaurateur',
+        self::TYPE_EMPLOYEE => 'Employé'
     );
 
     public function __construct()
@@ -188,6 +204,40 @@ class User extends BaseUser
     {
         $this->postalCode = $postalCode;
     }
+
+    /**
+     * @return string
+     */
+    public function getAddress()
+    {
+        return $this->address;
+    }
+
+    /**
+     * @param string $address
+     */
+    public function setAddress($address)
+    {
+        $this->address = $address;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAddressComplement()
+    {
+        return $this->addressComplement;
+    }
+
+    /**
+     * @param string $addressComplement
+     */
+    public function setAddressComplement($addressComplement)
+    {
+        $this->addressComplement = $addressComplement;
+    }
+
+
 
 
 }
