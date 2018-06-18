@@ -5,7 +5,7 @@ namespace AppBundle\API;
 use AppBundle\API\ApiBaseController;
 use AppBundle\Entity\Restaurant;
 use AppBundle\Entity\User;
-use AppBundle\Form\RegistrationType;
+use AppBundle\Form\RegistrationClientType;
 use AppBundle\Form\RestaurantType;
 use FOS\RestBundle\Controller\Annotations as REST;
 use FOS\RestBundle\Request\ParamFetcher;
@@ -105,5 +105,16 @@ class RestaurantController extends ApiBaseController
     {
         $restaurants = $this->getRestaurantRepository()->findAll();
         return $this->helper->success($restaurants, 200);
+    }
+
+    /**
+     *
+     * @REST\Get("/restaurant/{id}", name="api_detail_restaurant")
+     *
+     */
+    public function getRestaurant(Request $request)
+    {
+        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
+        return $this->helper->success($restaurant, 200);
     }
 }

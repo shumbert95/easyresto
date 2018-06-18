@@ -1,41 +1,74 @@
 <?php
 namespace AppBundle\Form;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 
-class ClientType extends AbstractType
+class RegistrationClientType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
             ->add(
-                'address',
+                'firstName',
                 TextType::class,
                 [
                     'required' => true,
-                    'label' => 'Adresse'
+                    'label' => 'Prénom'
                 ]
             )
             ->add(
-                'addressComplement',
+                'lastName',
                 TextType::class,
+                [
+                    'required' => true,
+                    'label' => 'Nom'
+                ]
+            )
+            ->add(
+                'email',
+                TextType::class,
+                [
+                    'required' => true,
+                    'label' => 'Email'
+                ]
+            )
+            ->add(
+                'type',
+                IntegerType::class,
                 [
                     'required' => false,
-                    'label' => 'Complément adresse'
+                    'label' => 'Type',
                 ]
+
             )
             ->add(
-                'city',
-                TextType::class,
+                'civility',
+                IntegerType::class,
                 [
                     'required' => true,
-                    'label' => 'Ville',
+                    'label' => 'Civilité',
+                ]
+
+            )
+            ->add(
+                'birthDate',
+                DateType::class,
+                [
+                    'required' => false,
+                    'label' => 'Année de naissance',
+                ]
+
+            )
+            ->add(
+                'phoneNumber',
+                IntegerType::class,
+                [
+                    'required' => true,
+                    'label' => 'Numéro de téléphone',
                 ]
 
             )
@@ -44,16 +77,7 @@ class ClientType extends AbstractType
                 IntegerType::class,
                 [
                     'required' => true,
-                    'label' => 'Code postal',
-                ]
-
-            )
-            ->add(
-                'phone',
-                TextType::class,
-                [
-                    'required' => true,
-                    'label' => 'Téléphone',
+                    'label' => 'Code Postal',
                 ]
 
             )
