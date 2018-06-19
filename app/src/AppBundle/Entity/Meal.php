@@ -15,13 +15,13 @@ class Meal
 
     /**
      * @ORM\ManyToOne(targetEntity="Restaurant")
-     * @ORM\JoinColumn(name="restaurant_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="restaurant_id")
      */
     protected $restaurant;
 
 
     /**
-     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\CategoryMealMenu")
+     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\CategoryMeal")
      * @ORM\JoinTable(name="meal_categories",
      *      joinColumns={@ORM\JoinColumn(name="category_id", referencedColumnName="id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="meal_id", referencedColumnName="id")}
@@ -93,7 +93,7 @@ class Meal
     }
 
     /**
-     * @return \AppBundle\Entity\Restaurant
+     * @return mixed
      */
     public function getRestaurant()
     {
@@ -101,7 +101,7 @@ class Meal
     }
 
     /**
-     * @param \AppBundle\Entity\Restaurant $restaurant
+     * @param mixed $restaurant
      */
     public function setRestaurant($restaurant)
     {
@@ -109,7 +109,7 @@ class Meal
     }
 
     /**
-     * @return \AppBundle\Entity\CategoryMealMenu
+     * @return mixed
      */
     public function getCategories()
     {
@@ -117,12 +117,14 @@ class Meal
     }
 
     /**
-     * @param \AppBundle\Entity\CategoryMealMenu $categories
+     * @param mixed $categories
      */
     public function setCategories($categories)
     {
         $this->categories = $categories;
     }
+
+
 
     public function addCategory($category)
     {

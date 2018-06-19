@@ -5,9 +5,9 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="category_meal_menu")
+ * @ORM\Table(name="category_meal")
  */
-class CategoryMealMenu
+class CategoryMeal
 {
     /**
      * @ORM\Id
@@ -15,13 +15,6 @@ class CategoryMealMenu
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     protected $id;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="code", type="string", length=255, unique=true)
-     */
-    protected $code;
 
     /**
      * @var string
@@ -37,6 +30,12 @@ class CategoryMealMenu
      */
     protected $status;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Restaurant")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $restaurant;
+
     public function __construct()
     {
     }
@@ -47,24 +46,6 @@ class CategoryMealMenu
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * @return String
-     */
-    public function getCode()
-    {
-        return $this->code;
-    }
-
-    /**
-     * @param String $code
-     */
-    public function setCode($code)
-    {
-        $this->code = $code;
-
-        return $this;
     }
 
     /**
@@ -102,6 +83,24 @@ class CategoryMealMenu
 
         return $this;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getRestaurant()
+    {
+        return $this->restaurant;
+    }
+
+    /**
+     * @param mixed $restaurant
+     */
+    public function setRestaurant($restaurant)
+    {
+        $this->restaurant = $restaurant;
+    }
+
+
 
     public function __toString()
     {

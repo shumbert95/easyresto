@@ -56,6 +56,7 @@ class UserController extends ApiBaseController
         }
 
         $user->setUsername($params['email']);
+        $user->setEnabled(1);
         $fosUserManager->updateUser($user);
 
         //$this->container->get('app.mail.manager')->sendConfirmationEmailMessage($user);
@@ -180,6 +181,7 @@ class UserController extends ApiBaseController
 
         $user->setUsername($params['email']);
         $user->setType($user::TYPE_CLIENT);
+        $user->setEnabled(1);
 
         $fosUserManager->updateUser($user);
 
@@ -251,6 +253,7 @@ class UserController extends ApiBaseController
         $user->setUsername($params['email']);
         $user->setType($user::TYPE_RESTORER);
         $user->addRole('ROLE_ADMIN');
+        $user->setEnabled(1);
         $fosUserManager->updateUser($user);
 
         //$this->container->get('app.mail.manager')->sendConfirmationEmailMessage($user);

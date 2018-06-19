@@ -19,13 +19,6 @@ class CategoryRestaurant
     /**
      * @var string
      *
-     * @ORM\Column(name="code", type="string", length=255, unique=true)
-     */
-    protected $code;
-
-    /**
-     * @var string
-     *
      * @ORM\Column(name="name", type="string", length=255)
      */
     protected $name;
@@ -47,24 +40,6 @@ class CategoryRestaurant
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * @return String
-     */
-    public function getCode()
-    {
-        return $this->code;
-    }
-
-    /**
-     * @param String $code
-     */
-    public function setCode($code)
-    {
-        $this->code = $code;
-
-        return $this;
     }
 
     /**
