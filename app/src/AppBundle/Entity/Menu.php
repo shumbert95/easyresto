@@ -46,13 +46,6 @@ class Menu
      */
     protected $availability;
 
-
-    /**
-     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\CategoryMealMenu")
-     * @ORM\JoinColumn(name="category_id", referencedColumnName="id")
-     */
-    protected $category;
-
     /**
      * @ORM\ManyToMany(targetEntity="AppBundle\Entity\Meal")
      * @ORM\JoinTable(name="meal_menu",
@@ -155,23 +148,6 @@ class Menu
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getCategory()
-    {
-        return $this->category;
-    }
-
-    /**
-     * @param mixed $category
-     */
-    public function setCategory($category)
-    {
-        $this->category = $category;
-
-        return $this;
-    }
     public function getMeals()
     {
         return $this->meals;

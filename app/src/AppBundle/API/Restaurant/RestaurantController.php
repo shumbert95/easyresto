@@ -1,10 +1,12 @@
 <?php
 
-namespace AppBundle\API;
+namespace AppBundle\API\Restaurant;
 
 use AppBundle\API\ApiBaseController;
+use AppBundle\Entity\CategoryMeal;
 use AppBundle\Entity\Restaurant;
 use AppBundle\Entity\User;
+use AppBundle\Form\CategoryMealType;
 use AppBundle\Form\RegistrationClientType;
 use AppBundle\Form\RestaurantType;
 use FOS\RestBundle\Controller\Annotations as REST;
@@ -41,7 +43,7 @@ class RestaurantController extends ApiBaseController
 
         if (!$form->isValid()) {
             return $this->helper->error($form->getErrors());
-        }
+    }
 
         $restaurant->setStatus(1);
         $restaurant->setOpen(1);
@@ -62,7 +64,7 @@ class RestaurantController extends ApiBaseController
      *
      * @return View
      *
-     * @REST\Post("/restaurant/schedule", name="api_update_schedule")
+     * @REST\Post("/restaurant/{id}/schedule", name="api_update_schedule")
      */
     public function updateSchedule(Request $request)
     {
@@ -95,6 +97,8 @@ class RestaurantController extends ApiBaseController
         return $this->helper->success($restaurant, 200);
     }
 
+
+
     /**
      * @return View
      *
@@ -113,6 +117,17 @@ class RestaurantController extends ApiBaseController
      *
      */
     public function getRestaurant(Request $request)
+    {
+        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
+        return $this->helper->success($restaurant, 200);
+    }
+
+    /**
+     *
+     * @REST\Get("/restaurant/{id}/menu", name="api_detail_restaurant")
+     *
+     */
+    public function getRestaurantMenu(Request $request)
     {
         $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
         return $this->helper->success($restaurant, 200);

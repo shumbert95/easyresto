@@ -1,7 +1,8 @@
 <?php
 
-namespace AppBundle\API;
+namespace AppBundle\API\Client ;
 
+use AppBundle\API\ApiBaseController;
 use FOS\RestBundle\Request\ParamFetcher;
 
 class SearchController extends ApiBaseController
