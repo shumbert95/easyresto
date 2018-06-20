@@ -17,78 +17,19 @@ use Symfony\Component\HttpFoundation\Request;
 class RestaurantMenuController extends ApiBaseController
 {
 
-    /**
-     * @param Request $request
-     *
-     *
-     * @REST\Post("/restaurant/{id}/menu/create", name="api_create_menu")
-     * @REST\RequestParam(name="name")
-     * @REST\RequestParam(name="description")
-     * @REST\RequestParam(name="price")
-     * @REST\RequestParam(name="availability")
-     * @REST\RequestParam(name="meals")
-     */
-    public function createMenu(Request $request, ParamFetcher $paramFetcher)
-    {
-        $params = $paramFetcher->all();
 
+
+    /**
+     *
+     * @REST\Get("/restaurant/{id}/restaurantMenu", name="api_list_restaurant_menu")
+     *
+     */
+    public function getRestaurantMenu(Request $request)
+    {
         $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
+        $meals = $this->getMealRepository()->findBy(array('restaurant' => $restaurant));
 
-
-        $menu = $this->getMenuRepository()->findOneBy(array('name' => $params['name'], 'status' => true));
-
-        if ($menu instanceof Menu) {
-            return $this->helper->error('This name is already used');
-        }
-
-        $menu = new Menu();
-        $form = $this->createForm(MenuType::class, $menu);
-        $form->submit($params);
-
-        if (!$form->isValid()) {
-            return $this->helper->error($form->getErrors());
-        }
-
-        $menu->setStatus(1);
-        $menu->setRestaurant($restaurant);
-        foreach ($params['meals'] as $meal)
-        {
-            $menu->addMeal($this->getMealRepository()->findOneBy(array('id' => $meal)));
-
-        }
-
-        $em = $this->getEntityManager();
-        $em->persist($menu);
-        $em->flush();
-
-        return $this->helper->success($menu, 200);
-    }
-
-    /**
-     * @return View
-     *
-     * @REST\Get("/restaurant/{id}/menus", name="api_list_menus")
-     *
-     */
-    public function getMenus()
-    {
-        $meals = $this->getMenuRepository()->findBy(array('status' => true));
         return $this->helper->success($meals, 200);
-    }
-
-    /**
-     *
-     * @REST\Get("/restaurant/{id}/cardMenu", name="api_list_card_menu")
-     *
-     */
-    public function getCardMenu()
-    {
-        $meals = $this->getMealRepository()->findBy(array('status' => true));
-        $menus = $this->getMenuRepository()->findBy(array('status' => true));
-        return $this->json(array(
-            'meals' => array($meals),
-            'menus' => array($menus),
-        ));
     }
 
 }

@@ -21,8 +21,6 @@ class CategoryRestaurantController extends ApiBaseController
     /**
      * @param ParamFetcher $paramFetcher
      *
-     * @return View
-     *
      * @REST\Post("/restaurants/category/create", name="api_create_category_restaurant")
      * @REST\RequestParam(name="name")
      */
@@ -31,21 +29,25 @@ class CategoryRestaurantController extends ApiBaseController
         $params = $paramFetcher->all();
 
 
-        $category = $this->getCategoryRestaurantRepository()->findOneBy(array('name' => $params['name'], 'status' => true));
+        $category = $this->getCategoryRestaurantRepository()->findOneBy(array('name' => $params['name']));
 
-        if ($category instanceof CategoryRestaurant) {
+        if ($category instanceof CategoryRestaurant && $category->getStatus()) {
             return $this->helper->error('This name is already used');
         }
+        else if (($category instanceof CategoryRestaurant && !$category->getStatus())) {
+            $category->setStatus(1);
+        }
+        else if(!($category instanceof CategoryRestaurant)) {
+            $category = new CategoryRestaurant();
+            $category->setStatus(1);
+        }
 
-        $category = new CategoryRestaurant();
         $form = $this->createForm(CategoryRestaurantType::class, $category);
         $form->submit($params);
 
         if (!$form->isValid()) {
             return $this->helper->error($form->getErrors());
         }
-
-        $category->setStatus(1);
 
         $em = $this->getEntityManager();
         $em->persist($category);
@@ -55,7 +57,6 @@ class CategoryRestaurantController extends ApiBaseController
     }
 
     /**
-     * @return View
      *
      * @REST\Get("/restaurants/categories", name="api_list_restaurants_categories")
      *

@@ -21,13 +21,10 @@ class Meal
 
 
     /**
-     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\CategoryMeal")
-     * @ORM\JoinTable(name="meal_categories",
-     *      joinColumns={@ORM\JoinColumn(name="category_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="meal_id", referencedColumnName="id")}
-     *      )
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\CategoryMeal")
+     * @ORM\JoinColumn(name="category_meal_id")
      */
-    protected $categories;
+    protected $category;
 
     /**
      * @var int
@@ -89,7 +86,6 @@ class Meal
 
     public function __construct()
     {
-        $this->categories = new ArrayCollection();
     }
 
     /**
@@ -106,42 +102,6 @@ class Meal
     public function setRestaurant($restaurant)
     {
         $this->restaurant = $restaurant;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getCategories()
-    {
-        return $this->categories;
-    }
-
-    /**
-     * @param mixed $categories
-     */
-    public function setCategories($categories)
-    {
-        $this->categories = $categories;
-    }
-
-
-
-    public function addCategory($category)
-    {
-        if (!$this->categories->contains($category)) {
-            $this->categories->add($category);
-        }
-
-        return $this;
-    }
-
-    public function removeCategory($category)
-    {
-        if ($this->categories->contains($category)) {
-            $this->categories->remove($category);
-        }
-
-        return $this;
     }
 
     /**
@@ -255,6 +215,24 @@ class Meal
     {
         $this->currentStock = $currentStock;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getCategory()
+    {
+        return $this->category;
+    }
+
+    /**
+     * @param mixed $category
+     */
+    public function setCategory($category)
+    {
+        $this->category = $category;
+    }
+
+
 
     /**
      * @return bool
