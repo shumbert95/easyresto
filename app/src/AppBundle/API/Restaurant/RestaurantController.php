@@ -21,8 +21,6 @@ class RestaurantController extends ApiBaseController
     /**
      * @param ParamFetcher $paramFetcher
      *
-     * @return View
-     *
      * @REST\Post("/restaurant/create", name="api_create_restaurant")
      * @REST\RequestParam(name="name")
      * @REST\RequestParam(name="address")
@@ -62,8 +60,6 @@ class RestaurantController extends ApiBaseController
     /**
      * @param Request $request
      *
-     * @return View
-     *
      * @REST\Post("/restaurant/{id}/schedule", name="api_update_schedule")
      */
     public function updateSchedule(Request $request)
@@ -100,7 +96,6 @@ class RestaurantController extends ApiBaseController
 
 
     /**
-     * @return View
      *
      * @REST\Get("/restaurants", name="api_list_restaurants")
      *
@@ -117,17 +112,6 @@ class RestaurantController extends ApiBaseController
      *
      */
     public function getRestaurant(Request $request)
-    {
-        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
-        return $this->helper->success($restaurant, 200);
-    }
-
-    /**
-     *
-     * @REST\Get("/restaurant/{id}/menu", name="api_detail_restaurant")
-     *
-     */
-    public function getRestaurantMenu(Request $request)
     {
         $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
         return $this->helper->success($restaurant, 200);

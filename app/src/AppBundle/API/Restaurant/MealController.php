@@ -21,14 +21,13 @@ class MealController extends ApiBaseController
      * @param Request $request
      *
      *
-     * @REST\Post("/restaurant/{id}/meal/create", name="api_create_meal")
+     * @REST\Post("/restaurant/{id}/category/{idCat}/meal/create", name="api_create_meal")
      * @REST\RequestParam(name="name")
      * @REST\RequestParam(name="description")
      * @REST\RequestParam(name="price")
      * @REST\RequestParam(name="availability")
      * @REST\RequestParam(name="initialStock")
      * @REST\RequestParam(name="currentStock")
-     * @REST\RequestParam(name="categories")
      *
      */
     public function createMeal(Request $request, ParamFetcher $paramFetcher)
@@ -36,29 +35,29 @@ class MealController extends ApiBaseController
         $params = $paramFetcher->all();
 
         $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
+        $category = $this->getCategoryMealRepository()->find($request->get('idCat'));
 
 
         $meal = $this->getMealRepository()->findOneBy(array('name' => $params['name'], 'status' => true));
 
-        if ($meal instanceof Meal) {
+        if ($meal instanceof Meal && $meal->getStatus()) {
             return $this->helper->error('This name is already used');
         }
+        else if (($meal instanceof Meal && !$meal->getStatus())) {
+            $meal->setStatus(1);
+        }
+        else if(!($meal instanceof Meal)) {
+            $meal = new Meal();
+            $meal->setStatus(1);
+            $meal->setRestaurant($restaurant);
+            $meal->setCategory($category);
+        }
 
-        $meal = new Meal();
         $form = $this->createForm(MealType::class, $meal);
         $form->submit($params);
 
         if (!$form->isValid()) {
             return $this->helper->error($form->getErrors());
-        }
-
-        $meal->setStatus(1);
-        $meal->setRestaurant($restaurant);
-
-        foreach ($params['categories'] as $category)
-        {
-            $meal->addCategory($this->getCategoryMealRepository()->findOneBy(array('id' => $category)));
-
         }
         $em = $this->getEntityManager();
         $em->persist($meal);
@@ -68,7 +67,6 @@ class MealController extends ApiBaseController
     }
 
     /**
-     * @return View
      *
      * @REST\Get("/restaurant/{id}/meals", name="api_list_meals")
      *

@@ -5,9 +5,9 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="category_meal")
+ * @ORM\Table(name="tab_meal")
  */
-class CategoryMeal
+class TabMeal
 {
     /**
      * @ORM\Id
@@ -36,12 +36,6 @@ class CategoryMeal
      * @ORM\Column(name="status", type="boolean")
      */
     protected $status;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\TabMeal")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $tabMeal;
 
     /**
      * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Restaurant")
@@ -130,23 +124,6 @@ class CategoryMeal
     {
         $this->restaurant = $restaurant;
     }
-
-    /**
-     * @return mixed
-     */
-    public function getTabMeal()
-    {
-        return $this->tabMeal;
-    }
-
-    /**
-     * @param mixed $tabMeal
-     */
-    public function setTabMeal($tabMeal)
-    {
-        $this->tabMeal = $tabMeal;
-    }
-
 
 
 

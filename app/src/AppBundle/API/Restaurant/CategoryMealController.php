@@ -20,32 +20,40 @@ class CategoryMealController extends ApiBaseController
      * @param Request $request
      *
      *
-     * @REST\Post("/restaurant/{id}/meal/category/create", name="api_create_meal_category")
+     * @REST\Post("/restaurant/{id}/tab/{idTab}/category/create", name="api_create_meal_category")
      * @REST\RequestParam(name="name")
+     * @REST\RequestParam(name="position")
      */
     public function createMealCategory(Request $request, ParamFetcher $paramFetcher)
     {
         $params = $paramFetcher->all();
 
         $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
+        $tab = $this->getTabMealRepository()->find($request->get('idTab'));
 
 
-        $category = $this->getCategoryMealRepository()->findOneBy(array('name' => $params['name'], 'status' => true));
+        $category = $this->getCategoryMealRepository()->findOneBy(array('name' => $params['name']));
 
-        if ($category instanceof CategoryMeal) {
+        if ($category instanceof CategoryMeal && $category->getStatus()) {
             return $this->helper->error('This name is already used');
         }
+        else if (($category instanceof CategoryMeal && !$category->getStatus())) {
+            $category->setStatus(1);
+            $category->setTabMeal($tab);
+        }
+        else if(!($category instanceof CategoryMeal)) {
+            $category = new CategoryMeal();
+            $category->setStatus(1);
+            $category->setRestaurant($restaurant);
+            $category->setTabMeal($tab);
+        }
 
-        $category = new CategoryMeal();
         $form = $this->createForm(CategoryMealType::class, $category);
         $form->submit($params);
 
         if (!$form->isValid()) {
             return $this->helper->error($form->getErrors());
         }
-
-        $category->setStatus(1);
-        $category->setRestaurant($restaurant);
 
         $em = $this->getEntityManager();
         $em->persist($category);
@@ -55,14 +63,16 @@ class CategoryMealController extends ApiBaseController
     }
 
     /**
-     * @return View
      *
-     * @REST\Get("/restaurant/{id}/meal/categories", name="api_list_meal_categories")
+     * @REST\Get("/restaurant/{id}/tab/{idTab}/categories", name="api_list_meal_categories")
      *
      */
-    public function getCategoriesMeal()
+    public function getCategoriesMeal(Request $request)
     {
-        $categories = $this->getCategoryMealRepository()->findBy(array('status' => true));
+        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
+        $tab = $this->getTabMealRepository()->find($request->get('idTab'));
+
+        $categories = $this->getCategoryMealRepository()->findBy(array('status' => true, 'restaurant' => $restaurant, 'tabMeal' => $tab));
         return $this->helper->success($categories, 200);
     }
 

@@ -52,14 +52,6 @@ class MealType extends AbstractType
                 [
                     'label' => 'Stock actuel'
                 ]
-            )
-            ->add(
-                'categories',
-                TextType::class,
-                [
-                    'mapped' => false,
-                    'label' => 'Catégories'
-                ]
             );
     }
 }
