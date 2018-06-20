@@ -15,19 +15,16 @@ class Meal
 
     /**
      * @ORM\ManyToOne(targetEntity="Restaurant")
-     * @ORM\JoinColumn(name="restaurant_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="restaurant_id")
      */
     protected $restaurant;
 
 
     /**
-     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\CategoryMealMenu")
-     * @ORM\JoinTable(name="meal_categories",
-     *      joinColumns={@ORM\JoinColumn(name="category_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="meal_id", referencedColumnName="id")}
-     *      )
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\CategoryMeal")
+     * @ORM\JoinColumn(name="category_meal_id")
      */
-    protected $categories;
+    protected $category;
 
     /**
      * @var int
@@ -89,11 +86,10 @@ class Meal
 
     public function __construct()
     {
-        $this->categories = new ArrayCollection();
     }
 
     /**
-     * @return \AppBundle\Entity\Restaurant
+     * @return mixed
      */
     public function getRestaurant()
     {
@@ -101,45 +97,11 @@ class Meal
     }
 
     /**
-     * @param \AppBundle\Entity\Restaurant $restaurant
+     * @param mixed $restaurant
      */
     public function setRestaurant($restaurant)
     {
         $this->restaurant = $restaurant;
-    }
-
-    /**
-     * @return \AppBundle\Entity\CategoryMealMenu
-     */
-    public function getCategories()
-    {
-        return $this->categories;
-    }
-
-    /**
-     * @param \AppBundle\Entity\CategoryMealMenu $categories
-     */
-    public function setCategories($categories)
-    {
-        $this->categories = $categories;
-    }
-
-    public function addCategory($category)
-    {
-        if (!$this->categories->contains($category)) {
-            $this->categories->add($category);
-        }
-
-        return $this;
-    }
-
-    public function removeCategory($category)
-    {
-        if ($this->categories->contains($category)) {
-            $this->categories->remove($category);
-        }
-
-        return $this;
     }
 
     /**
@@ -253,6 +215,24 @@ class Meal
     {
         $this->currentStock = $currentStock;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getCategory()
+    {
+        return $this->category;
+    }
+
+    /**
+     * @param mixed $category
+     */
+    public function setCategory($category)
+    {
+        $this->category = $category;
+    }
+
+
 
     /**
      * @return bool

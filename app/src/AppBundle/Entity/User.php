@@ -3,6 +3,8 @@ namespace AppBundle\Entity;
 
 use FOS\UserBundle\Model\User as BaseUser;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints\Date;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity
@@ -25,6 +27,13 @@ class User extends BaseUser
     protected $type;
 
     /**
+     * @var integer
+     *
+     * @ORM\Column(name="civility", type="integer", length=1)
+     */
+    protected $civility;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="first_name", type="string", length=255)
@@ -38,14 +47,58 @@ class User extends BaseUser
      */
     protected $lastName;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="address", type="string", length=255, nullable=true)
+     */
+    protected $address;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="address_complement", type="string", length=255, nullable=true)
+     */
+    protected $addressComplement;
+
+    /**
+     * @var Date
+     *
+     * @ORM\Column(name="birthDate", type="date", length=255, nullable=true)
+     */
+    protected $birthDate;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="phoneNumber", type="integer", length=10)
+     */
+    protected $phoneNumber;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="postalCode", type="integer", length=5)
+     */
+    protected $postalCode;
+
+    const CIVILITY_MALE = 1;
+    const CIVILITY_FEMALE = 2;
+
+    public static $civilities = array(
+        self::CIVILITY_MALE => 'Homme',
+        self::CIVILITY_FEMALE => 'Femme',
+    );
+
     const TYPE_CLIENT = 1;
-    const TYPE_EMPLOYEE = 2;
-    const TYPE_RESTORER = 3;
+    const TYPE_RESTORER = 2;
+    const TYPE_EMPLOYEE = 3;
+
 
     public static $types = array(
         self::TYPE_CLIENT => 'Client',
-        self::TYPE_EMPLOYEE => 'Employé',
-        self::TYPE_RESTORER => 'Restaurateur'
+        self::TYPE_RESTORER => 'Restaurateur',
+        self::TYPE_EMPLOYEE => 'Employé'
     );
 
     public function __construct()
@@ -87,4 +140,108 @@ class User extends BaseUser
     {
         return ''.$this->firstName . ' ' . $this->lastName;
     }
+
+    /**
+     * @return int
+     */
+    public function getCivility()
+    {
+        return $this->civility;
+    }
+
+    /**
+     * @param int $civility
+     */
+    public function setCivility($civility)
+    {
+        $this->civility = $civility;
+    }
+
+    /**
+     * @return Date
+     */
+    public function getBirthdate()
+    {
+        return $this->birthDate;
+    }
+
+    /**
+     * @param Date $birthDate
+     */
+    public function setBirthdate($birthDate)
+    {
+        $this->birthDate = $birthDate;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPhoneNumber()
+    {
+        return $this->phoneNumber;
+    }
+
+    /**
+     * @param int $phoneNumber
+     */
+    public function setPhoneNumber($phoneNumber)
+    {
+        $this->phoneNumber = $phoneNumber;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPostalCode()
+    {
+        return $this->postalCode;
+    }
+
+    /**
+     * @param int $postalCode
+     */
+    public function setPostalCode($postalCode)
+    {
+        $this->postalCode = $postalCode;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAddress()
+    {
+        return $this->address;
+    }
+
+    /**
+     * @param string $address
+     */
+    public function setAddress($address)
+    {
+        $this->address = $address;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAddressComplement()
+    {
+        return $this->addressComplement;
+    }
+
+    /**
+     * @param string $addressComplement
+     */
+    public function setAddressComplement($addressComplement)
+    {
+        $this->addressComplement = $addressComplement;
+    }
+
+
+
+
+
+
+
+
 }

@@ -1,55 +1,56 @@
 <?php
 namespace AppBundle\Form;
+use Sonata\CoreBundle\Form\Type\BooleanType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 
-class RegistrationType extends AbstractType
+class MealType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
             ->add(
-                'firstName',
+                'name',
                 TextType::class,
                 [
-                    'required' => true,
-                    'label' => 'Prénom'
-                ]
-            )
-            ->add(
-                'lastName',
-                TextType::class,
-                [
-                    'required' => true,
                     'label' => 'Nom'
                 ]
             )
             ->add(
-                'email',
+                'description',
                 TextType::class,
                 [
-                    'required' => true,
-                    'label' => 'Email'
+                    'label' => 'Description'
                 ]
             )
             ->add(
-                'type',
+                'price',
                 IntegerType::class,
                 [
-                    'required' => true,
-                    'label' => 'Type',
+                    'label' => 'Prix'
                 ]
-
             )
             ->add(
-                'submit',
-                SubmitType::class,
+                'availability',
+                BooleanType::class,
                 [
-                    'label' => 'Valider'
+                    'label' => 'Disponibilité'
+                ]
+            )
+            ->add(
+                'initialStock',
+                IntegerType::class,
+                [
+                    'label' => 'Stock initial'
+                ]
+            )
+            ->add(
+                'currentStock',
+                IntegerType::class,
+                [
+                    'label' => 'Stock actuel'
                 ]
             );
     }

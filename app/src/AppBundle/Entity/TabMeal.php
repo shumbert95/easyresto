@@ -5,9 +5,9 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="category_meal_menu")
+ * @ORM\Table(name="tab_meal")
  */
-class CategoryMealMenu
+class TabMeal
 {
     /**
      * @ORM\Id
@@ -19,16 +19,16 @@ class CategoryMealMenu
     /**
      * @var string
      *
-     * @ORM\Column(name="code", type="string", length=255, unique=true)
-     */
-    protected $code;
-
-    /**
-     * @var string
-     *
      * @ORM\Column(name="name", type="string", length=255)
      */
     protected $name;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="position", type="integer", length=10)
+     */
+    protected $position;
 
     /**
      * @var boolean
@@ -37,9 +37,14 @@ class CategoryMealMenu
      */
     protected $status;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Restaurant")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $restaurant;
+
     public function __construct()
     {
-        parent::__construct();
     }
 
     /**
@@ -48,24 +53,6 @@ class CategoryMealMenu
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * @return String
-     */
-    public function getCode()
-    {
-        return $this->code;
-    }
-
-    /**
-     * @param String $code
-     */
-    public function setCode($code)
-    {
-        $this->code = $code;
-
-        return $this;
     }
 
     /**
@@ -87,6 +74,24 @@ class CategoryMealMenu
     }
 
     /**
+     * @return int
+     */
+    public function getPosition()
+    {
+        return $this->position;
+    }
+
+    /**
+     * @param int $position
+     */
+    public function setPosition($position)
+    {
+        $this->position = $position;
+    }
+
+
+
+    /**
      * @return Boolean
      */
     public function getStatus()
@@ -103,6 +108,24 @@ class CategoryMealMenu
 
         return $this;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getRestaurant()
+    {
+        return $this->restaurant;
+    }
+
+    /**
+     * @param mixed $restaurant
+     */
+    public function setRestaurant($restaurant)
+    {
+        $this->restaurant = $restaurant;
+    }
+
+
 
     public function __toString()
     {

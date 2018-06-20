@@ -1,11 +1,13 @@
 <?php
 
-namespace AppBundle\API;
+namespace AppBundle\API\Restaurant;
 
 use AppBundle\API\ApiBaseController;
+use AppBundle\Entity\CategoryMeal;
 use AppBundle\Entity\Restaurant;
 use AppBundle\Entity\User;
-use AppBundle\Form\RegistrationType;
+use AppBundle\Form\CategoryMealType;
+use AppBundle\Form\RegistrationClientType;
 use AppBundle\Form\RestaurantType;
 use FOS\RestBundle\Controller\Annotations as REST;
 use FOS\RestBundle\Request\ParamFetcher;
@@ -18,8 +20,6 @@ class RestaurantController extends ApiBaseController
 {
     /**
      * @param ParamFetcher $paramFetcher
-     *
-     * @return View
      *
      * @REST\Post("/restaurant/create", name="api_create_restaurant")
      * @REST\RequestParam(name="name")
@@ -41,7 +41,7 @@ class RestaurantController extends ApiBaseController
 
         if (!$form->isValid()) {
             return $this->helper->error($form->getErrors());
-        }
+    }
 
         $restaurant->setStatus(1);
         $restaurant->setOpen(1);
@@ -60,9 +60,7 @@ class RestaurantController extends ApiBaseController
     /**
      * @param Request $request
      *
-     * @return View
-     *
-     * @REST\Post("/restaurant/schedule", name="api_update_schedule")
+     * @REST\Post("/restaurant/{id}/schedule", name="api_update_schedule")
      */
     public function updateSchedule(Request $request)
     {
@@ -95,8 +93,9 @@ class RestaurantController extends ApiBaseController
         return $this->helper->success($restaurant, 200);
     }
 
+
+
     /**
-     * @return View
      *
      * @REST\Get("/restaurants", name="api_list_restaurants")
      *
@@ -105,5 +104,16 @@ class RestaurantController extends ApiBaseController
     {
         $restaurants = $this->getRestaurantRepository()->findAll();
         return $this->helper->success($restaurants, 200);
+    }
+
+    /**
+     *
+     * @REST\Get("/restaurant/{id}", name="api_detail_restaurant")
+     *
+     */
+    public function getRestaurant(Request $request)
+    {
+        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
+        return $this->helper->success($restaurant, 200);
     }
 }

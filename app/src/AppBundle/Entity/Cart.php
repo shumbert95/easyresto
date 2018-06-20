@@ -7,9 +7,9 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="menu")
+ * @ORM\Table(name="cart")
  */
-class Menu
+class Cart
 {
     /**
      * @ORM\Id
@@ -19,14 +19,16 @@ class Menu
     protected $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\ManyToOne(targetEntity="Restaurant")
+     * @ORM\JoinColumn(name="restaurant_id", referencedColumnName="id")
      */
-    protected $name;
+    protected $restaurant;
 
     /**
-     * @ORM\Column(type="text")
+     * @ORM\ManyToOne(targetEntity="User")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
-    protected $description;
+    protected $user;
 
     /**
      * @ORM\Column(type="decimal", scale=2)
@@ -34,21 +36,8 @@ class Menu
     protected $price;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Restaurant")
-     * @ORM\JoinColumn(name="restaurant_id", referencedColumnName="id")
-     */
-    protected $restaurant;
-
-    /**
-     * @var bool
-     *
-     * @ORM\Column(name="availability", type="boolean")
-     */
-    protected $availability;
-
-    /**
      * @ORM\ManyToMany(targetEntity="AppBundle\Entity\Meal")
-     * @ORM\JoinTable(name="meal_menu",
+     * @ORM\JoinTable(name="cart_meal",
      *      joinColumns={@ORM\JoinColumn(name="menu_id", referencedColumnName="id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="meal_id", referencedColumnName="id")}
      *      )
@@ -75,43 +64,6 @@ class Menu
         return $this->id;
     }
 
-
-    /**
-     * @return mixed
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
-     * @param mixed $name
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-        
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getDescription()
-    {
-        return $this->description;
-    }
-
-    /**
-     * @param mixed $description
-     */
-    public function setDescription($description)
-    {
-        $this->description = $description;
-        
-        return $this;
-    }
-
     /**
      * @return mixed
      */
@@ -126,7 +78,7 @@ class Menu
     public function setPrice($price)
     {
         $this->price = $price;
-        
+
         return $this;
     }
 
@@ -144,7 +96,7 @@ class Menu
     public function setRestaurant($restaurant)
     {
         $this->restaurant = $restaurant;
-        
+
         return $this;
     }
 
@@ -176,27 +128,6 @@ class Menu
         return $this;
     }
 
-    public function __toString()
-    {
-        return ''.$this->name;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isAvailability()
-    {
-        return $this->availability;
-    }
-
-    /**
-     * @param bool $availability
-     */
-    public function setAvailability($availability)
-    {
-        $this->availability = $availability;
-    }
-
     /**
      * @return bool
      */
@@ -212,6 +143,24 @@ class Menu
     {
         $this->status = $status;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param mixed $user
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
+    }
+
+
 
 }
 
