@@ -20,7 +20,7 @@ framework:
     form: ~
     csrf_protection: false
     validation: { enable_annotations: true }
-#    serializer: { enabled: false }
+    serializer: { enabled: false }
     templating:
         engines: ['twig']
     default_locale: '%locale%'
@@ -98,6 +98,8 @@ fos_rest:
         view_response_listener: true
     param_fetcher_listener: true
     allowed_methods_listener: true
+    serializer:
+      serialize_null: true
     format_listener:
         rules:
             -

@@ -40,7 +40,7 @@ class MealController extends ApiBaseController
 
         $meal = $this->getMealRepository()->findOneBy(array('name' => $params['name'], 'status' => true));
 
-        if ($meal instanceof Meal && $meal->getStatus()) {
+        if ($meal instanceof Meal && $meal->isStatus()) {
             return $this->helper->error('This name is already used');
         }
         else if (($meal instanceof Meal && !$meal->getStatus())) {
@@ -68,14 +68,111 @@ class MealController extends ApiBaseController
 
     /**
      *
+     * @REST\Post("/restaurant/{id}/meal/{idMeal}", name="api_daily_stock")
+     * @REST\RequestParam(name="initialStock")
+     */
+    public function setDailyStock(Request $request,ParamFetcher $paramFetcher)
+    {
+        $params=$paramFetcher->all();
+        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
+        $meal = $this->getMealRepository()->findOneBy(array('id' => $request->get('idMeal'), 'restaurant' => $restaurant, 'status'=> true));
+
+        $meal->setInitialStock($params['initialStock']);
+        $meal->setCurrentStock($params['initialStock']);
+        $em = $this->getEntityManager();
+        $em->persist($meal);
+        $em->flush();
+
+        return $this->helper->success($meal, 200);
+    }
+
+    /**
+     *
+     * @REST\Post("/restaurant/{id}/meal/{idMeal}/stock", name="api_stock_change")
+     * @REST\RequestParam(name="stock")
+     */
+    public function setCurrentStock(Request $request,ParamFetcher $paramFetcher)
+    {
+        $params=$paramFetcher->all();
+        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
+        $meal = $this->getMealRepository()->findOneBy(array('id' => $request->get('idMeal'), 'restaurant' => $restaurant, 'status'=> true));
+
+        $meal->setCurrentStock($meal->getCurrentStock() + $params['stock']);
+
+        $em = $this->getEntityManager();
+        $em->persist($meal);
+        $em->flush();
+
+        return $this->helper->success($meal, 200);
+    }
+
+    /**
+     *
+     * @REST\Get("/restaurant/{id}/meal/{idMeal}", name="api_show_meal")
+     *
+     */
+    public function getMeal(Request $request)
+    {
+        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
+        $meal = $this->getMealRepository()->findBy(array('id' => $request->get('idMeal'), 'restaurant' => $restaurant, 'status'=> true));
+
+
+        return $this->helper->success($meal, 200);
+    }
+
+    /**
+     *
      * @REST\Get("/restaurant/{id}/meals", name="api_list_meals")
      *
      */
-    public function getMeals()
+    public function getMeals(Request $request)
     {
-        $meals = $this->getMealRepository()->findBy(array('status' => true));
+        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
+        $meals = $this->getMealRepository()->findBy(array('restaurant' => $restaurant,'status' => true));
         return $this->helper->success($meals, 200);
     }
+
+    /**
+     *
+     * @REST\Get("/restaurant/{id}/category/{idCategory}/meals", name="api_list_meals_by_category")
+     *
+     */
+    public function getMealsFromCategory(Request $request)
+    {
+        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
+        $category = $this->getCategoryMealRepository()->find($request->get('idCategory'));
+
+        $meals = $this->getMealRepository()->findBy(array(
+            'restaurant' => $restaurant,
+            'status' => true,
+            'category' => $category
+        ));
+
+        return $this->helper->success($meals, 200);
+    }
+
+    /**
+     *
+     * @REST\Get("/restaurant/{id}/tab/{idTab}/meals", name="api_list_meals_by_tab")
+     *
+     */
+    public function getMealsFromTab(Request $request)
+    {
+        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
+        $tab = $this->getTabMealRepository()->find($request->get('idTab'));
+
+        $meals = $this->getMealRepository()->findBy(array(
+            'restaurant' => $restaurant,
+            'status' => true,
+            'category' => array(
+                'tabMeal' => $tab
+            )
+        ));
+
+        return $this->helper->success($meals, 200);
+    }
+
+
 
 
 

@@ -63,6 +63,36 @@ class TabMealController extends ApiBaseController
 
     /**
      *
+     * @REST\Get("/restaurant/{id}/tab/{idTab}", name="api_show_tab")
+     *
+     */
+    public function getTab(Request $request)
+    {
+        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
+        $tab = $this->getTabMealRepository()->findOneBy(array('status' => true, 'restaurant' => $restaurant, 'id' => $request->get('idTab')));
+        return $this->helper->success($tab, 200);
+    }
+
+    /**
+     *
+     * @REST\Post("/restaurant/{id}/tab/{idTab}/position", name="api_update_tab_position")
+     * @REST\RequestParam(name="position")
+     */
+    public function updateTabPosition(Request $request, ParamFetcher $paramFetcher)
+    {
+        $params = $paramFetcher->all();
+        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
+        $tab = $this->getTabMealRepository()->findOneBy(array('status' => true, 'restaurant' => $restaurant, 'id' => $request->get('idTab')));
+        $tab->setPosition($params['position']);
+        $em = $this->getEntityManager();
+        $em->persist($tab);
+        $em->flush();
+
+        return $this->helper->success($tab, 200);
+    }
+
+    /**
+     *
      * @REST\Get("/restaurant/{id}/tabs", name="api_list_meal_tabs")
      *
      */
