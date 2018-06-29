@@ -105,6 +105,19 @@ class Restaurant
      */
     protected $open;
 
+    /**
+     * @var int
+     * @Assert\NotBlank()
+     * @ORM\Column(name="seats", type="integer", length=10)
+     */
+    protected $seats;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="current_seats", type="integer", length=10)
+     */
+    protected $currentSeats;
 
 
     /**
@@ -365,6 +378,40 @@ class Restaurant
     {
         $this->status = $status;
     }
+
+    /**
+     * @return int
+     */
+    public function getSeats()
+    {
+        return $this->seats;
+    }
+
+    /**
+     * @param int $seats
+     */
+    public function setSeats($seats)
+    {
+        $this->seats = $seats;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCurrentSeats()
+    {
+        return $this->currentSeats;
+    }
+
+    /**
+     * @param int $currentSeats
+     */
+    public function setCurrentSeats($currentSeats)
+    {
+        $this->currentSeats = $currentSeats;
+    }
+
+
 
     public function __toString()
     {

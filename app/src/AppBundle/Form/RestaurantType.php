@@ -74,6 +74,15 @@ class RestaurantType extends AbstractType
 
             )
             ->add(
+                'seats',
+                IntegerType::class,
+                [
+                    'required' => true,
+                    'label' => 'Places',
+                ]
+
+            )
+            ->add(
                 'submit',
                 SubmitType::class,
                 [
