@@ -107,7 +107,7 @@ class Restaurant
 
     /**
      * @var int
-     * @Assert\NotBlank()
+     *
      * @ORM\Column(name="seats", type="integer", length=10)
      */
     protected $seats;
