@@ -28,6 +28,7 @@ class MealController extends ApiBaseController
      * @REST\RequestParam(name="availability")
      * @REST\RequestParam(name="initialStock")
      * @REST\RequestParam(name="currentStock")
+     * @REST\RequestParam(name="position")
      *
      */
     public function createMeal(Request $request, ParamFetcher $paramFetcher)
@@ -108,6 +109,30 @@ class MealController extends ApiBaseController
 
     /**
      *
+     * @REST\Post("/restaurant/{id}/meal/{idMeal}/position", name="api_update_meal_position")
+     * @REST\RequestParam(name="position")
+     */
+    public function updateMealPosition(Request $request, ParamFetcher $paramFetcher)
+    {
+        $params = $paramFetcher->all();
+        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
+        $meal = $this->getMealRepository()->findOneBy(
+            array(
+                'status' => true,
+                'restaurant' => $restaurant,
+                'id' => $request->get('idMeal')
+            ));
+
+        $meal->setPosition($params['position']);
+        $em = $this->getEntityManager();
+        $em->persist($meal);
+        $em->flush();
+
+        return $this->helper->success($meal, 200);
+    }
+
+    /**
+     *
      * @REST\Get("/restaurant/{id}/meal/{idMeal}", name="api_show_meal")
      *
      */
@@ -116,6 +141,26 @@ class MealController extends ApiBaseController
         $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
         $meal = $this->getMealRepository()->findBy(array('id' => $request->get('idMeal'), 'restaurant' => $restaurant, 'status'=> true));
 
+
+        return $this->helper->success($meal, 200);
+    }
+
+    /**
+     * @REST\Delete("/restaurant/{id}/meal/{idMeal}/delete", name="api_delete_meal")
+     */
+    public function deleteMeal(Request $request)
+    {
+        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
+        $meal = $this->getMealRepository()->findOneBy(
+            array(
+                'status' => true,
+                'restaurant' => $restaurant,
+                'id' => $request->get('idMeal')
+            ));
+
+        $em = $this->getEntityManager();
+        $em->remove($meal);
+        $em->flush();
 
         return $this->helper->success($meal, 200);
     }

@@ -52,6 +52,13 @@ class MealType extends AbstractType
                 [
                     'label' => 'Stock actuel'
                 ]
+            )
+            ->add(
+                'position',
+                IntegerType::class,
+                [
+                    'label' => 'Position'
+                ]
             );
     }
 }

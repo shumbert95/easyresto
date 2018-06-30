@@ -106,6 +106,26 @@ class CategoryMealController extends ApiBaseController
         return $this->helper->success($category, 200);
     }
 
+    /**
+     * @REST\Delete("/restaurant/{id}/category/{idCategory}/delete", name="api_delete_category")
+     */
+    public function deleteMeal(Request $request)
+    {
+        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
+        $category = $this->getCategoryMealRepository()->findOneBy(
+            array(
+                'status' => true,
+                'restaurant' => $restaurant,
+                'id' => $request->get('idCategory')
+            ));
+
+        $em = $this->getEntityManager();
+        $em->remove($category);
+        $em->flush();
+
+        return $this->helper->success($category, 200);
+    }
+
 
 
 }

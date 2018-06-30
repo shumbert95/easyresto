@@ -74,5 +74,51 @@ class ClientController extends ApiBaseController
             )
         ));
 
+
+
+
+
+    }
+
+    /**
+     *
+     * @REST\Get("/client/favorites", name="api_user_favorites")
+     *
+     */
+    public function getFavorites()
+    {
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+        $favorites = $user->getFavorites();
+        return $this->helper->success($favorites, 200);
+    }
+
+    /**
+     *
+     * @REST\Get("/restaurant/{id}/favorite/add", name="api_user_add_favorite")
+     *
+     */
+    public function addFavorite(Request $request)
+    {
+        $fosUserManager = $this->get('fos_user.user_manager');
+        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+        $user->addFavorite($restaurant);
+        $fosUserManager->updateUser($user);
+        return $this->helper->success($user, 200);
+    }
+
+    /**
+     *
+     * @REST\Get("/restaurant/{id}/favorite/remove", name="api_user_remove_favorite")
+     *
+     */
+    public function removeFavorite(Request $request)
+    {
+        $fosUserManager = $this->get('fos_user.user_manager');
+        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+        $user->removeFavorite($restaurant);
+        $fosUserManager->updateUser($user);
+        return $this->helper->success($user, 200);
     }
 }

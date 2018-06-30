@@ -92,6 +92,26 @@ class TabMealController extends ApiBaseController
     }
 
     /**
+     * @REST\Delete("/restaurant/{id}/tab/{idTab}/delete", name="api_delete_tab")
+     */
+    public function deleteMeal(Request $request)
+    {
+        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
+        $tab = $this->getTabMealRepository()->findOneBy(
+            array(
+                'status' => true,
+                'restaurant' => $restaurant,
+                'id' => $request->get('idTab')
+            ));
+
+        $em = $this->getEntityManager();
+        $em->remove($tab);
+        $em->flush();
+
+        return $this->helper->success($tab, 200);
+    }
+
+    /**
      *
      * @REST\Get("/restaurant/{id}/tabs", name="api_list_meal_tabs")
      *

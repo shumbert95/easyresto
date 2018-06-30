@@ -161,7 +161,7 @@ class Restaurant
     public function removeUser($user)
     {
         if ($this->users->contains($user)) {
-            $this->users->remove($user);
+            $this->users->removeElement($user);
         }
 
         return $this;
@@ -195,7 +195,7 @@ class Restaurant
     public function removeCategory($category)
     {
         if ($this->categories->contains($category)) {
-            $this->categories->remove($category);
+            $this->categories->removeElement($category);
         }
 
         return $this;

@@ -67,10 +67,6 @@ class RestaurantController extends ApiBaseController
         $errors = array();
         $request_data = $request->request->all();
 
-        if (!isset($request_data['id']) || empty($request_data['id'])) {
-            $errors[] = 'Missing parameter "id"';
-        }
-
         if (!$request_data['schedule']) {
             $errors[] = 'Missing parameter "schedule"';
         }
@@ -79,7 +75,7 @@ class RestaurantController extends ApiBaseController
             return $this->helper->error($errors, 400);
         }
 
-        $restaurant = $this->getRestaurantRepository()->find($request_data['id']);
+        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
 
         if (!$restaurant instanceof Restaurant) {
             $this->helper->elementNotFound('Restaurant', 404);
@@ -116,4 +112,40 @@ class RestaurantController extends ApiBaseController
         $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
         return $this->helper->success($restaurant, 200);
     }
+
+    /**
+     *
+     * @REST\Get("/restaurant/{id}/category/{idCategory}/add", name="api_add_restaurant_category")
+     *
+     */
+    public function addRestaurantCategory(Request $request)
+    {
+        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
+        $category = $this->getCategoryRestaurantRepository()->find($request->get('idCategory'));
+        $restaurant->addCategory($category);
+        $em = $this->getEntityManager();
+        $em->persist($restaurant);
+        $em->flush();
+        return $this->helper->success($restaurant, 200);
+    }
+
+    /**
+     *
+     * @REST\Get("/restaurant/{id}/category/{idCategory}/remove", name="api_remove_restaurant_category")
+     *
+     */
+    public function removeRestaurantCategory(Request $request)
+    {
+        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
+        $category = $this->getCategoryRestaurantRepository()->find($request->get('idCategory'));
+        $restaurant->removeCategory($category);
+        $em = $this->getEntityManager();
+        $em->persist($restaurant);
+        $em->flush();
+        return $this->helper->success($restaurant, 200);
+    }
+
+
+
+
 }

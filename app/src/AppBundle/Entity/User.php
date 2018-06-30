@@ -1,6 +1,7 @@
 <?php
 namespace AppBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use FOS\UserBundle\Model\User as BaseUser;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints\Date;
@@ -82,6 +83,16 @@ class User extends BaseUser
      */
     protected $postalCode;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\Restaurant")
+     * @ORM\JoinTable(name="favorite_restaurants",
+     *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="restaurant_id", referencedColumnName="id")}
+     *      )
+     */
+    protected $favorites;
+
+
     const CIVILITY_MALE = 1;
     const CIVILITY_FEMALE = 2;
 
@@ -104,6 +115,7 @@ class User extends BaseUser
     public function __construct()
     {
         parent::__construct();
+        $this->favorites = new ArrayCollection();
     }
 
     public function getType() {
@@ -236,6 +248,41 @@ class User extends BaseUser
     {
         $this->addressComplement = $addressComplement;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getFavorites()
+    {
+        return $this->favorites;
+    }
+
+    /**
+     * @param mixed $favorites
+     */
+    public function setFavorites($favorites)
+    {
+        $this->favorites = $favorites;
+    }
+
+    public function addFavorite($favorite)
+    {
+        if (!$this->favorites->contains($favorite)) {
+            $this->favorites->add($favorite);
+        }
+
+        return $this;
+    }
+
+    public function removeFavorite($favorite)
+    {
+        if ($this->favorites->contains($favorite)) {
+            $this->favorites->removeElement($favorite);
+        }
+
+        return $this;
+    }
+
 
 
 

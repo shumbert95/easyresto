@@ -78,6 +78,13 @@ class Meal
     protected $currentStock;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="position", type="integer", length=10)
+     */
+    protected $position;
+
+    /**
      * @var bool
      *
      * @ORM\Column(name="status", type="boolean")
@@ -230,6 +237,22 @@ class Meal
     public function setCategory($category)
     {
         $this->category = $category;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPosition()
+    {
+        return $this->position;
+    }
+
+    /**
+     * @param int $position
+     */
+    public function setPosition($position)
+    {
+        $this->position = $position;
     }
 
 
