@@ -115,7 +115,7 @@ class Restaurant
     /**
      * @var int
      *
-     * @ORM\Column(name="current_seats", type="integer", length=10)
+     * @ORM\Column(name="current_seats", type="integer", length=10, nullable=true)
      */
     protected $currentSeats;
 
