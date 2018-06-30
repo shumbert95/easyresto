@@ -29,6 +29,7 @@ class RestaurantController extends ApiBaseController
      * @REST\RequestParam(name="postalCode")
      * @REST\RequestParam(name="phone")
      * @REST\RequestParam(name="description")
+     * @REST\RequestParam(name="seats")
      */
     public function createRestaurant(ParamFetcher $paramFetcher)
     {
