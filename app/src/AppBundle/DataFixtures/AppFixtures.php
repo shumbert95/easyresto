@@ -291,13 +291,12 @@ class AppFixtures extends Fixture
                 $meal->setAvailability(1);
                 $meal->setRestaurant($this->getReference('firstRestaurant'));
                 $meal->setDescription("Good meal");
+                $meal->setCategory($this->getReference('firstRestaurant category-'.$j.'-tab'.$i));
                 $manager->persist($meal);
                 $manager->flush();
-                $meal->setCategory($this->getReference('firstRestaurant category-'.$i.'-tab'.$i));
             }
         }
 
-        //MEALS
         for($i=1;$i<=2;$i++){
             for($j=1;$j<=2;$j++) {
                 $meal = new Meal();
@@ -310,13 +309,11 @@ class AppFixtures extends Fixture
                 $meal->setAvailability(1);
                 $meal->setRestaurant($this->getReference('secondRestaurant'));
                 $meal->setDescription("Good meal");
+                $meal->setCategory($this->getReference('secondRestaurant category-'.$j.'-tab'.$i));
                 $manager->persist($meal);
                 $manager->flush();
-                $meal->setCategory($this->getReference('secondRestaurant category-'.$i.'-tab'.$i));
             }
         }
-
-        //MEALS
         for($i=1;$i<=2;$i++){
             for($j=1;$j<=2;$j++) {
                 $meal = new Meal();
@@ -329,9 +326,9 @@ class AppFixtures extends Fixture
                 $meal->setAvailability(1);
                 $meal->setRestaurant($this->getReference('thirdRestaurant'));
                 $meal->setDescription("Good meal");
+                $meal->setCategory($this->getReference('thirdRestaurant category-'.$j.'-tab'.$i));
                 $manager->persist($meal);
                 $manager->flush();
-                $meal->setCategory($this->getReference('thirdRestaurant category-'.$i.'-tab'.$i));
             }
         }
 
