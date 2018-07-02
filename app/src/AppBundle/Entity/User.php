@@ -70,9 +70,9 @@ class User extends BaseUser
     protected $birthDate;
 
     /**
-     * @var integer
+     * @var string
      *
-     * @ORM\Column(name="phoneNumber", type="integer", length=10)
+     * @ORM\Column(name="phoneNumber", type="string", length=10)
      */
     protected $phoneNumber;
 
