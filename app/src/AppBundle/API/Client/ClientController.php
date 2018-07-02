@@ -28,7 +28,6 @@ class ClientController extends ApiBaseController
      * @REST\RequestParam(name="firstName")
      * @REST\RequestParam(name="lastName")
      * @REST\RequestParam(name="password")
-     * @REST\RequestParam(name="type")
      * @REST\RequestParam(name="civility")
      * @REST\RequestParam(name="phoneNumber")
      * @REST\RequestParam(name="postalCode")
