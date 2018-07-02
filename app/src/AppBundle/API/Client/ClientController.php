@@ -80,6 +80,60 @@ class ClientController extends ApiBaseController
 
     }
 
+
+    /**
+     *
+     * @REST\Put("/user", name="api_edit_user_client")
+     *
+     */
+    public function editClient(Request $request)
+    {
+        $request_data = $request->request->all();
+
+        $fosUserManager = $this->get('fos_user.user_manager');
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+
+        if($request_data['phoneNumber'] != null){
+            $user->setPhoneNumber($request_data['phoneNumber']);
+        }
+        if($request_data['postalCode'] != null){
+            $user->setPostalCode($request_data['postalCode']);
+        }
+        if($request_data['firstName'] != null){
+            $user->setFirstName($request_data['firstName']);
+        }
+        if($request_data['lastName'] != null){
+            $user->setLastName($request_data['lastName']);
+        }
+        if($request_data['email'] != null){
+            $user->setEmail($request_data['email']);
+            $user->setEmailCanonical($request_data['email']);
+            $user->setUsername($request_data['email']);
+            $user->setUsernameCanonical($request_data['email']);
+        }
+        if($request_data['password'] != null){
+            $user->setPlainPassword($request_data['password']);
+        }
+        if($request_data['civility'] != null){
+            $user->setCivility($request_data['civility']);
+        }
+        if($request_data['address'] != null){
+            $user->setAddress($request_data['address']);
+        }
+        if($request_data['addressComplement'] != null){
+            $user->setAddressComplement($request_data['addressComplement']);
+        }
+        if($request_data['birthDate'] != null){
+            $user->setBirthDate($request_data['birthDate']);
+        }
+        if($request_data['city'] != null){
+            $user->setCity($request_data['city']);
+        }
+
+        $fosUserManager->updateUser($user,true);
+        return $this->helper->success($user, 200);
+    }
+
     /**
      *
      * @REST\Get("/client/favorites", name="api_user_favorites")
