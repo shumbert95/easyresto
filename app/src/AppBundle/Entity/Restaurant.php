@@ -34,7 +34,7 @@ class Restaurant
 
 
     /**
-     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\CategoryRestaurant")
+     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\CategoryRestaurant", cascade={"persist"})
      * @ORM\JoinTable(name="restaurant_categories",
      *      joinColumns={@ORM\JoinColumn(name="category_id", referencedColumnName="id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="restaurant_id", referencedColumnName="id")}
