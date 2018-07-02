@@ -79,9 +79,16 @@ class User extends BaseUser
     /**
      * @var integer
      *
-     * @ORM\Column(name="postalCode", type="integer", length=5)
+     * @ORM\Column(name="postalCode", type="integer", length=5, nullable=true)
      */
     protected $postalCode;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="city", type="string", length=255, nullable=true)
+     */
+    protected $city;
 
     /**
      * @ORM\ManyToMany(targetEntity="AppBundle\Entity\Restaurant")
@@ -216,6 +223,24 @@ class User extends BaseUser
     {
         $this->postalCode = $postalCode;
     }
+
+    /**
+     * @return string
+     */
+    public function getCity()
+    {
+        return $this->city;
+    }
+
+    /**
+     * @param string $city
+     */
+    public function setCity($city)
+    {
+        $this->city = $city;
+    }
+
+
 
     /**
      * @return string

@@ -91,6 +91,15 @@ class RegistrationRestorerType extends AbstractType
 
             )
             ->add(
+                'city',
+                IntegerType::class,
+                [
+                    'required' => true,
+                    'label' => 'Ville',
+                ]
+
+            )
+            ->add(
                 'submit',
                 SubmitType::class,
                 [

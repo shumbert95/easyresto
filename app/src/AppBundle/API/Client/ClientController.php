@@ -19,6 +19,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 class ClientController extends ApiBaseController
 {
 
+    // PAS CETTE FONCTION
     /**
      * @param ParamFetcher $paramFetcher
      *

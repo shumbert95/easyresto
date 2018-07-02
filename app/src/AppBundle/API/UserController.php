@@ -156,6 +156,7 @@ class UserController extends ApiBaseController
      * @REST\RequestParam(name="civility")
      * @REST\RequestParam(name="phoneNumber")
      * @REST\RequestParam(name="postalCode")
+     * @REST\RequestParam(name="birthDate")
      */
     public function registerClient(ParamFetcher $paramFetcher) {
 
@@ -226,7 +227,9 @@ class UserController extends ApiBaseController
      * @REST\RequestParam(name="civility")
      * @REST\RequestParam(name="phoneNumber")
      * @REST\RequestParam(name="postalCode")
+     * @REST\RequestParam(name="city")
      * @REST\RequestParam(name="address")
+     * @REST\RequestParam(name="birthDate")
      */
     public function registerRestorer(ParamFetcher $paramFetcher) {
 
@@ -266,6 +269,10 @@ class UserController extends ApiBaseController
                 'birthDate' => $user->getBirthdate(),
                 'email' => $user->getEmail(),
                 'type' => $user->getType(),
+                'phoneNumber' => $user->getPhoneNumber(),
+                'postalCode' => $user->getPostalCode(),
+                'address' => $user->getAddress(),
+                'addressComplement' => $user->getAddressComplement(),
             )
         ));
 
