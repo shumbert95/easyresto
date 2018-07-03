@@ -126,6 +126,13 @@ class Restaurant
      */
     protected $currentSeats;
 
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="average_note",type="integer")
+     */
+    protected $averageNote = 0;
+
 
     /**
      * @var bool
@@ -434,8 +441,21 @@ class Restaurant
         $this->picture = $picture;
     }
 
+    /**
+     * @return float
+     */
+    public function getAverageNote()
+    {
+        return $this->averageNote;
+    }
 
-
+    /**
+     * @param float $averageNote
+     */
+    public function setAverageNote($averageNote)
+    {
+        $this->averageNote = $averageNote;
+    }
 
 
     public function __toString()
