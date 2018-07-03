@@ -21,7 +21,7 @@ class RestaurantMenuController extends ApiBaseController
 
     /**
      *
-     * @REST\Get("/restaurant/{id}/restaurantMenu", name="api_list_restaurant_menu")
+     * @REST\Get("/restaurant/{id}/menu", name="api_list_restaurant_menu")
      *
      */
     public function getRestaurantMenu(Request $request)
@@ -30,6 +30,11 @@ class RestaurantMenuController extends ApiBaseController
         $meals = $this->getMealRepository()->findBy(array('restaurant' => $restaurant));
 
         return $this->helper->success($meals, 200);
+        /*return $this->json(array(
+            'name' => $meals->getCategory()
+            'newUser' => array(
+            )
+        ));*/
     }
 
 }

@@ -77,6 +77,20 @@ class Restaurant
      */
     protected $addressComplement;
 
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="latitude", type="float", length=255,nullable=true)
+     */
+    protected $latitude;
+
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="longitude", type="float", length=255,nullable=true)
+     */
+    protected $longitude;
+
 
     /**
      * @var string
