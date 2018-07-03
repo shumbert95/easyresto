@@ -15,7 +15,7 @@ class MealAdmin extends AbstractAdmin
         $formMapper->add('name', 'text', ['label' => 'Nom', 'required' => true]);
         $formMapper->add('description', 'textarea', ['label' => 'Description', 'required' => true]);
         $formMapper->add('price', null, ['label' => 'Prix (€)', 'required' => true]);
-        $formMapper->add('availability', null, ['label' => 'Disponnible', 'required' => false]);
+        $formMapper->add('availability', null, ['label' => 'Disponible', 'required' => false]);
         $formMapper->add('initialStock', null, ['label' => 'Stock initial', 'required' => true]);
         $formMapper->add('currentStock', null, ['label' => 'Stock actuel', 'required' => true]);
         $formMapper->add('restaurant', null, ['label' => 'Restaurant', 'required' => true]);

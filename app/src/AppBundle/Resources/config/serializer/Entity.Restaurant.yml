@@ -1,0 +1,7 @@
+AppBundle\Entity\Restaurant:
+    exclusion_policy: none
+    properties:
+      users:
+        exclude: true
+      status:
+        exclude: true

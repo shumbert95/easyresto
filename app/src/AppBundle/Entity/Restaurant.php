@@ -34,7 +34,7 @@ class Restaurant
 
 
     /**
-     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\CategoryRestaurant")
+     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\CategoryRestaurant", cascade={"persist"})
      * @ORM\JoinTable(name="restaurant_categories",
      *      joinColumns={@ORM\JoinColumn(name="category_id", referencedColumnName="id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="restaurant_id", referencedColumnName="id")}
@@ -105,6 +105,19 @@ class Restaurant
      */
     protected $open;
 
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="seats", type="integer", length=10)
+     */
+    protected $seats;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="current_seats", type="integer", length=10, nullable=true)
+     */
+    protected $currentSeats;
 
 
     /**
@@ -148,7 +161,7 @@ class Restaurant
     public function removeUser($user)
     {
         if ($this->users->contains($user)) {
-            $this->users->remove($user);
+            $this->users->removeElement($user);
         }
 
         return $this;
@@ -182,7 +195,7 @@ class Restaurant
     public function removeCategory($category)
     {
         if ($this->categories->contains($category)) {
-            $this->categories->remove($category);
+            $this->categories->removeElement($category);
         }
 
         return $this;
@@ -365,6 +378,40 @@ class Restaurant
     {
         $this->status = $status;
     }
+
+    /**
+     * @return int
+     */
+    public function getSeats()
+    {
+        return $this->seats;
+    }
+
+    /**
+     * @param int $seats
+     */
+    public function setSeats($seats)
+    {
+        $this->seats = $seats;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCurrentSeats()
+    {
+        return $this->currentSeats;
+    }
+
+    /**
+     * @param int $currentSeats
+     */
+    public function setCurrentSeats($currentSeats)
+    {
+        $this->currentSeats = $currentSeats;
+    }
+
+
 
     public function __toString()
     {

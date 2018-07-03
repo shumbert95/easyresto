@@ -65,7 +65,7 @@ class RegistrationClientType extends AbstractType
             )
             ->add(
                 'phoneNumber',
-                IntegerType::class,
+                TextType::class,
                 [
                     'required' => true,
                     'label' => 'Numéro de téléphone',

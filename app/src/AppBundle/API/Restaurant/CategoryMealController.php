@@ -26,9 +26,16 @@ class CategoryMealController extends ApiBaseController
      */
     public function createMealCategory(Request $request, ParamFetcher $paramFetcher)
     {
-        $params = $paramFetcher->all();
 
-        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+        $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
+        $restaurantUsers = $restaurant->getUsers();
+
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
+            !$restaurantUsers->contains($user)){
+            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
+        }
+        $params = $paramFetcher->all();
         $tab = $this->getTabMealRepository()->find($request->get('idTab'));
 
 
@@ -67,7 +74,7 @@ class CategoryMealController extends ApiBaseController
      * @REST\Get("/restaurant/{id}/tab/{idTab}/categories", name="api_list_meal_categories")
      *
      */
-    public function getCategoriesMeal(Request $request)
+    public function getCategoriesMealFromTab(Request $request)
     {
         $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
         $tab = $this->getTabMealRepository()->find($request->get('idTab'));
@@ -75,5 +82,72 @@ class CategoryMealController extends ApiBaseController
         $categories = $this->getCategoryMealRepository()->findBy(array('status' => true, 'restaurant' => $restaurant, 'tabMeal' => $tab));
         return $this->helper->success($categories, 200);
     }
+
+    /**
+     *
+     * @REST\Get("/restaurant/{id}/category/{idCategory}", name="api_show_category")
+     *
+     */
+    public function getCategory(Request $request)
+    {
+        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
+        $category = $this->getCategoryMealRepository()->findOneBy(array('status' => true, 'restaurant' => $restaurant, 'id' => $request->get('idCategory')));
+        return $this->helper->success($category, 200);
+    }
+
+    /**
+     *
+     * @REST\Post("/restaurant/{id}/category/{idCategory}/position", name="api_update_category_position")
+     * @REST\RequestParam(name="position")
+     */
+    public function updateCategoryPosition(Request $request, ParamFetcher $paramFetcher)
+    {
+
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+        $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
+        $restaurantUsers = $restaurant->getUsers();
+
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
+            !$restaurantUsers->contains($user)){
+            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
+        }
+        $params = $paramFetcher->all();
+        $category = $this->getCategoryMealRepository()->findOneBy(array('status' => true, 'restaurant' => $restaurant, 'id' => $request->get('idCategory')));
+        $category->setPosition($params['position']);
+        $em = $this->getEntityManager();
+        $em->persist($category);
+        $em->flush();
+
+        return $this->helper->success($category, 200);
+    }
+
+    /**
+     * @REST\Delete("/restaurant/{id}/category/{idCategory}", name="api_delete_category_meal")
+     */
+    public function deleteCategoryMeal(Request $request)
+    {
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+        $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
+        $restaurantUsers = $restaurant->getUsers();
+
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
+            !$restaurantUsers->contains($user)){
+            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
+        }
+        $category = $this->getCategoryMealRepository()->findOneBy(
+            array(
+                'status' => true,
+                'restaurant' => $restaurant,
+                'id' => $request->get('idCategory')
+            ));
+
+        $em = $this->getEntityManager();
+        $em->remove($category);
+        $em->flush();
+
+        return $this->helper->success($category, 200);
+    }
+
+
 
 }

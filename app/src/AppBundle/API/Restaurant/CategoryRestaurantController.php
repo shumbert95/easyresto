@@ -58,6 +58,35 @@ class CategoryRestaurantController extends ApiBaseController
 
     /**
      *
+     * @REST\Get("/restaurants/category/{id}/", name="api_show_category_restaurant")
+     *
+     */
+    public function getCategoryRestaurant(Request $request)
+    {
+        $category = $this->getCategoryRestaurantRepository()->findOneBy(array('status' => true, 'id' => $request->get('id')));
+        return $this->helper->success($category, 200);
+    }
+
+    /**
+     * @REST\Delete("/restaurants/category/{id}", name="api_delete_category_restaurant")
+     */
+    public function deleteCategoryRestaurant(Request $request)
+    {
+        $category = $this->getCategoryRestaurantRepository()->findOneBy(
+            array(
+                'status' => true,
+                'id' => $request->get('id')
+            ));
+
+        $em = $this->getEntityManager();
+        $em->remove($category);
+        $em->flush();
+
+        return $this->helper->success($category, 200);
+    }
+
+    /**
+     *
      * @REST\Get("/restaurants/categories", name="api_list_restaurants_categories")
      *
      */
@@ -66,4 +95,6 @@ class CategoryRestaurantController extends ApiBaseController
         $restaurants = $this->getCategoryRestaurantRepository()->findBy(array('status' => true));
         return $this->helper->success($restaurants, 200);
     }
+
+
 }

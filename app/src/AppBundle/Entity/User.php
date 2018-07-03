@@ -1,6 +1,7 @@
 <?php
 namespace AppBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use FOS\UserBundle\Model\User as BaseUser;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints\Date;
@@ -69,18 +70,35 @@ class User extends BaseUser
     protected $birthDate;
 
     /**
-     * @var integer
+     * @var string
      *
-     * @ORM\Column(name="phoneNumber", type="integer", length=10)
+     * @ORM\Column(name="phoneNumber", type="string", length=10)
      */
     protected $phoneNumber;
 
     /**
      * @var integer
      *
-     * @ORM\Column(name="postalCode", type="integer", length=5)
+     * @ORM\Column(name="postalCode", type="integer", length=5, nullable=true)
      */
     protected $postalCode;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="city", type="string", length=255, nullable=true)
+     */
+    protected $city;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\Restaurant")
+     * @ORM\JoinTable(name="favorite_restaurants",
+     *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="restaurant_id", referencedColumnName="id")}
+     *      )
+     */
+    protected $favorites;
+
 
     const CIVILITY_MALE = 1;
     const CIVILITY_FEMALE = 2;
@@ -104,6 +122,7 @@ class User extends BaseUser
     public function __construct()
     {
         parent::__construct();
+        $this->favorites = new ArrayCollection();
     }
 
     public function getType() {
@@ -208,6 +227,24 @@ class User extends BaseUser
     /**
      * @return string
      */
+    public function getCity()
+    {
+        return $this->city;
+    }
+
+    /**
+     * @param string $city
+     */
+    public function setCity($city)
+    {
+        $this->city = $city;
+    }
+
+
+
+    /**
+     * @return string
+     */
     public function getAddress()
     {
         return $this->address;
@@ -236,6 +273,41 @@ class User extends BaseUser
     {
         $this->addressComplement = $addressComplement;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getFavorites()
+    {
+        return $this->favorites;
+    }
+
+    /**
+     * @param mixed $favorites
+     */
+    public function setFavorites($favorites)
+    {
+        $this->favorites = $favorites;
+    }
+
+    public function addFavorite($favorite)
+    {
+        if (!$this->favorites->contains($favorite)) {
+            $this->favorites->add($favorite);
+        }
+
+        return $this;
+    }
+
+    public function removeFavorite($favorite)
+    {
+        if ($this->favorites->contains($favorite)) {
+            $this->favorites->removeElement($favorite);
+        }
+
+        return $this;
+    }
+
 
 
 

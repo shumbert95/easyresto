@@ -1,0 +1,23 @@
+AppBundle\Entity\User:
+    exclusion_policy: none
+    properties:
+      status:
+        exclude: true
+      roles:
+        exclude: true
+      types:
+        exclude: true
+      civilities:
+        exclude: true
+      usernameCanonical:
+        exclude: true
+      emailCanonical:
+        exclude: true
+      enabled:
+        exclude: true
+      salt:
+        exclude: true
+      password:
+        exclude: true
+      plainPassword:
+        exclude: true

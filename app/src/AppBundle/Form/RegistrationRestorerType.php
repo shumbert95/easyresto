@@ -74,7 +74,7 @@ class RegistrationRestorerType extends AbstractType
             )
             ->add(
                 'phoneNumber',
-                IntegerType::class,
+                TextType::class,
                 [
                     'required' => true,
                     'label' => 'Numéro de téléphone',
@@ -87,6 +87,15 @@ class RegistrationRestorerType extends AbstractType
                 [
                     'required' => true,
                     'label' => 'Code Postal',
+                ]
+
+            )
+            ->add(
+                'city',
+                IntegerType::class,
+                [
+                    'required' => true,
+                    'label' => 'Ville',
                 ]
 
             )

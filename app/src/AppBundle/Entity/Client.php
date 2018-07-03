@@ -184,7 +184,7 @@ class Client
         $this->status = $status;
     }
 
-    
+
 
     /**
      * @return \AppBundle\Entity\User
