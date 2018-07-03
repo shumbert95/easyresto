@@ -129,7 +129,7 @@ class Restaurant
     /**
      * @var float
      *
-     * @ORM\Column(name="average_note",type="integer")
+     * @ORM\Column(name="average_note",type="float")
      */
     protected $averageNote = 0;
 
