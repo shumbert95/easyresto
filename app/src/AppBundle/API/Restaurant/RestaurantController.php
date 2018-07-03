@@ -31,7 +31,7 @@ class RestaurantController extends ApiBaseController
      * @REST\RequestParam(name="description")
      * @REST\RequestParam(name="seats")
      */
-    public function createRestaurant(ParamFetcher $paramFetcher)
+    public function createRestaurant(ParamFetcher $paramFetcher, Request $request)
     {
         $user = $this->container->get('security.token_storage')->getToken()->getUser();
         if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
@@ -46,6 +46,10 @@ class RestaurantController extends ApiBaseController
 
         if (!$form->isValid()) {
             return $this->helper->error($form->getErrors());
+        }
+
+        if ($request->get('picture') != null){
+            $restaurant->setPicture($request->get('picture'));
         }
 
         $restaurant->setStatus(1);

@@ -93,6 +93,13 @@ class Restaurant
     protected $description;
 
     /**
+     * @var string
+     * @ORM\Column(name="picture", type="text", nullable=true)
+     */
+    protected $picture;
+
+
+    /**
      * @var array
      * @ORM\Column(name="schedule", type="text", nullable=true)
      */
@@ -410,6 +417,24 @@ class Restaurant
     {
         $this->currentSeats = $currentSeats;
     }
+
+    /**
+     * @return string
+     */
+    public function getPicture()
+    {
+        return $this->picture;
+    }
+
+    /**
+     * @param string $picture
+     */
+    public function setPicture($picture)
+    {
+        $this->picture = $picture;
+    }
+
+
 
 
 
