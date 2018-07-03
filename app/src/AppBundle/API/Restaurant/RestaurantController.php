@@ -33,7 +33,11 @@ class RestaurantController extends ApiBaseController
      */
     public function createRestaurant(ParamFetcher $paramFetcher)
     {
-
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
+            ($user->getType()!= User::TYPE_RESTORER)){
+            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
+        }
         $restaurant = new Restaurant();
 
         $params = $paramFetcher->all();
@@ -42,7 +46,7 @@ class RestaurantController extends ApiBaseController
 
         if (!$form->isValid()) {
             return $this->helper->error($form->getErrors());
-    }
+        }
 
         $restaurant->setStatus(1);
         $restaurant->setOpen(1);
@@ -65,6 +69,15 @@ class RestaurantController extends ApiBaseController
      */
     public function updateSchedule(Request $request)
     {
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+        $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
+        $restaurantUsers = $restaurant->getUsers();
+
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
+            !$restaurantUsers->contains($user)){
+            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
+        }
+
         $errors = array();
         $request_data = $request->request->all();
 
@@ -76,14 +89,60 @@ class RestaurantController extends ApiBaseController
             return $this->helper->error($errors, 400);
         }
 
-        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
-
         if (!$restaurant instanceof Restaurant) {
             $this->helper->elementNotFound('Restaurant', 404);
         }
 
         $restaurant->setSchedule($request_data['schedule']);
 
+        $this->getEntityManager()->persist($restaurant);
+        $this->getEntityManager()->flush();
+
+        return $this->helper->success($restaurant, 200);
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @REST\Post("/restaurant/{id}/category/add", name="api_add_category")
+     */
+    public function addCategory(Request $request)
+    {
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+        $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
+        $restaurantUsers = $restaurant->getUsers();
+
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
+            !$restaurantUsers->contains($user)){
+            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
+        }
+        $request_data = $request->request->all();
+
+        $restaurant->addCategory($request_data['category']);
+        $this->getEntityManager()->persist($restaurant);
+        $this->getEntityManager()->flush();
+
+        return $this->helper->success($restaurant, 200);
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @REST\Post("/restaurant/{id}/category/remove", name="api_remove_category")
+     */
+    public function removeCategory(Request $request)
+    {
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+        $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
+        $restaurantUsers = $restaurant->getUsers();
+
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
+            !$restaurantUsers->contains($user)){
+            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
+        }
+        $request_data = $request->request->all();
+
+        $restaurant->removeCategory($request_data['category']);
         $this->getEntityManager()->persist($restaurant);
         $this->getEntityManager()->flush();
 
@@ -111,38 +170,6 @@ class RestaurantController extends ApiBaseController
     public function getRestaurant(Request $request)
     {
         $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
-        return $this->helper->success($restaurant, 200);
-    }
-
-    /**
-     *
-     * @REST\Get("/restaurant/{id}/category/{idCategory}/add", name="api_add_restaurant_category")
-     *
-     */
-    public function addRestaurantCategory(Request $request)
-    {
-        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
-        $category = $this->getCategoryRestaurantRepository()->find($request->get('idCategory'));
-        $restaurant->addCategory($category);
-        $em = $this->getEntityManager();
-        $em->persist($restaurant);
-        $em->flush();
-        return $this->helper->success($restaurant, 200);
-    }
-
-    /**
-     *
-     * @REST\Get("/restaurant/{id}/category/{idCategory}/remove", name="api_remove_restaurant_category")
-     *
-     */
-    public function removeRestaurantCategory(Request $request)
-    {
-        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
-        $category = $this->getCategoryRestaurantRepository()->find($request->get('idCategory'));
-        $restaurant->removeCategory($category);
-        $em = $this->getEntityManager();
-        $em->persist($restaurant);
-        $em->flush();
         return $this->helper->success($restaurant, 200);
     }
 

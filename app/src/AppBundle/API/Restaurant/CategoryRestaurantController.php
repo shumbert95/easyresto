@@ -58,7 +58,7 @@ class CategoryRestaurantController extends ApiBaseController
 
     /**
      *
-     * @REST\Get("/restaurant/category/{id}/", name="api_show_category_restaurant")
+     * @REST\Get("/restaurants/category/{id}/", name="api_show_category_restaurant")
      *
      */
     public function getCategoryRestaurant(Request $request)
@@ -68,7 +68,7 @@ class CategoryRestaurantController extends ApiBaseController
     }
 
     /**
-     * @REST\Delete("/restaurant/category/{id}/delete", name="api_delete_category_restaurant")
+     * @REST\Delete("/restaurants/category/{id}", name="api_delete_category_restaurant")
      */
     public function deleteCategoryRestaurant(Request $request)
     {

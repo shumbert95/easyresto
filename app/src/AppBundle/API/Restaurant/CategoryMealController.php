@@ -26,9 +26,16 @@ class CategoryMealController extends ApiBaseController
      */
     public function createMealCategory(Request $request, ParamFetcher $paramFetcher)
     {
-        $params = $paramFetcher->all();
 
-        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+        $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
+        $restaurantUsers = $restaurant->getUsers();
+
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
+            !$restaurantUsers->contains($user)){
+            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
+        }
+        $params = $paramFetcher->all();
         $tab = $this->getTabMealRepository()->find($request->get('idTab'));
 
 
@@ -95,8 +102,16 @@ class CategoryMealController extends ApiBaseController
      */
     public function updateCategoryPosition(Request $request, ParamFetcher $paramFetcher)
     {
+
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+        $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
+        $restaurantUsers = $restaurant->getUsers();
+
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
+            !$restaurantUsers->contains($user)){
+            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
+        }
         $params = $paramFetcher->all();
-        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
         $category = $this->getCategoryMealRepository()->findOneBy(array('status' => true, 'restaurant' => $restaurant, 'id' => $request->get('idCategory')));
         $category->setPosition($params['position']);
         $em = $this->getEntityManager();
@@ -107,11 +122,18 @@ class CategoryMealController extends ApiBaseController
     }
 
     /**
-     * @REST\Delete("/restaurant/{id}/category/{idCategory}/delete", name="api_delete_category")
+     * @REST\Delete("/restaurant/{id}/category/{idCategory}", name="api_delete_category_meal")
      */
-    public function deleteMeal(Request $request)
+    public function deleteCategoryMeal(Request $request)
     {
-        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+        $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
+        $restaurantUsers = $restaurant->getUsers();
+
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
+            !$restaurantUsers->contains($user)){
+            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
+        }
         $category = $this->getCategoryMealRepository()->findOneBy(
             array(
                 'status' => true,

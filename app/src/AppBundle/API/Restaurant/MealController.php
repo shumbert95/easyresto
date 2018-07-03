@@ -33,26 +33,23 @@ class MealController extends ApiBaseController
      */
     public function createMeal(Request $request, ParamFetcher $paramFetcher)
     {
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+        $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
+        $restaurantUsers = $restaurant->getUsers();
+
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
+            !$restaurantUsers->contains($user)){
+            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
+        }
+
         $params = $paramFetcher->all();
 
-        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
         $category = $this->getCategoryMealRepository()->find($request->get('idCat'));
 
-
-        $meal = $this->getMealRepository()->findOneBy(array('name' => $params['name'], 'status' => true));
-
-        if ($meal instanceof Meal && $meal->isStatus()) {
-            return $this->helper->error('This name is already used');
-        }
-        else if (($meal instanceof Meal && !$meal->getStatus())) {
-            $meal->setStatus(1);
-        }
-        else if(!($meal instanceof Meal)) {
-            $meal = new Meal();
-            $meal->setStatus(1);
-            $meal->setRestaurant($restaurant);
-            $meal->setCategory($category);
-        }
+        $meal = new Meal();
+        $meal->setStatus(1);
+        $meal->setRestaurant($restaurant);
+        $meal->setCategory($category);
 
         $form = $this->createForm(MealType::class, $meal);
         $form->submit($params);
@@ -60,6 +57,8 @@ class MealController extends ApiBaseController
         if (!$form->isValid()) {
             return $this->helper->error($form->getErrors());
         }
+
+
         $em = $this->getEntityManager();
         $em->persist($meal);
         $em->flush();
@@ -72,10 +71,17 @@ class MealController extends ApiBaseController
      * @REST\Post("/restaurant/{id}/meal/{idMeal}", name="api_daily_stock")
      * @REST\RequestParam(name="initialStock")
      */
-    public function setDailyStock(Request $request,ParamFetcher $paramFetcher)
+    public function updateDailyStock(Request $request,ParamFetcher $paramFetcher)
     {
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+        $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
+        $restaurantUsers = $restaurant->getUsers();
+
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
+            !$restaurantUsers->contains($user)){
+            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
+        }
         $params=$paramFetcher->all();
-        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
         $meal = $this->getMealRepository()->findOneBy(array('id' => $request->get('idMeal'), 'restaurant' => $restaurant, 'status'=> true));
 
         $meal->setInitialStock($params['initialStock']);
@@ -94,8 +100,15 @@ class MealController extends ApiBaseController
      */
     public function setCurrentStock(Request $request,ParamFetcher $paramFetcher)
     {
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+        $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
+        $restaurantUsers = $restaurant->getUsers();
+
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
+            !$restaurantUsers->contains($user)){
+            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
+        }
         $params=$paramFetcher->all();
-        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
         $meal = $this->getMealRepository()->findOneBy(array('id' => $request->get('idMeal'), 'restaurant' => $restaurant, 'status'=> true));
 
         $meal->setCurrentStock($meal->getCurrentStock() + $params['stock']);
@@ -114,8 +127,16 @@ class MealController extends ApiBaseController
      */
     public function updateMealPosition(Request $request, ParamFetcher $paramFetcher)
     {
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+        $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
+        $restaurantUsers = $restaurant->getUsers();
+
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
+            !$restaurantUsers->contains($user)){
+            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
+        }
+
         $params = $paramFetcher->all();
-        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
         $meal = $this->getMealRepository()->findOneBy(
             array(
                 'status' => true,
@@ -146,7 +167,7 @@ class MealController extends ApiBaseController
     }
 
     /**
-     * @REST\Delete("/restaurant/{id}/meal/{idMeal}/delete", name="api_delete_meal")
+     * @REST\Delete("/restaurant/{id}/meal/{idMeal}", name="api_delete_meal")
      */
     public function deleteMeal(Request $request)
     {
