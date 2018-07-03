@@ -42,6 +42,10 @@ services:
         class: AppBundle\Services\UserManager
         arguments: ['@service_container', '@app.mail.manager']
 
+    app.util.google_manager:
+        class: AppBundle\Services\GoogleMapsManager
+        arguments: ['%api_key%', '%api_host%']
+
     app.form.registration:
         class: AppBundle\Form\RegistrationType
         tags:

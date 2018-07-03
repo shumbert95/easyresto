@@ -4,6 +4,7 @@ namespace AppBundle\API\Client;
 
 use AppBundle\API\ApiBaseController;
 use AppBundle\Entity\Client;
+use AppBundle\Entity\Note;
 use AppBundle\Entity\Restaurant;
 use AppBundle\Entity\User;
 use AppBundle\Form\RegistrationClientType;
@@ -173,6 +174,45 @@ class ClientController extends ApiBaseController
         $user = $this->container->get('security.token_storage')->getToken()->getUser();
         $user->removeFavorite($restaurant);
         $fosUserManager->updateUser($user);
+        return $this->helper->success($user, 200);
+    }
+
+    /**
+     *
+     * @REST\Post("/restaurant/{id}/note", name="api_user_update_note")
+     *
+     */
+    public function updateNote(Request $request)
+    {
+        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+        $note = $this->getNoteRepository()->findOneBy(array('restaurant' => $restaurant, 'user' => $user));
+
+        if($note == null){
+            $note = new Note();
+            $note->setUser($user);
+            $note->setRestaurant($restaurant);
+            $note->setStatus(1);
+        }
+
+        $note->setNote($request->get('note'));
+        $em = $this->getEntityManager();
+        $em->persist($note);
+        $em->flush();
+
+        $newAverage = 0;
+        $count = 0;
+        $notes = $this->getNoteRepository()->findBy(array('restaurant' => $restaurant));
+
+        foreach ($notes as $note){
+            $newAverage = $newAverage + $note->getNote();
+            $count = $count + 1;
+        }
+
+        $restaurant->setAverageNote($newAverage/$count);
+
+        $em->persist($restaurant);
+        $em->flush();
         return $this->helper->success($user, 200);
     }
 }

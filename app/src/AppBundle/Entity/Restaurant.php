@@ -77,6 +77,20 @@ class Restaurant
      */
     protected $addressComplement;
 
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="latitude", type="float", length=255,nullable=true)
+     */
+    protected $latitude;
+
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="longitude", type="float", length=255,nullable=true)
+     */
+    protected $longitude;
+
 
     /**
      * @var string
@@ -91,6 +105,13 @@ class Restaurant
      * @ORM\Column(name="description", type="text")
      */
     protected $description;
+
+    /**
+     * @var string
+     * @ORM\Column(name="picture", type="text", nullable=true)
+     */
+    protected $picture;
+
 
     /**
      * @var array
@@ -118,6 +139,13 @@ class Restaurant
      * @ORM\Column(name="current_seats", type="integer", length=10, nullable=true)
      */
     protected $currentSeats;
+
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="average_note",type="float")
+     */
+    protected $averageNote = 0;
 
 
     /**
@@ -411,6 +439,37 @@ class Restaurant
         $this->currentSeats = $currentSeats;
     }
 
+    /**
+     * @return string
+     */
+    public function getPicture()
+    {
+        return $this->picture;
+    }
+
+    /**
+     * @param string $picture
+     */
+    public function setPicture($picture)
+    {
+        $this->picture = $picture;
+    }
+
+    /**
+     * @return float
+     */
+    public function getAverageNote()
+    {
+        return $this->averageNote;
+    }
+
+    /**
+     * @param float $averageNote
+     */
+    public function setAverageNote($averageNote)
+    {
+        $this->averageNote = $averageNote;
+    }
 
 
     public function __toString()
