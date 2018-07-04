@@ -7,12 +7,12 @@ fos_elastica:
             client: default
             types:
                 restaurant:
-                    mappings:
+                    properties:
                         id:
                             type: integer
-                        name: ~
-                        longitude: ~
-                        latitude: ~
+                        status: ~
+                        position:
+                            type: geo_point
                         categories:
                             type: "nested"
                             properties:
@@ -24,4 +24,4 @@ fos_elastica:
                        model: AppBundle\Entity\Restaurant
                        finder: ~
                        provider: ~
-                       listener: ~
+                       repository: AppBundle\SearchRepository\RestaurantRepository

@@ -7,13 +7,15 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 
+
 /**
  * @ORM\Entity
- * @ORM\Entity(repositoryClass="AppBundle\Repository\RestaurantRepository")
  * @ORM\Table(name="restaurant")
  */
 class Restaurant
 {
+    const STATUS_OFFLINE = false;
+    const STATUS_ONLINE = true;
     /**
      * @var int
      *
@@ -501,6 +503,11 @@ class Restaurant
     public function setLongitude($longitude)
     {
         $this->longitude = $longitude;
+    }
+
+    public function getPosition()
+    {
+        return $this->latitude . ',' . $this->longitude;
     }
 
     public function __toString()

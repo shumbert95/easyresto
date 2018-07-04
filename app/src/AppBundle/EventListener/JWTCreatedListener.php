@@ -41,14 +41,6 @@ class JWTCreatedListener {
         $type = $user->getType();
         $payload['type'] = $type;
 
-        /*if ($type == User::TYPE_CLIENT) {
-            $client = $doctrine->getRepository('AppBundle:Client')->findByUser($user);
-            $payload['client'] = $client;
-        } else {
-            $restaurant = $doctrine->getRepository('AppBundle:Restaurant')->findByUser($user);
-            $payload['restaurant'] = $restaurant;
-        }*/
-
         $event->setData($payload);
     }
 }
