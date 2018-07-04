@@ -73,7 +73,7 @@ class ApiHelper
 
         if ($element) {
             $view->setData(array(
-                'result' => $element . ' not found.'
+                'result' => 'param \'' . $element . '\' not found.'
             ));
         }
 
