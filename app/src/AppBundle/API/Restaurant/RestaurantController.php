@@ -159,9 +159,9 @@ class RestaurantController extends ApiBaseController
 
 
     /**
-     * @QueryParam(name="name", nullable=true)
      * @QueryParam(name="latitude", nullable=false)
      * @QueryParam(name="longitude", nullable=false)
+     * @QueryParam(name="exact", nullable=false)
      *
      * @REST\Get("/restaurants", name="api_list_restaurants")
      *
@@ -170,9 +170,22 @@ class RestaurantController extends ApiBaseController
     {
         $params = $paramFetcher->all();
         $restaurantSearch = new RestaurantSearch();
+
+        if (!$params['longitude']) {
+            return $this->helper->elementNotFound('longitude');
+        }
+
+        if (!$params['latitude']) {
+            return $this->helper->elementNotFound('latitude');
+        }
+
+        if (!$params['exact']) {
+            return $this->helper->elementNotFound('exact');
+        }
+
         $restaurantSearch->setLatitude($params['latitude']);
         $restaurantSearch->setLongitude($params['longitude']);
-        $restaurantSearch->setName($params['name']);
+        $restaurantSearch->setExact((bool)$params['exact']);
 
         $elasticaManager = $this->container->get('fos_elastica.manager');
         $results = $elasticaManager->getRepository('AppBundle:Restaurant')->search($restaurantSearch);

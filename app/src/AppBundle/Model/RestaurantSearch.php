@@ -12,6 +12,8 @@ class RestaurantSearch
 
     protected $latitude;
 
+    protected $exact;
+
     public function __construct(){}
 
     public function setName($name)
@@ -45,5 +47,16 @@ class RestaurantSearch
     public function getLatitude()
     {
         return $this->latitude;
+    }
+
+    public function setExact($exact)
+    {
+        $this->exact = $exact;
+        return $this;
+    }
+
+    public function isExact()
+    {
+        return $this->exact;
     }
 }
