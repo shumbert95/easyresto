@@ -22,6 +22,7 @@ class MealType extends AbstractType
                 'description',
                 TextType::class,
                 [
+                    'required' => false,
                     'label' => 'Description'
                 ]
             )
@@ -29,6 +30,7 @@ class MealType extends AbstractType
                 'price',
                 IntegerType::class,
                 [
+                    'required' => false,
                     'label' => 'Prix'
                 ]
             )
@@ -36,6 +38,7 @@ class MealType extends AbstractType
                 'availability',
                 BooleanType::class,
                 [
+                    'required' => false,
                     'label' => 'Disponibilité'
                 ]
             )
@@ -43,6 +46,7 @@ class MealType extends AbstractType
                 'initialStock',
                 IntegerType::class,
                 [
+                    'required' => false,
                     'label' => 'Stock initial'
                 ]
             )
@@ -50,6 +54,7 @@ class MealType extends AbstractType
                 'currentStock',
                 IntegerType::class,
                 [
+                    'required' => false,
                     'label' => 'Stock actuel'
                 ]
             )

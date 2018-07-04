@@ -3,15 +3,8 @@
 namespace AppBundle\API\Restaurant;
 
 use AppBundle\API\ApiBaseController;
-use AppBundle\Entity\CategoryMeal;
-use AppBundle\Entity\Meal;
-use AppBundle\Entity\Menu;
-use AppBundle\Form\CategoryMealType;
-use AppBundle\Form\MealType;
-use AppBundle\Form\MenuType;
+use AppBundle\Entity\Content;
 use FOS\RestBundle\Controller\Annotations as REST;
-use FOS\RestBundle\Request\ParamFetcher;
-use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
 
 class RestaurantMenuController extends ApiBaseController
@@ -27,14 +20,47 @@ class RestaurantMenuController extends ApiBaseController
     public function getRestaurantMenu(Request $request)
     {
         $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
-        $meals = $this->getMealRepository()->findBy(array('restaurant' => $restaurant));
+        $tabs = $this->getTabMealRepository()->findBy(array('restaurant' => $restaurant));
+        $json = array();
+        if(isset($restaurant) && isset($tabs)) {
+            foreach ($tabs as $tab) {
+                if (isset ($tab)) {
+                    $contents = $this->getContentRepository()->findBy(array('tab' => $tab,), array('position' => 'ASC'));
+                    foreach ($contents as $content) {
+                        if ($content->getType() == Content::TYPE_CATEGORY) {
+                            $arrayContent[$tab->getId()][] = array(
+                                "id" => $content->getId(),
+                                "position" => $content->getPosition(),
+                                "type" => $content::$types[Content::TYPE_CATEGORY],
+                                "name" => $content->getName(),
+                            );
+                        } else {
+                            $arrayContent[$tab->getId()][] = array(
+                                "id" => $content->getId(),
+                                "position" => $content->getPosition(),
+                                "type" => $content::$types[Content::TYPE_MEAL],
+                                "name" => $content->getName(),
+                                "description" => $content->getDescription(),
+                                "price" => $content->getPrice(),
+                            );
+                        }
 
-        return $this->helper->success($meals, 200);
-        /*return $this->json(array(
-            'name' => $meals->getCategory()
-            'newUser' => array(
-            )
-        ));*/
+                    }
+                    $json[] = array(
+                        "id" => $tab->getId(),
+                        "position" => $tab->getPosition(),
+                        "name" => $tab->getName(),
+                        "content" => $arrayContent[$tab->getId()]
+                    );
+                }
+            }
+        }
+        else {
+            $json[] = array();
+        }
+
+
+        return $this->helper->success($json, 200);
     }
 
 }
