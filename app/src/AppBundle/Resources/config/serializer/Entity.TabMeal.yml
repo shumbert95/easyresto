@@ -3,3 +3,5 @@ AppBundle\Entity\TabMeal:
     properties:
       status:
         exclude: true
+      restaurant:
+        exclude: true

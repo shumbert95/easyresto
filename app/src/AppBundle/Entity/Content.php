@@ -8,9 +8,9 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Category
  * @ORM\Entity
- * @ORM\Table(name="meal")
+ * @ORM\Table(name="content")
  */
-class Meal
+class Content
 {
 
     /**
@@ -19,12 +19,19 @@ class Meal
      */
     protected $restaurant;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\TabMeal")
+     * @ORM\JoinColumn(name="tab_id")
+     */
+    protected $tab;
+
 
     /**
-     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\CategoryMeal")
-     * @ORM\JoinColumn(name="category_meal_id")
+     * @var integer
+     *
+     * @ORM\Column(name="type", type="integer")
      */
-    protected $category;
+    protected $type;
 
     /**
      * @var int
@@ -45,42 +52,42 @@ class Meal
     /**
      * @var string
      *
-     * @ORM\Column(name="description", type="text")
+     * @ORM\Column(name="description", type="text", nullable=true)
      */
     protected $description;
 
     /**
      * @var float
      *
-     * @ORM\Column(name="price", type="float", length=10)
+     * @ORM\Column(name="price", type="float", length=10, nullable=true)
      */
     protected $price;
 
     /**
      * @var bool
      *
-     * @ORM\Column(name="availability", type="boolean")
+     * @ORM\Column(name="availability", type="boolean", nullable=true)
      */
     protected $availability;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="initial_stock", type="integer", length=10)
+     * @ORM\Column(name="initial_stock", type="integer", length=10, nullable=true)
      */
     protected $initialStock;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="current_stock", type="integer", length=10)
+     * @ORM\Column(name="current_stock", type="integer", length=10, nullable=true)
      */
     protected $currentStock;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="position", type="integer", length=10)
+     * @ORM\Column(name="position", type="integer", length=10, nullable=true)
      */
     protected $position;
 
@@ -90,6 +97,15 @@ class Meal
      * @ORM\Column(name="status", type="boolean")
      */
     protected $status;
+
+    const TYPE_MEAL = 1;
+    const TYPE_CATEGORY = 2;
+
+
+    public static $types = array(
+        self::TYPE_MEAL => 'meal',
+        self::TYPE_CATEGORY => 'category'
+    );
 
     public function __construct()
     {
@@ -253,6 +269,38 @@ class Meal
     public function setPosition($position)
     {
         $this->position = $position;
+    }
+
+    /**
+     * @return int
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param int $type
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTab()
+    {
+        return $this->tab;
+    }
+
+    /**
+     * @param mixed $tab
+     */
+    public function setTab($tab)
+    {
+        $this->tab = $tab;
     }
 
 

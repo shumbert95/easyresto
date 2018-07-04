@@ -42,9 +42,10 @@ class Reservation{
     protected $dateCanceled;
 
     /**
-     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Client", mappedBy="reservation")
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\User")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
-    protected $client;
+    protected $user;
 
     /**
      * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Restaurant")

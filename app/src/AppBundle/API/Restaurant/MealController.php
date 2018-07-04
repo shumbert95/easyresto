@@ -4,6 +4,7 @@ namespace AppBundle\API\Restaurant;
 
 use AppBundle\API\ApiBaseController;
 use AppBundle\Entity\CategoryMeal;
+use AppBundle\Entity\Content;
 use AppBundle\Entity\Meal;
 use AppBundle\Entity\Menu;
 use AppBundle\Form\CategoryMealType;
@@ -21,13 +22,13 @@ class MealController extends ApiBaseController
      * @param Request $request
      *
      *
-     * @REST\Post("/restaurant/{id}/category/{idCat}/meal/create", name="api_create_meal")
+     * @REST\Post("/restaurant/{id}/tab/{idTab}/meal/create", name="api_create_meal")
      * @REST\RequestParam(name="name")
-     * @REST\RequestParam(name="description")
-     * @REST\RequestParam(name="price")
-     * @REST\RequestParam(name="availability")
-     * @REST\RequestParam(name="initialStock")
-     * @REST\RequestParam(name="currentStock")
+     * @REST\RequestParam(name="description", nullable=true)
+     * @REST\RequestParam(name="price", nullable=true)
+     * @REST\RequestParam(name="availability", nullable=true)
+     * @REST\RequestParam(name="initialStock", nullable=true)
+     * @REST\RequestParam(name="currentStock", nullable=true)
      * @REST\RequestParam(name="position")
      *
      */
@@ -44,12 +45,13 @@ class MealController extends ApiBaseController
 
         $params = $paramFetcher->all();
 
-        $category = $this->getCategoryMealRepository()->find($request->get('idCat'));
+        $tab = $this->getTabMealRepository()->find($request->get('idTab'));
 
-        $meal = new Meal();
+        $meal = new Content();
         $meal->setStatus(1);
+        $meal->setType(CONTENT::TYPE_MEAL);
         $meal->setRestaurant($restaurant);
-        $meal->setCategory($category);
+        $meal->setTab($tab);
 
         $form = $this->createForm(MealType::class, $meal);
         $form->submit($params);
@@ -62,6 +64,42 @@ class MealController extends ApiBaseController
         $em = $this->getEntityManager();
         $em->persist($meal);
         $em->flush();
+
+        return $this->helper->success($meal, 200);
+    }
+
+    /**
+     *
+     * @REST\Put("/restaurant/{id}/meal/{idMeal}/edit", name="api_edit_meal")
+     *
+     */
+    public function editMeal(Request $request)
+    {
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+        $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
+        $restaurantUsers = $restaurant->getUsers();
+
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
+            !$restaurantUsers->contains($user)){
+            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
+        }
+
+        $meal=$this->getContentRepository()->findOneBy(array("id" => $request->get('idMeal')));
+
+
+        $request_data = $request->request->all();
+
+        if($request_data['name'] != null){
+            $meal->setName($request_data['name']);
+        }
+        if($request_data['price'] != null){
+            $meal->setPrice($request_data['price']);
+        }
+        if($request_data['description'] != null){
+            $meal->setDescription($request_data['description']);
+        }
+        $em = $this->getEntityManager();
+        $em->persist($meal);
 
         return $this->helper->success($meal, 200);
     }
@@ -82,7 +120,7 @@ class MealController extends ApiBaseController
             return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
         }
         $params=$paramFetcher->all();
-        $meal = $this->getMealRepository()->findOneBy(array('id' => $request->get('idMeal'), 'restaurant' => $restaurant, 'status'=> true));
+        $meal = $this->getContentRepository()->findOneBy(array('id' => $request->get('idMeal'), 'restaurant' => $restaurant, 'status'=> true));
 
         $meal->setInitialStock($params['initialStock']);
         $meal->setCurrentStock($params['initialStock']);
@@ -109,7 +147,7 @@ class MealController extends ApiBaseController
             return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
         }
         $params=$paramFetcher->all();
-        $meal = $this->getMealRepository()->findOneBy(array('id' => $request->get('idMeal'), 'restaurant' => $restaurant, 'status'=> true));
+        $meal = $this->getContentRepository()->findOneBy(array('id' => $request->get('idMeal'), 'restaurant' => $restaurant, 'status'=> true));
 
         $meal->setCurrentStock($meal->getCurrentStock() + $params['stock']);
 
@@ -120,37 +158,7 @@ class MealController extends ApiBaseController
         return $this->helper->success($meal, 200);
     }
 
-    /**
-     *
-     * @REST\Post("/restaurant/{id}/meal/{idMeal}/position", name="api_update_meal_position")
-     * @REST\RequestParam(name="position")
-     */
-    public function updateMealPosition(Request $request, ParamFetcher $paramFetcher)
-    {
-        $user = $this->container->get('security.token_storage')->getToken()->getUser();
-        $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
-        $restaurantUsers = $restaurant->getUsers();
 
-        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
-            !$restaurantUsers->contains($user)){
-            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
-        }
-
-        $params = $paramFetcher->all();
-        $meal = $this->getMealRepository()->findOneBy(
-            array(
-                'status' => true,
-                'restaurant' => $restaurant,
-                'id' => $request->get('idMeal')
-            ));
-
-        $meal->setPosition($params['position']);
-        $em = $this->getEntityManager();
-        $em->persist($meal);
-        $em->flush();
-
-        return $this->helper->success($meal, 200);
-    }
 
     /**
      *
@@ -160,7 +168,7 @@ class MealController extends ApiBaseController
     public function getMeal(Request $request)
     {
         $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
-        $meal = $this->getMealRepository()->findBy(array('id' => $request->get('idMeal'), 'restaurant' => $restaurant, 'status'=> true));
+        $meal = $this->getContentRepository()->findBy(array('id' => $request->get('idMeal'), 'restaurant' => $restaurant, 'status'=> true));
 
 
         return $this->helper->success($meal, 200);
@@ -172,7 +180,7 @@ class MealController extends ApiBaseController
     public function deleteMeal(Request $request)
     {
         $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
-        $meal = $this->getMealRepository()->findOneBy(
+        $meal = $this->getContentRepository()->findOneBy(
             array(
                 'status' => true,
                 'restaurant' => $restaurant,
@@ -194,26 +202,7 @@ class MealController extends ApiBaseController
     public function getMeals(Request $request)
     {
         $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
-        $meals = $this->getMealRepository()->findBy(array('restaurant' => $restaurant,'status' => true));
-        return $this->helper->success($meals, 200);
-    }
-
-    /**
-     *
-     * @REST\Get("/restaurant/{id}/category/{idCategory}/meals", name="api_list_meals_by_category")
-     *
-     */
-    public function getMealsFromCategory(Request $request)
-    {
-        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
-        $category = $this->getCategoryMealRepository()->find($request->get('idCategory'));
-
-        $meals = $this->getMealRepository()->findBy(array(
-            'restaurant' => $restaurant,
-            'status' => true,
-            'category' => $category
-        ));
-
+        $meals = $this->getContentRepository()->findBy(array('restaurant' => $restaurant,'type' => Content::TYPE_MEAL));
         return $this->helper->success($meals, 200);
     }
 
@@ -227,12 +216,10 @@ class MealController extends ApiBaseController
         $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
         $tab = $this->getTabMealRepository()->find($request->get('idTab'));
 
-        $meals = $this->getMealRepository()->findBy(array(
+        $meals = $this->getContentRepository()->findBy(array(
             'restaurant' => $restaurant,
-            'status' => true,
-            'category' => array(
-                'tabMeal' => $tab
-            )
+            'tab' => $tab,
+            'type' => Content::TYPE_MEAL
         ));
 
         return $this->helper->success($meals, 200);

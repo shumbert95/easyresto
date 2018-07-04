@@ -36,7 +36,7 @@ class Invoice
     protected $price;
 
     /**
-     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\Meal")
+     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\Content")
      * @ORM\JoinTable(name="invoice_meal",
      *      joinColumns={@ORM\JoinColumn(name="menu_id", referencedColumnName="id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="meal_id", referencedColumnName="id")}

@@ -1,0 +1,11 @@
+AppBundle\Entity\Content:
+    exclusion_policy: none
+    properties:
+      restaurant:
+        exclude: true
+      status:
+        exclude: true
+      type:
+        exclude: true
+      types:
+        exclude: true
