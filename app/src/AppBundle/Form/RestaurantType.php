@@ -77,7 +77,7 @@ class RestaurantType extends AbstractType
                 'seats',
                 IntegerType::class,
                 [
-                    'required' => true,
+                    'required' => false,
                     'label' => 'Places',
                 ]
 

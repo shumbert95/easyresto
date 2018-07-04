@@ -2,11 +2,9 @@
 
 namespace AppBundle\DataFixtures;
 
-use AppBundle\Entity\CategoryMeal;
 use AppBundle\Entity\CategoryRestaurant;
 use AppBundle\Entity\Client;
 use AppBundle\Entity\Content;
-use AppBundle\Entity\Meal;
 use AppBundle\Entity\Restaurant;
 use AppBundle\Entity\TabMeal;
 use AppBundle\Entity\User;

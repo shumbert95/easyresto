@@ -4,17 +4,10 @@ namespace AppBundle\API\Restaurant;
 
 use AppBundle\API\ApiBaseController;
 use AppBundle\Entity\CategoryRestaurant;
-use AppBundle\Entity\Restaurant;
-use AppBundle\Entity\User;
 use AppBundle\Form\CategoryRestaurantType;
-use AppBundle\Form\RegistrationClientType;
-use AppBundle\Form\RestaurantType;
 use FOS\RestBundle\Controller\Annotations as REST;
 use FOS\RestBundle\Request\ParamFetcher;
-use FOS\RestBundle\View\View;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class CategoryRestaurantController extends ApiBaseController
 {

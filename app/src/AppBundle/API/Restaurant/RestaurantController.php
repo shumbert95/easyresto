@@ -3,18 +3,12 @@
 namespace AppBundle\API\Restaurant;
 
 use AppBundle\API\ApiBaseController;
-use AppBundle\Entity\CategoryMeal;
 use AppBundle\Entity\Restaurant;
 use AppBundle\Entity\User;
-use AppBundle\Form\CategoryMealType;
-use AppBundle\Form\RegistrationClientType;
 use AppBundle\Form\RestaurantType;
 use FOS\RestBundle\Controller\Annotations as REST;
 use FOS\RestBundle\Request\ParamFetcher;
-use FOS\RestBundle\View\View;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class RestaurantController extends ApiBaseController
 {
@@ -29,7 +23,7 @@ class RestaurantController extends ApiBaseController
      * @REST\RequestParam(name="postalCode")
      * @REST\RequestParam(name="phone")
      * @REST\RequestParam(name="description")
-     * @REST\RequestParam(name="seats")
+     * @REST\RequestParam(name="seats", nullable=true)
      */
     public function createRestaurant(ParamFetcher $paramFetcher, Request $request)
     {

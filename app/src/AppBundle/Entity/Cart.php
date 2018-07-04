@@ -36,7 +36,7 @@ class Cart
     protected $price;
 
     /**
-     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\Meal")
+     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\Content")
      * @ORM\JoinTable(name="cart_meal",
      *      joinColumns={@ORM\JoinColumn(name="menu_id", referencedColumnName="id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="meal_id", referencedColumnName="id")}

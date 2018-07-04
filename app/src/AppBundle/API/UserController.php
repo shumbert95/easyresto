@@ -2,19 +2,13 @@
 
 namespace AppBundle\API;
 
-use AppBundle\API\ApiBaseController;
-use AppBundle\Entity\Client;
-use AppBundle\Entity\Restaurant;
 use AppBundle\Entity\User;
 use AppBundle\Form\RegistrationClientType;
 use AppBundle\Form\RegistrationRestorerType;
-use AppBundle\Form\RestaurantType;
 use FOS\RestBundle\Controller\Annotations as REST;
 use FOS\RestBundle\Request\ParamFetcher;
 use FOS\RestBundle\View\View;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class UserController extends ApiBaseController
 {
@@ -97,38 +91,6 @@ class UserController extends ApiBaseController
     }
 
 
-    //TODO: Faire marcher l'edit
-    /**
-     *
-     * @REST\Put("/user/edit", name="api_edit_logged_user")
-     *
-     */
-    public function editUser(Request $request)
-    {
-        $user = $this->container->get('security.token_storage')->getToken()->getUser();
-        $form = $this->createForm(RegistrationRestorerType::class, $user);
-
-        $form->submit($request->request->all());
-
-        if (!$form->isValid()) {
-            return $form;
-        }
-
-
-        //$fosUserManager->updateUser($user);
-
-        return $this->json(array(
-            'newUser' => array(
-                'id' => $user->getId(),
-                'firstName' => $user->getFirstName(),
-                'lastName' => $user->getLastName(),
-                'birthDate' => $user->getBirthdate(),
-                'email' => $user->getEmail(),
-                'type' => $user->getType(),
-                'test' => $form->getData(),
-            )
-        ));
-    }
 
 
 
