@@ -23,6 +23,8 @@ parameters:
     jwt_key_pass_phrase:  'easyresto'                                # ssh key pass phrase
     jwt_token_ttl:        3600
 
+    elastic_host: elasticsearch
+
     # A secret key that's used to generate certain security-related tokens
     secret: ThisTokenIsNotSoSecretChangeIt
 
