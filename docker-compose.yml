@@ -2,6 +2,7 @@ apache:
   build: ./docker/build/apache
   links:
     - mysql
+    - elasticsearch
   volumes:
     - ./docker/etc/apache/virtualhost.conf:/etc/apache2/sites-enabled/000-default.conf:ro
     - ./docker/etc/php/php.ini:/usr/local/etc/php/php.ini
@@ -23,3 +24,20 @@ phpmyadmin:
   image: nazarpc/phpmyadmin
   links:
     - mysql
+
+elasticsearch:
+  image: docker.elastic.co/elasticsearch/elasticsearch:5.5.2
+  environment:
+      - http.host=0.0.0.0
+      # Disable X-Pack security: https://www.elastic.co/guide/en/elasticsearch/reference/5.5/security-settings.html#general-security-settings
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+  ulimits:
+    memlock:
+      soft: -1
+      hard: -1
+  mem_limit: 1g
+  expose:
+    - "9200"
+  volumes:
+    - ./docker/volume/elasticsearch:/usr/share/elasticsearch/data

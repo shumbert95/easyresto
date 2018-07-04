@@ -1,0 +1,27 @@
+fos_elastica:
+    clients:
+        default: { host: '%elastic_host%', port: 9200 }
+    indexes:
+        easyresto:
+            finder: ~
+            client: default
+            types:
+                restaurant:
+                    mappings:
+                        id:
+                            type: integer
+                        name: ~
+                        longitude: ~
+                        latitude: ~
+                        categories:
+                            type: "nested"
+                            properties:
+                                name: ~
+                                id :
+                                    type : integer
+                    persistence:
+                       driver: orm
+                       model: AppBundle\Entity\Restaurant
+                       finder: ~
+                       provider: ~
+                       listener: ~
