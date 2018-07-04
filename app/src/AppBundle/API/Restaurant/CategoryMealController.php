@@ -4,6 +4,7 @@ namespace AppBundle\API\Restaurant;
 
 use AppBundle\API\ApiBaseController;
 use AppBundle\Entity\CategoryMeal;
+use AppBundle\Entity\Content;
 use AppBundle\Entity\Meal;
 use AppBundle\Entity\Menu;
 use AppBundle\Form\CategoryMealType;
@@ -39,21 +40,11 @@ class CategoryMealController extends ApiBaseController
         $tab = $this->getTabMealRepository()->find($request->get('idTab'));
 
 
-        $category = $this->getCategoryMealRepository()->findOneBy(array('name' => $params['name']));
-
-        if ($category instanceof CategoryMeal && $category->getStatus()) {
-            return $this->helper->error('This name is already used');
-        }
-        else if (($category instanceof CategoryMeal && !$category->getStatus())) {
-            $category->setStatus(1);
-            $category->setTabMeal($tab);
-        }
-        else if(!($category instanceof CategoryMeal)) {
-            $category = new CategoryMeal();
-            $category->setStatus(1);
-            $category->setRestaurant($restaurant);
-            $category->setTabMeal($tab);
-        }
+        $category = new Content();
+        $category->setStatus(1);
+        $category->setType(Content::TYPE_CATEGORY);
+        $category->setRestaurant($restaurant);
+        $category->setTabMeal($tab);
 
         $form = $this->createForm(CategoryMealType::class, $category);
         $form->submit($params);
@@ -71,6 +62,18 @@ class CategoryMealController extends ApiBaseController
 
     /**
      *
+     * @REST\Get("/restaurant/{id}/categories", name="api_list_categories")
+     *
+     */
+    public function getCategories(Request $request)
+    {
+        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
+        $categories = $this->getContentRepository()->findBy(array('restaurant' => $restaurant,'type' => Content::TYPE_CATEGORY));
+        return $this->helper->success($categories, 200);
+    }
+
+    /**
+     *
      * @REST\Get("/restaurant/{id}/tab/{idTab}/categories", name="api_list_meal_categories")
      *
      */
@@ -79,7 +82,7 @@ class CategoryMealController extends ApiBaseController
         $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
         $tab = $this->getTabMealRepository()->find($request->get('idTab'));
 
-        $categories = $this->getCategoryMealRepository()->findBy(array('status' => true, 'restaurant' => $restaurant, 'tabMeal' => $tab));
+        $categories = $this->getContentRepository()->findBy(array('status' => true, 'restaurant' => $restaurant, 'tabMeal' => $tab,'type' => Content::TYPE_CATEGORY));
         return $this->helper->success($categories, 200);
     }
 
@@ -91,7 +94,7 @@ class CategoryMealController extends ApiBaseController
     public function getCategory(Request $request)
     {
         $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
-        $category = $this->getCategoryMealRepository()->findOneBy(array('status' => true, 'restaurant' => $restaurant, 'id' => $request->get('idCategory')));
+        $category = $this->getContentRepository()->findOneBy(array('status' => true, 'restaurant' => $restaurant, 'id' => $request->get('idCategory')));
         return $this->helper->success($category, 200);
     }
 
@@ -112,7 +115,7 @@ class CategoryMealController extends ApiBaseController
             return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
         }
         $params = $paramFetcher->all();
-        $category = $this->getCategoryMealRepository()->findOneBy(array('status' => true, 'restaurant' => $restaurant, 'id' => $request->get('idCategory')));
+        $category = $this->getContentRepository()->findOneBy(array('status' => true, 'restaurant' => $restaurant, 'id' => $request->get('idCategory')));
         $category->setPosition($params['position']);
         $em = $this->getEntityManager();
         $em->persist($category);
@@ -134,7 +137,7 @@ class CategoryMealController extends ApiBaseController
             !$restaurantUsers->contains($user)){
             return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
         }
-        $category = $this->getCategoryMealRepository()->findOneBy(
+        $category = $this->getContentRepository()->findOneBy(
             array(
                 'status' => true,
                 'restaurant' => $restaurant,

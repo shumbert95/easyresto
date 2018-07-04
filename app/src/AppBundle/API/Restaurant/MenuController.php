@@ -48,7 +48,7 @@ class MenuController extends ApiBaseController
         $menu->setRestaurant($restaurant);
         foreach ($params['meals'] as $meal)
         {
-            $menu->addMeal($this->getMealRepository()->findOneBy(array('id' => $meal)));
+            $menu->addMeal($this->getContentRepository()->findOneBy(array('id' => $meal)));
 
         }
 

@@ -4,6 +4,7 @@ namespace AppBundle\API\Restaurant;
 
 use AppBundle\API\ApiBaseController;
 use AppBundle\Entity\CategoryMeal;
+use AppBundle\Entity\Content;
 use AppBundle\Entity\Meal;
 use AppBundle\Entity\Menu;
 use AppBundle\Form\CategoryMealType;
@@ -31,35 +32,36 @@ class RestaurantMenuController extends ApiBaseController
     {
         $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
         $tabs = $this->getTabMealRepository()->findBy(array('restaurant' => $restaurant));
-        $json= array();
+        $json = array();
         foreach ($tabs as $tab){
-            $categories = $this->getCategoryMealRepository()->findBy(array('tabMeal'=> $tab));
-            foreach($categories as $category) {
-                $meals = $this->getMealRepository()->findBy(array('category'=> $category));
-                foreach($meals as $meal) {
-                    $mealArray[$category->getId()][] = array(
-                        "id"      => $meal->getId(),
-                        "name"      => $meal->getName(),
-                        "price"     => $meal->getPrice(),
-                        "position"     => $meal->getPosition(),
+            $contents = $this->getContentRepository()->findBy(array('tab' => $tab,),array('position' => 'ASC'));
+            foreach($contents as $content){
+                if($content->getType() == Content::TYPE_CATEGORY){
+                    $arrayContent[$tab->getId()][] = array(
+                        "id" => $content->getId(),
+                        "position" => $content->getPosition(),
+                        "type" => $content::$types[Content::TYPE_CATEGORY],
+                        "name" => $content->getName(),
                     );
                 }
-                if(isset ($mealArray[$category->getId()])) {
-                    $categoryArray[$tab->getId()][] = array(
-                        "name" => $category->getName(),
-                        "id" => $category->getId(),
-                        "position" => $category->getPosition(),
-                        "content" => $mealArray[$category->getId()],
+                else{
+                    $arrayContent[$tab->getId()][] = array(
+                        "id" => $content->getId(),
+                        "position" => $content->getPosition(),
+                        "type" => $content::$types[Content::TYPE_MEAL],
+                        "name" => $content->getName(),
+                        "description" => $content->getDescription(),
+                        "price" => $content->getPrice(),
                     );
                 }
+
             }
-            if(isset($categoryArray[$tab->getId()])) {
-                $json[] = array(
-                    "id"    => $tab->getId(),
-                    "position"  => $tab->getPosition(),
-                    $tab->getName() => $categoryArray[$tab->getId()]
-                );
-            }
+            $json[] = array(
+                "id" => $tab->getId(),
+                "position" => $tab->getPosition(),
+                "name" => $tab->getName(),
+                "content"   => $arrayContent[$tab->getId()]
+            );
         }
 
         return $this->helper->success($json, 200);
