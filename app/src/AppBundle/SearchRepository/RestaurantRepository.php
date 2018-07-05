@@ -7,25 +7,32 @@ use AppBundle\Model\RestaurantSearch;
 use Elastica\Query;
 use Elastica\Query\BoolQuery;
 use Elastica\Query\Match;
-use Elastica\Query\Nested;
 use FOS\ElasticaBundle\Repository;
 
 class RestaurantRepository extends Repository
 {
-    const MAX = 100;
+
+    public function findById($id) {
+        $boolQuery = new BoolQuery();
+        $fieldQuery = new Match();
+
+        $fieldQuery->setFieldQuery('id', $id);
+        $boolQuery->addMust($fieldQuery);
+
+        $restaurants = $this->find($boolQuery);
+
+        return $restaurants[0];
+    }
 
     public function search(RestaurantSearch $restaurantSearch)
     {
-
-        $boolQuery = new \Elastica\Query\BoolQuery();
-
-        $fieldQuery = new \Elastica\Query\Match();
+        $boolQuery = new BoolQuery();
+        $fieldQuery = new Match();
 
         $fieldQuery->setFieldQuery('status', Restaurant::STATUS_ONLINE);
         $boolQuery->addMust($fieldQuery);
 
-
-        $filter = new Query\GeoDistance('position', array('lat' => $restaurantSearch->getLatitude(),
+        $filter = new Query\GeoDistance('location', array('lat' => $restaurantSearch->getLatitude(),
                                                                 'lon' => $restaurantSearch->getLongitude()),
                                                             !$restaurantSearch->isExact() ? '10km' : '1m');
 
