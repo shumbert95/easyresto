@@ -11,17 +11,81 @@ fos_elastica:
                         id:
                             type: integer
                         status: ~
+                        name: ~
+                        city: ~
+                        open: ~
                         position:
                             type: geo_point
                         categories:
                             type: "nested"
                             properties:
-                                name: ~
                                 id :
                                     type : integer
+                                name: ~
                     persistence:
                        driver: orm
                        model: AppBundle\Entity\Restaurant
                        finder: ~
                        provider: ~
                        repository: AppBundle\SearchRepository\RestaurantRepository
+                tabMeal:
+                    properties:
+                        id:
+                            type: integer
+                        status: ~
+                        name: ~
+                        restaurant:
+                            type: "nested"
+                            properties:
+                                id:
+                                    type: integer
+                                name: ~
+                    persistence:
+                        driver: orm
+                        model: AppBundle\Entity\TabMeal
+                        finder: ~
+                        provider: ~
+                        repository: AppBundle\SearchRepository\TabMealRepository
+                categoryRestaurant:
+                    properties:
+                        id:
+                            type: integer
+                        status: ~
+                        name: ~
+                    persistence:
+                        driver: orm
+                        model: AppBundle\Entity\CategoryMeal
+                        finder: ~
+                        provider: ~
+                        repository: AppBundle\SearchRepository\CategoryMealRepository
+                content:
+                    properties:
+                        id:
+                            type: integer
+                        status: ~
+                        name: ~
+                        type:
+                            type: integer
+                        price:
+                            type: float
+                        availability: ~
+                        currentStock:
+                            type: integer
+                        restaurant:
+                            type: "nested"
+                            properties:
+                                id:
+                                    type: integer
+                                name: ~
+                        tab:
+                            type: "nested"
+                            properties:
+                                id:
+                                    type: integer
+                                name: ~
+                    persistence:
+                        driver: orm
+                        model: AppBundle\Entity\Content
+                        finder: ~
+                        provider: ~
+                        repository: AppBundle\SearchRepository\ContentRepository
