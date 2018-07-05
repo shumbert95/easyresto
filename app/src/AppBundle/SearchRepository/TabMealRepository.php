@@ -20,7 +20,8 @@ class TabMealRepository extends Repository
         $boolQuery->addMust($fieldQuery);
 
         $tabs = $this->find($boolQuery);
-        return $tabs[0];
+
+        return $tabs ? $tabs[0] : $tabs;
     }
 
     public function findByRestaurant(Restaurant $restaurant) {

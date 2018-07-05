@@ -19,10 +19,8 @@ class CategoryRestaurantRepository extends Repository
         $boolQuery->addMust($fieldQuery);
 
         $categories = $this->find($boolQuery);
-        if(isset($categories[0]))
-            return $categories[0];
-        else
-            return $categories;
+      
+        return $categories ? $categories[0] : $categories;
     }
 
     public function findById($id) {
@@ -34,7 +32,7 @@ class CategoryRestaurantRepository extends Repository
 
         $categories = $this->find($boolQuery);
 
-        return $categories[0];
+        return $categories ? $categories[0] : $categories;
     }
 
     public function findAll() {

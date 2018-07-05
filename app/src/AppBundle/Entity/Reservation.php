@@ -3,6 +3,7 @@
 
 namespace AppBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -10,6 +11,11 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="reservation")
  */
 class Reservation{
+
+    const STATE_CANCELED = -1;
+    const STATE_PENDING = 0;
+    const STATE_PAID = 1;
+
     /**
      * @ORM\Id
      * @ORM\Column(type="integer")
@@ -20,7 +26,7 @@ class Reservation{
     /**
      * @ORM\Column(type="boolean")
      */
-    protected $paid;
+    protected $state;
 
     /**
      * @ORM\Column(type="decimal", scale=2)
@@ -37,7 +43,7 @@ class Reservation{
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="date_add", type="datetime")
+     * @ORM\Column(name="date_canceled", type="datetime", nullable=true)
      */
     protected $dateCanceled;
 
@@ -53,11 +59,25 @@ class Reservation{
      */
     protected $restaurant;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
+    protected $nbParticipants;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\Content")
+     * @ORM\JoinTable(name="reservation_contents",
+     *      joinColumns={@ORM\JoinColumn(name="content_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="reservation_id", referencedColumnName="id")}
+     *      )
+     */
+    protected $contents;
 
-
-    public function __construct(){
-
+    public function __construct(User $user, Restaurant $restaurant){
+        $this->user = $user;
+        $this->restaurant = $restaurant;
+        $this->state = self::STATE_PAID;
+        $this->contents = new ArrayCollection();
     }
 
     /**
@@ -71,17 +91,19 @@ class Reservation{
     /**
      * @return mixed
      */
-    public function getPaid()
+    public function getState()
     {
-        return $this->paid;
+        return $this->state;
     }
 
     /**
-     * @param mixed $paid
+     * @param mixed $state
+     *
+     * @return $this
      */
-    public function setPaid($paid)
+    public function setState($state)
     {
-        $this->paid = $paid;
+        $this->state = $state;
         
         return $this;
     }
@@ -96,6 +118,8 @@ class Reservation{
 
     /**
      * @param mixed $total
+     *
+     * @return $this
      */
     public function setTotal($total)
     {
@@ -114,6 +138,8 @@ class Reservation{
 
     /**
      * @param mixed $client
+     *
+     * @return $this
      */
     public function setClient($client)
     {
@@ -132,6 +158,8 @@ class Reservation{
 
     /**
      * @param mixed $restaurant
+     *
+     * @return $this
      */
     public function setRestaurant($restaurant)
     {
@@ -150,6 +178,8 @@ class Reservation{
 
     /**
      * @param mixed $date
+     *
+     * @return $this
      */
     public function setDate($date)
     {
@@ -168,11 +198,81 @@ class Reservation{
 
     /**
      * @param mixed $dateCanceled
+     *
+     * @return $this
      */
     public function setDateCanceled($dateCanceled)
     {
         $this->dateCanceled = $dateCanceled;
         
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNbParticipants()
+    {
+        return $this->nbParticipants;
+    }
+
+    /**
+     * @param mixed $paid
+     *
+     * @return $this
+     */
+    public function setNbParticipants($nbParticipants)
+    {
+        $this->nbParticipants = $nbParticipants;
+
+        return $this;
+    }
+
+    /**
+     * @return ArrayCollection
+     */
+    public function getContents()
+    {
+        return $this->contents;
+    }
+
+    /**
+     * @param ArrayCollection $contents
+     *
+     * @return $this
+     */
+    public function setContents($contents)
+    {
+        $this->contents = $contents;
+
+        return $this;
+    }
+
+    /**
+     * @param Content $content
+     *
+     * @return $this
+     */
+    public function addContent($content)
+    {
+        if (!$this->contents->contains($content)) {
+            $this->contents->add($content);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param Content $content
+     *
+     * @return $this
+     */
+    public function removeContent($content)
+    {
+        if ($this->contents->contains($content)) {
+            $this->contents->remove($content);
+        }
+
         return $this;
     }
 }
