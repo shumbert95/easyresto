@@ -144,8 +144,8 @@ class TabMealController extends ApiBaseController
         $params = $paramFetcher->all();
         $tab = $elasticaManager->getRepository('AppBundle:TabMeal')->findById($request->get('idTab'));
 
-        if (!$restaurant) {
-            return $this->helper->elementNotFound('Restaurant');
+        if (!$tab) {
+            return $this->helper->elementNotFound('TabMeal');
         }
 
         $tab->setPosition($params['position']);
@@ -189,7 +189,6 @@ class TabMealController extends ApiBaseController
         }
 
         $tab = $elasticaManager->getRepository('AppBundle:TabMeal')->findById($request->get('idTab'));
-
 
         $em = $this->getEntityManager();
         $em->remove($tab);

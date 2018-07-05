@@ -19,12 +19,17 @@ class TabMealRepository extends Repository
         $fieldQuery->setFieldQuery('id', $id);
         $boolQuery->addMust($fieldQuery);
 
-        return $this->find($boolQuery);
+        $tabs = $this->find($boolQuery);
+        return $tabs[0];
     }
 
     public function findByRestaurant(Restaurant $restaurant) {
         $boolQuery = new BoolQuery();
         $nestedQuery = new Nested();
+        $fieldQuery = new Match();
+
+        $fieldQuery->setFieldQuery('status', TabMeal::STATUS_ONLINE);
+        $boolQuery->addMust($fieldQuery);
 
         $nestedQuery->setPath('restaurant')
                     ->setQuery(new Match('restaurant.id', $restaurant->getId()));
