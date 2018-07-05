@@ -54,10 +54,10 @@ fos_elastica:
                         name: ~
                     persistence:
                         driver: orm
-                        model: AppBundle\Entity\CategoryMeal
+                        model: AppBundle\Entity\CategoryRestaurant
                         finder: ~
                         provider: ~
-                        repository: AppBundle\SearchRepository\CategoryMealRepository
+                        repository: AppBundle\SearchRepository\CategoryRestaurantRepository
                 content:
                     properties:
                         id:
