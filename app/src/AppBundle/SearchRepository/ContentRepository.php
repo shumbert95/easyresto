@@ -9,6 +9,7 @@ use Elastica\Query;
 use Elastica\Query\BoolQuery;
 use Elastica\Query\Match;
 use Elastica\Query\Nested;
+use Elastica\Query\Term;
 use FOS\ElasticaBundle\Repository;
 
 class ContentRepository extends Repository
@@ -73,10 +74,11 @@ class ContentRepository extends Repository
 
     public function findByIds($ids) {
         $boolQuery = new BoolQuery();
-        $fieldQuery = new Match();
+        $idsQuery = new Query\Ids();
 
-        $fieldQuery->setFieldQuery('id', $ids);
-        $boolQuery->addMust($fieldQuery);
+        $idsQuery->setIds($ids);
+
+        $boolQuery->addMust($idsQuery);
 
         $contents = $this->find($boolQuery);
         return $contents;
