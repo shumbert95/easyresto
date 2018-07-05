@@ -21,7 +21,7 @@ class RestaurantRepository extends Repository
 
         $restaurants = $this->find($boolQuery);
 
-        return $restaurants[0];
+        return $restaurants ? $restaurants[0] : $restaurants;
     }
 
     public function search(RestaurantSearch $restaurantSearch)

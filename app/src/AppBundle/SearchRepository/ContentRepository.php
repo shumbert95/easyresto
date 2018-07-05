@@ -67,6 +67,18 @@ class ContentRepository extends Repository
         $boolQuery->addMust($fieldQuery);
 
         $contents = $this->find($boolQuery);
-        return $contents[0];
+
+        return $contents ? $contents[0] : $contents;
+    }
+
+    public function findByIds($ids) {
+        $boolQuery = new BoolQuery();
+        $fieldQuery = new Match();
+
+        $fieldQuery->setFieldQuery('id', $ids);
+        $boolQuery->addMust($fieldQuery);
+
+        $contents = $this->find($boolQuery);
+        return $contents;
     }
 }
