@@ -15,7 +15,7 @@ class TabMealController extends ApiBaseController
      * @param Request $request
      *
      *
-     * @REST\Post("/restaurant/{id}/tab/create", name="api_create_meal_tab")
+     * @REST\Post("/restaurants/{id}/tabs/create", name="api_create_meal_tab")
      * @REST\RequestParam(name="name")
      * @REST\RequestParam(name="position")
      */
@@ -62,7 +62,7 @@ class TabMealController extends ApiBaseController
 
     /**
      *
-     * @REST\Get("/restaurant/{id}/tab/{idTab}", name="api_show_tab")
+     * @REST\Get("/restaurants/{id}/tabs/{idTab}", name="api_show_tab")
      *
      */
     public function getTab(Request $request)
@@ -74,7 +74,7 @@ class TabMealController extends ApiBaseController
 
     /**
      *
-     * @REST\Post("/restaurant/{id}/tab/{idTab}/position", name="api_update_tab_position")
+     * @REST\Put("/restaurants/{id}/tabs/{idTab}/position", name="api_update_tab_position")
      * @REST\RequestParam(name="position")
      */
     public function updateTabPosition(Request $request, ParamFetcher $paramFetcher)
@@ -98,7 +98,7 @@ class TabMealController extends ApiBaseController
     }
 
     /**
-     * @REST\Delete("/restaurant/{id}/tab/{idTab}/delete", name="api_delete_tab")
+     * @REST\Delete("/restaurants/{id}/tabs/{idTab}/delete", name="api_delete_tab")
      */
     public function deleteTabMeal(Request $request)
     {
@@ -127,7 +127,7 @@ class TabMealController extends ApiBaseController
 
     /**
      *
-     * @REST\Get("/restaurant/{id}/tabs", name="api_list_meal_tabs")
+     * @REST\Get("/restaurants/{id}/tabs", name="api_list_meal_tabs")
      *
      */
     public function getTabsMeal()

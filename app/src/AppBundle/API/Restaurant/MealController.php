@@ -22,7 +22,7 @@ class MealController extends ApiBaseController
      * @param Request $request
      *
      *
-     * @REST\Post("/restaurant/{id}/tab/{idTab}/meal/create", name="api_create_meal")
+     * @REST\Post("/restaurants/{id}/tabs/{idTab}/meals/create", name="api_create_meal")
      * @REST\RequestParam(name="name")
      * @REST\RequestParam(name="description", nullable=true)
      * @REST\RequestParam(name="price", nullable=true)
@@ -70,7 +70,7 @@ class MealController extends ApiBaseController
 
     /**
      *
-     * @REST\Put("/restaurant/{id}/meal/{idMeal}/edit", name="api_edit_meal")
+     * @REST\Put("/restaurants/{id}/meals/{idMeal}", name="api_edit_meal")
      *
      */
     public function editMeal(Request $request)
@@ -84,7 +84,7 @@ class MealController extends ApiBaseController
             return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
         }
 
-        $meal=$this->getContentRepository()->findOneBy(array("id" => $request->get('idMeal')));
+        $meal=$this->getContentRepository()->findOneBy(array("id" => $request->get('idMeal'), "restaurant" => $restaurant));
 
 
         $request_data = $request->request->all();
@@ -106,7 +106,7 @@ class MealController extends ApiBaseController
 
     /**
      *
-     * @REST\Post("/restaurant/{id}/meal/{idMeal}", name="api_daily_stock")
+     * @REST\Put("/restaurants/{id}/meals/{idMeal}/daily_stock", name="api_daily_stock")
      * @REST\RequestParam(name="initialStock")
      */
     public function updateDailyStock(Request $request,ParamFetcher $paramFetcher)
@@ -122,8 +122,8 @@ class MealController extends ApiBaseController
         $params=$paramFetcher->all();
         $meal = $this->getContentRepository()->findOneBy(array('id' => $request->get('idMeal'), 'restaurant' => $restaurant, 'status'=> true));
 
-        $meal->setInitialStock($params['initialStock']);
-        $meal->setCurrentStock($params['initialStock']);
+        $meal->setInitialStock($meal->getCurrentStock() + $params['initialStock']);
+        $meal->setCurrentStock($meal->getInitialStock());
         $em = $this->getEntityManager();
         $em->persist($meal);
         $em->flush();
@@ -133,10 +133,10 @@ class MealController extends ApiBaseController
 
     /**
      *
-     * @REST\Post("/restaurant/{id}/meal/{idMeal}/stock", name="api_stock_change")
+     * @REST\Put("/restaurants/{id}/meals/{idMeal}/update_stock", name="api_stock_change")
      * @REST\RequestParam(name="stock")
      */
-    public function setCurrentStock(Request $request,ParamFetcher $paramFetcher)
+    public function updateCurrentStock(Request $request,ParamFetcher $paramFetcher)
     {
         $user = $this->container->get('security.token_storage')->getToken()->getUser();
         $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
@@ -159,30 +159,14 @@ class MealController extends ApiBaseController
     }
 
 
-
     /**
-     *
-     * @REST\Get("/restaurant/{id}/meal/{idMeal}", name="api_show_meal")
-     *
-     */
-    public function getMeal(Request $request)
-    {
-        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
-        $meal = $this->getContentRepository()->findBy(array('id' => $request->get('idMeal'), 'restaurant' => $restaurant, 'status'=> true));
-
-
-        return $this->helper->success($meal, 200);
-    }
-
-    /**
-     * @REST\Delete("/restaurant/{id}/meal/{idMeal}", name="api_delete_meal")
+     * @REST\Delete("/restaurants/{id}/meals/{idMeal}", name="api_delete_meal")
      */
     public function deleteMeal(Request $request)
     {
         $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
         $meal = $this->getContentRepository()->findOneBy(
             array(
-                'status' => true,
                 'restaurant' => $restaurant,
                 'id' => $request->get('idMeal')
             ));
@@ -196,7 +180,7 @@ class MealController extends ApiBaseController
 
     /**
      *
-     * @REST\Get("/restaurant/{id}/meals", name="api_list_meals")
+     * @REST\Get("/restaurants/{id}/meals", name="api_list_meals")
      *
      */
     public function getMeals(Request $request)
@@ -208,7 +192,7 @@ class MealController extends ApiBaseController
 
     /**
      *
-     * @REST\Get("/restaurant/{id}/tab/{idTab}/meals", name="api_list_meals_by_tab")
+     * @REST\Get("/restaurants/{id}/tabs/{idTab}/meals", name="api_list_meals_by_tab")
      *
      */
     public function getMealsFromTab(Request $request)

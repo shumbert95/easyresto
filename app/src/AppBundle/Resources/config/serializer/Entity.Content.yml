@@ -5,7 +5,5 @@ AppBundle\Entity\Content:
         exclude: true
       status:
         exclude: true
-      type:
-        exclude: true
       types:
         exclude: true

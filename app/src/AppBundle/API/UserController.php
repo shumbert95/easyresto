@@ -17,7 +17,7 @@ class UserController extends ApiBaseController
      * @param ParamFetcher $paramFetcher
      *
      *
-     * @REST\Post("/user/create", name="api_create_user")
+     * @REST\Post("/users/create", name="api_create_user")
      * @REST\RequestParam(name="email")
      * @REST\RequestParam(name="firstName")
      * @REST\RequestParam(name="lastName")
@@ -52,6 +52,7 @@ class UserController extends ApiBaseController
         $user->setUsername($params['email']);
         $user->setEnabled(1);
         $fosUserManager->updateUser($user);
+        $user = $this->getUserRepository()->find($user);
 
         //$this->container->get('app.mail.manager')->sendConfirmationEmailMessage($user);
 
@@ -60,7 +61,7 @@ class UserController extends ApiBaseController
                 'id' => $user->getId(),
                 'firstName' => $user->getFirstName(),
                 'lastName' => $user->getLastName(),
-                'birthDate' => $user->getBirthdate(),
+                'birthDate' =>  $user->getBirthdate(),
                 'email' => $user->getEmail(),
                 'type' => $user->getType(),
             )
@@ -70,7 +71,60 @@ class UserController extends ApiBaseController
 
     /**
      *
-     * @REST\Get("/user/{id}", name="api_detail_user")
+     * @REST\Put("/profile", name="api_edit_profile")
+     *
+     */
+    public function editProfile(Request $request)
+    {
+        $request_data = $request->request->all();
+
+        $fosUserManager = $this->get('fos_user.user_manager');
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+
+        if(isset($request_data['phoneNumber'])){
+            $user->setPhoneNumber($request_data['phoneNumber']);
+        }
+        if(isset($request_data['postalCode'])){
+            $user->setPostalCode($request_data['postalCode']);
+        }
+        if(isset($request_data['firstName'])){
+            $user->setFirstName($request_data['firstName']);
+        }
+        if(isset($request_data['lastName'])){
+            $user->setLastName($request_data['lastName']);
+        }
+        if(isset($request_data['email'])){
+            $user->setEmail($request_data['email']);
+            $user->setEmailCanonical($request_data['email']);
+            $user->setUsername($request_data['email']);
+            $user->setUsernameCanonical($request_data['email']);
+        }
+        if(isset($request_data['password'])){
+            $user->setPlainPassword($request_data['password']);
+        }
+        if(isset($request_data['civility'])){
+            $user->setCivility($request_data['civility']);
+        }
+        if(isset($request_data['address'])){
+            $user->setAddress($request_data['address']);
+        }
+        if(isset($request_data['addressComplement'])){
+            $user->setAddressComplement($request_data['addressComplement']);
+        }
+        if(isset($request_data['birthDate'])){
+            $user->setBirthDate($request_data['birthDate']);
+        }
+        if(isset($request_data['city'])){
+            $user->setCity($request_data['city']);
+        }
+
+        $fosUserManager->updateUser($user,true);
+        return $this->helper->success($user, 200);
+    }
+
+    /**
+     *
+     * @REST\Get("/users/{id}", name="api_detail_user")
      *
      */
     public function getUserById(Request $request)
@@ -81,7 +135,7 @@ class UserController extends ApiBaseController
 
     /**
      *
-     * @REST\Get("/user", name="api_detail_logged_user")
+     * @REST\Get("/profile", name="api_detail_logged_user")
      *
      */
     public function getLoggedUser()
@@ -89,10 +143,6 @@ class UserController extends ApiBaseController
         $user = $this->container->get('security.token_storage')->getToken()->getUser();
         return $this->helper->success($user, 200);
     }
-
-
-
-
 
     /**
      * @return View
@@ -235,6 +285,7 @@ class UserController extends ApiBaseController
                 'postalCode' => $user->getPostalCode(),
                 'address' => $user->getAddress(),
                 'addressComplement' => $user->getAddressComplement(),
+                'city' => $user->getCity(),
             )
         ));
 

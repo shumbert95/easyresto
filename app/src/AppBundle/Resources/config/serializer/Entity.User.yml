@@ -21,3 +21,6 @@ AppBundle\Entity\User:
         exclude: true
       plainPassword:
         exclude: true
+      birthDate:
+        expose: true
+        type: DateTime<'Y-m-d'>

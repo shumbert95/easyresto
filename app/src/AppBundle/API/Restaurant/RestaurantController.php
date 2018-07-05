@@ -19,7 +19,7 @@ class RestaurantController extends ApiBaseController
     /**
      * @param ParamFetcher $paramFetcher
      *
-     * @REST\Post("/restaurant/create", name="api_create_restaurant")
+     * @REST\Post("/restaurants/create", name="api_create_restaurant")
      * @REST\RequestParam(name="name")
      * @REST\RequestParam(name="address")
      * @REST\RequestParam(name="addressComplement", nullable=true)
@@ -67,7 +67,7 @@ class RestaurantController extends ApiBaseController
     /**
      * @param Request $request
      *
-     * @REST\Post("/restaurant/{id}/schedule", name="api_update_schedule")
+     * @REST\Put("/restaurants/{id}/schedule", name="api_update_schedule")
      */
     public function updateSchedule(Request $request)
     {
@@ -106,7 +106,7 @@ class RestaurantController extends ApiBaseController
     /**
      * @param Request $request
      *
-     * @REST\Post("/restaurant/{id}/category/add", name="api_add_category")
+     * @REST\Put("/restaurants/{id}/categories/{idCat}/add", name="api_add_category")
      */
     public function addCategory(Request $request)
     {
@@ -118,9 +118,8 @@ class RestaurantController extends ApiBaseController
             !$restaurantUsers->contains($user)){
             return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
         }
-        $request_data = $request->request->all();
-
-        $restaurant->addCategory($request_data['category']);
+        $category = $this->getCategoryRestaurantRepository()->findOneBy(array("id" => $request->get('idCat')));
+        $restaurant->addCategory($category);
         $this->getEntityManager()->persist($restaurant);
         $this->getEntityManager()->flush();
 
@@ -130,7 +129,7 @@ class RestaurantController extends ApiBaseController
     /**
      * @param Request $request
      *
-     * @REST\Post("/restaurant/{id}/category/remove", name="api_remove_category")
+     * @REST\Put("/restaurants/{id}/categories/{idCat}/remove", name="api_remove_category")
      */
     public function removeCategory(Request $request)
     {
@@ -142,9 +141,8 @@ class RestaurantController extends ApiBaseController
             !$restaurantUsers->contains($user)){
             return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
         }
-        $request_data = $request->request->all();
-
-        $restaurant->removeCategory($request_data['category']);
+        $category = $this->getCategoryRestaurantRepository()->findOneBy(array("id" => $request->get('idCat')));
+        $restaurant->removeCategory($category);
         $this->getEntityManager()->persist($restaurant);
         $this->getEntityManager()->flush();
 
@@ -190,7 +188,7 @@ class RestaurantController extends ApiBaseController
 
     /**
      *
-     * @REST\Get("/restaurant/{id}", name="api_detail_restaurant")
+     * @REST\Get("/restaurants/{id}", name="api_detail_restaurant")
      *
      */
     public function getRestaurant(Request $request)
