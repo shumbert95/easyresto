@@ -4,6 +4,7 @@ namespace AppBundle\API\Restaurant;
 
 use AppBundle\API\ApiBaseController;
 use AppBundle\Entity\Content;
+use AppBundle\Entity\Restaurant;
 use FOS\RestBundle\Controller\Annotations as REST;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -19,13 +20,27 @@ class RestaurantMenuController extends ApiBaseController
      */
     public function getRestaurantMenu(Request $request)
     {
-        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
-        $tabs = $this->getTabMealRepository()->findBy(array('restaurant' => $restaurant));
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+        $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
+
+        if (!$restaurant instanceof Restaurant) {
+            return $this->helper->elementNotFound('Restaurant', 404);
+        }
+
+        $tabs = $elasticaManager->getRepository('AppBundle:TabMeal')->findByRestaurant($restaurant);
+
         $json = array();
         if(isset($restaurant) && isset($tabs)) {
             foreach ($tabs as $tab) {
                 if (isset ($tab)) {
-                    $contents = $this->getContentRepository()->findBy(array('tab' => $tab,), array('position' => 'ASC'));
+                    $contents = $elasticaManager->getRepository('AppBundle:Content')->findByTab($tab);
+
                     foreach ($contents as $content) {
                         if ($content->getType() == Content::TYPE_CATEGORY) {
                             $arrayContent[$tab->getId()][] = array(

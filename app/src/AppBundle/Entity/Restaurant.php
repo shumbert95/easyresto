@@ -505,7 +505,7 @@ class Restaurant
         $this->longitude = $longitude;
     }
 
-    public function getPosition()
+    public function getLocation()
     {
         return $this->latitude . ',' . $this->longitude;
     }

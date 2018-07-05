@@ -32,10 +32,12 @@ class RestaurantController extends ApiBaseController
     public function createRestaurant(ParamFetcher $paramFetcher, Request $request)
     {
         $user = $this->container->get('security.token_storage')->getToken()->getUser();
+
         if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
             ($user->getType()!= User::TYPE_RESTORER)){
             return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
         }
+
         $restaurant = new Restaurant();
 
         $params = $paramFetcher->all();
@@ -72,6 +74,13 @@ class RestaurantController extends ApiBaseController
     public function updateSchedule(Request $request)
     {
         $user = $this->container->get('security.token_storage')->getToken()->getUser();
+
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
         $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
         $restaurantUsers = $restaurant->getUsers();
 
@@ -84,15 +93,11 @@ class RestaurantController extends ApiBaseController
         $request_data = $request->request->all();
 
         if (!$request_data['schedule']) {
-            $errors[] = 'Missing parameter "schedule"';
-        }
-
-        if (count($errors)) {
-            return $this->helper->error($errors, 400);
+            return $this->helper->error('schedule', true);
         }
 
         if (!$restaurant instanceof Restaurant) {
-            $this->helper->elementNotFound('Restaurant', 404);
+            return $this->helper->elementNotFound('Restaurant', 404);
         }
 
         $restaurant->setSchedule($request_data['schedule']);
@@ -111,6 +116,13 @@ class RestaurantController extends ApiBaseController
     public function addCategory(Request $request)
     {
         $user = $this->container->get('security.token_storage')->getToken()->getUser();
+
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
         $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
         $restaurantUsers = $restaurant->getUsers();
 
@@ -134,6 +146,13 @@ class RestaurantController extends ApiBaseController
     public function removeCategory(Request $request)
     {
         $user = $this->container->get('security.token_storage')->getToken()->getUser();
+
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
         $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
         $restaurantUsers = $restaurant->getUsers();
 
@@ -165,15 +184,15 @@ class RestaurantController extends ApiBaseController
         $restaurantSearch = new RestaurantSearch();
 
         if (!$params['longitude']) {
-            return $this->helper->elementNotFound('longitude');
+            return $this->helper->error('longitude', true);
         }
 
         if (!$params['latitude']) {
-            return $this->helper->elementNotFound('latitude');
+            return $this->helper->error('latitude', true);
         }
 
         if (!$params['exact']) {
-            return $this->helper->elementNotFound('exact');
+            return $this->helper->error('exact', true);
         }
 
         $restaurantSearch->setLatitude($params['latitude']);
@@ -182,6 +201,10 @@ class RestaurantController extends ApiBaseController
 
         $elasticaManager = $this->container->get('fos_elastica.manager');
         $results = $elasticaManager->getRepository('AppBundle:Restaurant')->search($restaurantSearch);
+
+        if (!$results) {
+            $this->helper->elementNotFound('Restaurants');
+        }
 
         return $this->helper->success($results, 200);
     }
@@ -193,8 +216,20 @@ class RestaurantController extends ApiBaseController
      */
     public function getRestaurant(Request $request)
     {
-        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
-        return $this->helper->success($restaurant, 200);
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+        $result = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
+
+        if (!$result) {
+            return $this->helper->elementNotFound('Restaurant');
+        } else {
+            return $this->helper->success($result, 200);
+        }
     }
 
 

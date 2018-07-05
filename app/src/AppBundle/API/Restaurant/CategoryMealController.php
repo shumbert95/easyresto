@@ -21,18 +21,38 @@ class CategoryMealController extends ApiBaseController
      */
     public function createMealCategory(Request $request, ParamFetcher $paramFetcher)
     {
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
+        if (!$request->get('idTab')) {
+            return $this->helper->error('idTab', true);
+        } elseif (!preg_match('/\d/', $request->get('idTab'))) {
+            return $this->helper->error('param \'idTab\' must be an integer');
+        }
 
         $user = $this->container->get('security.token_storage')->getToken()->getUser();
-        $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
+
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+        $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
+        if (!$restaurant) {
+            return $this->helper->elementNotFound('Restaurant');
+        }
+
         $restaurantUsers = $restaurant->getUsers();
 
         if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
             !$restaurantUsers->contains($user)){
             return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
         }
-        $params = $paramFetcher->all();
-        $tab = $this->getTabMealRepository()->find($request->get('idTab'));
 
+        $params = $paramFetcher->all();
+        $tab = $elasticaManager->getRepository('AppBundle:TabMeal')->findById($request->get('idTab'));
+        if (!$tab) {
+            return $this->helper->elementNotFound('TabMeal');
+        }
 
         $category = new Content();
         $category->setStatus(1);
@@ -62,7 +82,31 @@ class CategoryMealController extends ApiBaseController
     public function editCategory(Request $request)
     {
         $user = $this->container->get('security.token_storage')->getToken()->getUser();
-        $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
+
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
+        if (!$request->get('idTab')) {
+            return $this->helper->error('idTab', true);
+        } elseif (!preg_match('/\d/', $request->get('idTab'))) {
+            return $this->helper->error('param \'idTab\' must be an integer');
+        }
+
+        if (!$request->get('idCat')) {
+            return $this->helper->error('idCat', true);
+        } elseif (!preg_match('/\d/', $request->get('idCat'))) {
+            return $this->helper->error('param \'idCat\' must be an integer');
+        }
+
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+        $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
+        if (!$restaurant) {
+            return $this->helper->elementNotFound('Restaurant');
+        }
+
         $restaurantUsers = $restaurant->getUsers();
 
         if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
@@ -70,14 +114,19 @@ class CategoryMealController extends ApiBaseController
             return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
         }
 
-        $category=$this->getContentRepository()->findOneBy(array("id" => $request->get('idCat')));
+        $tab = $elasticaManager->getRepository('AppBundle:TabMeal')->findById($request->get('idTab'));
+        if (!$tab) {
+            return $this->helper->elementNotFound('TabMeal');
+        }
 
+        $category = $elasticaManager->getRepository('AppBundle:Content')->findById($request->get('idCat'));
 
         $request_data = $request->request->all();
 
         if(isset($request_data['name'])){
             $category->setName($request_data['name']);
         }
+
         $em = $this->getEntityManager();
         $em->persist($category);
 
@@ -91,8 +140,20 @@ class CategoryMealController extends ApiBaseController
      */
     public function getCategories(Request $request)
     {
-        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
-        $categories = $this->getContentRepository()->findBy(array('restaurant' => $restaurant,'type' => Content::TYPE_CATEGORY));
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+        $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
+        if (!$restaurant) {
+            return $this->helper->elementNotFound('Restaurant');
+        }
+
+        $categories = $elasticaManager->getRepository('AppBundle:Content')->findByRestaurant($restaurant, Content::TYPE_CATEGORY);
+
         return $this->helper->success($categories, 200);
     }
 
@@ -103,15 +164,65 @@ class CategoryMealController extends ApiBaseController
      */
     public function getCategoriesMealFromTab(Request $request)
     {
-        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
-        $tab = $this->getTabMealRepository()->find($request->get('idTab'));
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
+        if (!$request->get('idTab')) {
+            return $this->helper->error('idTab', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'idTab\' must be an integer');
+        }
+
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+        $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
+        if (!$restaurant) {
+            return $this->helper->elementNotFound('Restaurant');
+        }
+
+        $tab = $elasticaManager->getRepository('AppBundle:TabMeal')->findById($request->get('idTab'));
+        if (!$tab) {
+            return $this->helper->elementNotFound('TabMeal');
+        }
+
+        $categories = $elasticaManager->getRepository('AppBundle:Content')->findByTab($tab, Content::TYPE_CATEGORY);
 
         $categories = $this->getContentRepository()->findBy(array('restaurant' => $restaurant, 'tab' => $tab,'type' => Content::TYPE_CATEGORY));
         return $this->helper->success($categories, 200);
     }
 
+    /**
+     *
+     * @REST\Get("/restaurants/{id}/categories/{idCategory}", name="api_show_category")
+     *
+     */
+    public function getCategory(Request $request)
+    {
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
 
+        if (!$request->get('idCategory')) {
+            return $this->helper->error('idCategory', true);
+        } elseif (!preg_match('/\d/', $request->get('idCategory'))) {
+            return $this->helper->error('param \'idCategory\' must be an integer');
+        }
 
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+        $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
+        if (!$restaurant) {
+            return $this->helper->elementNotFound('Restaurant');
+        }
 
+        $category = $elasticaManager->getRepository('AppBundle:Content')->findById($request->get('idCategory'));
+        if (!$category) {
+            return $this->helper->elementNotFound('CategoryMeal');
+        }
 
+        return $this->helper->success($category, 200);
+    }
 }
