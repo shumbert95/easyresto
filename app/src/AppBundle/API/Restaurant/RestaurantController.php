@@ -167,15 +167,15 @@ class RestaurantController extends ApiBaseController
         $restaurantSearch = new RestaurantSearch();
 
         if (!$params['longitude']) {
-            return $this->helper->elementNotFound('longitude');
+            return $this->helper->error('longitude', true);
         }
 
         if (!$params['latitude']) {
-            return $this->helper->elementNotFound('latitude');
+            return $this->helper->error('latitude', true);
         }
 
         if (!$params['exact']) {
-            return $this->helper->elementNotFound('exact');
+            return $this->helper->error('exact', true);
         }
 
         $restaurantSearch->setLatitude($params['latitude']);
@@ -184,6 +184,10 @@ class RestaurantController extends ApiBaseController
 
         $elasticaManager = $this->container->get('fos_elastica.manager');
         $results = $elasticaManager->getRepository('AppBundle:Restaurant')->search($restaurantSearch);
+
+        if (!$results) {
+            $this->helper->elementNotFound('Restaurants');
+        }
 
         return $this->helper->success($results, 200);
     }
@@ -195,8 +199,20 @@ class RestaurantController extends ApiBaseController
      */
     public function getRestaurant(Request $request)
     {
-        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
-        return $this->helper->success($restaurant, 200);
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+        $result = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
+
+        if (!$result) {
+            return $this->helper->elementNotFound('Restaurant');
+        } else {
+            return $this->helper->success($result, 200);
+        }
     }
 
 

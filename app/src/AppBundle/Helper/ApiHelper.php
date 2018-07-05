@@ -34,10 +34,14 @@ class ApiHelper
      * @param array $groups
      * @return View
      */
-    public function error($error = null, $statusCode = 400) {
+    public function error($error = null, $isParameter = false , $statusCode = 400) {
         $view = View::create();
         $view->setStatusCode($statusCode);
         $view->setFormat('json');
+
+        if ($isParameter) {
+            $error = 'param \'' . $error . '\' is missing.';
+        }
 
         if ($error) {
             $view->setData(array(
@@ -62,10 +66,10 @@ class ApiHelper
     }
 
     /**
-     * @param string $element
-     * @param int $statusCode
-     * @return View
-     */
+ * @param string $element
+ * @param int $statusCode
+ * @return View
+ */
     public function elementNotFound($element, $statusCode = 404) {
         $view = View::create();
         $view->setStatusCode($statusCode);
@@ -73,7 +77,7 @@ class ApiHelper
 
         if ($element) {
             $view->setData(array(
-                'result' => 'param \'' . $element . '\' not found.'
+                'result' => $element . ' not found.'
             ));
         }
 

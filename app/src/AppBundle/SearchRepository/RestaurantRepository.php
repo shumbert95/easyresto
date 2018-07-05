@@ -14,6 +14,16 @@ class RestaurantRepository extends Repository
 {
     const MAX = 100;
 
+    public function findById($id) {
+        $boolQuery = new \Elastica\Query\BoolQuery();
+        $fieldQuery = new \Elastica\Query\Match();
+
+        $fieldQuery->setFieldQuery('id', $id);
+        $boolQuery->addMust($fieldQuery);
+
+        return $this->find($boolQuery);
+    }
+
     public function search(RestaurantSearch $restaurantSearch)
     {
 
