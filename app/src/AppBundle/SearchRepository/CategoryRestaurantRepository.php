@@ -19,7 +19,7 @@ class CategoryRestaurantRepository extends Repository
         $boolQuery->addMust($fieldQuery);
 
         $categories = $this->find($boolQuery);
-
+      
         return $categories ? $categories[0] : $categories;
     }
 

@@ -4,7 +4,7 @@ apache:
     - mysql
     - elasticsearch
   volumes:
-    - ./docker/etc/apache/virtualhost.conf:/etc/apache2/sites-enabled/000-default.conf:ro
+    - ./docker/etc/apache/virtualhost.conf:/etc/apache2/sites-enabled/000-default.conf
     - ./docker/etc/php/php.ini:/usr/local/etc/php/php.ini
     - ./docker/etc/php/php-cli.ini:/usr/local/etc/php/php-cli.ini
     - ./log/apache:/var/log/apache2

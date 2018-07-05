@@ -12,6 +12,8 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Content
 {
+    const STATUS_OFFLINE = false;
+    const STATUS_ONLINE = true;
 
     /**
      * @ORM\ManyToOne(targetEntity="Restaurant")

@@ -1,12 +1,12 @@
 <?php
 namespace AppBundle\Form;
+use Doctrine\DBAL\Types\FloatType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\FormBuilderInterface;
 
 class RestaurantType extends AbstractType
@@ -52,6 +52,24 @@ class RestaurantType extends AbstractType
                 [
                     'required' => true,
                     'label' => 'Code postal',
+                ]
+
+            )
+            ->add(
+                'latitude',
+                NumberType::class,
+                [
+                    'required' => true,
+                    'label' => 'Latitude',
+                ]
+
+            )
+            ->add(
+                'longitude',
+                NumberType::class,
+                [
+                    'required' => true,
+                    'label' => 'Longitude',
                 ]
 
             )

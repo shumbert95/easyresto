@@ -60,6 +60,7 @@ class RegistrationClientType extends AbstractType
                 [
                     'required' => false,
                     'label' => 'Année de naissance',
+                    'widget' => 'single_text',
                 ]
 
             )

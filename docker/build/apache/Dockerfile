@@ -11,8 +11,10 @@ RUN apt-get update -y &&\
             wget \
             ca-certificates \
             vim \
+            nano \
             git \
-            openssl
+            openssl \
+            python-certbot-apache
 
 RUN echo "GREEN='\[\e[1;32m\]'" >> /root/.bashrc &&\
     echo "reset='\[\e[0m\]'" >> /root/.bashrc &&\

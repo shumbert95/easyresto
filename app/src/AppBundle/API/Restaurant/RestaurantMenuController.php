@@ -15,7 +15,7 @@ class RestaurantMenuController extends ApiBaseController
 
     /**
      *
-     * @REST\Get("/restaurant/{id}/menu", name="api_list_restaurant_menu")
+     * @REST\Get("/restaurants/{id}/menu", name="api_list_restaurant_menu")
      *
      */
     public function getRestaurantMenu(Request $request)
