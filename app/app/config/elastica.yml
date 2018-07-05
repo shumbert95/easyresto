@@ -14,7 +14,7 @@ fos_elastica:
                         name: ~
                         city: ~
                         open: ~
-                        position:
+                        location:
                             type: geo_point
                         categories:
                             type: "nested"
@@ -34,6 +34,8 @@ fos_elastica:
                             type: integer
                         status: ~
                         name: ~
+                        position:
+                            type: integer
                         restaurant:
                             type: "nested"
                             properties:
@@ -69,6 +71,8 @@ fos_elastica:
                         price:
                             type: float
                         availability: ~
+                        position:
+                            type: integer
                         currentStock:
                             type: integer
                         restaurant:

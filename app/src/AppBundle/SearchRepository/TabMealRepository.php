@@ -30,6 +30,9 @@ class TabMealRepository extends Repository
                     ->setQuery(new Match('restaurant.id', $restaurant->getId()));
         $boolQuery->addMust($nestedQuery);
 
-        return $this->find($boolQuery);
+        $query = new Query($boolQuery);
+        $query->addSort(array('position' => 'ASC'));
+
+        return $this->find($query);
     }
 }

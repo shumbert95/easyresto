@@ -19,7 +19,9 @@ class RestaurantRepository extends Repository
         $fieldQuery->setFieldQuery('id', $id);
         $boolQuery->addMust($fieldQuery);
 
-        return $this->find($boolQuery);
+        $restaurants = $this->find($boolQuery);
+
+        return $restaurants[0];
     }
 
     public function search(RestaurantSearch $restaurantSearch)
@@ -30,7 +32,7 @@ class RestaurantRepository extends Repository
         $fieldQuery->setFieldQuery('status', Restaurant::STATUS_ONLINE);
         $boolQuery->addMust($fieldQuery);
 
-        $filter = new Query\GeoDistance('position', array('lat' => $restaurantSearch->getLatitude(),
+        $filter = new Query\GeoDistance('location', array('lat' => $restaurantSearch->getLatitude(),
                                                                 'lon' => $restaurantSearch->getLongitude()),
                                                             !$restaurantSearch->isExact() ? '10km' : '1m');
 

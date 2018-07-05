@@ -97,7 +97,7 @@ class RestaurantController extends ApiBaseController
         }
 
         if (!$restaurant instanceof Restaurant) {
-            $this->helper->elementNotFound('Restaurant', 404);
+            return $this->helper->elementNotFound('Restaurant', 404);
         }
 
         $restaurant->setSchedule($request_data['schedule']);
