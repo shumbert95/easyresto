@@ -25,6 +25,8 @@ class RestaurantController extends ApiBaseController
      * @REST\RequestParam(name="addressComplement", nullable=true)
      * @REST\RequestParam(name="city")
      * @REST\RequestParam(name="postalCode")
+     * @REST\RequestParam(name="latitude")
+     * @REST\RequestParam(name="longitude")
      * @REST\RequestParam(name="phone")
      * @REST\RequestParam(name="description")
      * @REST\RequestParam(name="seats", nullable=true)
@@ -191,7 +193,7 @@ class RestaurantController extends ApiBaseController
             return $this->helper->error('latitude', true);
         }
 
-        if (!$params['exact']) {
+        if (!isset($params['exact'])) {
             return $this->helper->error('exact', true);
         }
 

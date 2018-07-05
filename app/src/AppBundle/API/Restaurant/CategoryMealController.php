@@ -89,12 +89,6 @@ class CategoryMealController extends ApiBaseController
             return $this->helper->error('param \'id\' must be an integer');
         }
 
-        if (!$request->get('idTab')) {
-            return $this->helper->error('idTab', true);
-        } elseif (!preg_match('/\d/', $request->get('idTab'))) {
-            return $this->helper->error('param \'idTab\' must be an integer');
-        }
-
         if (!$request->get('idCat')) {
             return $this->helper->error('idCat', true);
         } elseif (!preg_match('/\d/', $request->get('idCat'))) {
@@ -112,11 +106,6 @@ class CategoryMealController extends ApiBaseController
         if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
             !$restaurantUsers->contains($user)){
             return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
-        }
-
-        $tab = $elasticaManager->getRepository('AppBundle:TabMeal')->findById($request->get('idTab'));
-        if (!$tab) {
-            return $this->helper->elementNotFound('TabMeal');
         }
 
         $category = $elasticaManager->getRepository('AppBundle:Content')->findById($request->get('idCat'));
