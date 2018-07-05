@@ -9,6 +9,9 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class CategoryRestaurant
 {
+    const STATUS_OFFLINE = false;
+    const STATUS_ONLINE = true;
+
     /**
      * @ORM\Id
      * @ORM\Column(type="integer")

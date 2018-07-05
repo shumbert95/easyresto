@@ -69,6 +69,7 @@ class RegistrationRestorerType extends AbstractType
                 [
                     'required' => false,
                     'label' => 'Année de naissance',
+                    'widget' => 'single_text',
                 ]
 
             )
@@ -92,7 +93,7 @@ class RegistrationRestorerType extends AbstractType
             )
             ->add(
                 'city',
-                IntegerType::class,
+                TextType::class,
                 [
                     'required' => true,
                     'label' => 'Ville',

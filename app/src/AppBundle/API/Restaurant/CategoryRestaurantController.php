@@ -14,18 +14,21 @@ class CategoryRestaurantController extends ApiBaseController
     /**
      * @param ParamFetcher $paramFetcher
      *
-     * @REST\Post("/restaurants/category/create", name="api_create_category_restaurant")
+     * @REST\Post("/restaurants/categories/create", name="api_create_category_restaurant")
      * @REST\RequestParam(name="name")
      */
     public function createCategory(ParamFetcher $paramFetcher)
     {
         $params = $paramFetcher->all();
+        if (!$params['name']) {
+            return $this->helper->error('name', true);
+        }
 
-
-        $category = $this->getCategoryRestaurantRepository()->findOneBy(array('name' => $params['name']));
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+        $category = $elasticaManager->getRepository('AppBundle:CategoryRestaurant')->findByName($params['name']);
 
         if ($category instanceof CategoryRestaurant && $category->getStatus()) {
-            return $this->helper->error('This name is already used');
+            return $this->helper->error('This name is already used.');
         }
         else if (($category instanceof CategoryRestaurant && !$category->getStatus())) {
             $category->setStatus(1);
@@ -51,25 +54,42 @@ class CategoryRestaurantController extends ApiBaseController
 
     /**
      *
-     * @REST\Get("/restaurants/category/{id}/", name="api_show_category_restaurant")
+     * @REST\Get("/restaurants/categories/{id}", name="api_show_category_restaurant")
      *
      */
     public function getCategoryRestaurant(Request $request)
     {
-        $category = $this->getCategoryRestaurantRepository()->findOneBy(array('status' => true, 'id' => $request->get('id')));
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+        $category = $elasticaManager->getRepository('AppBundle:CategoryRestaurant')->findById($request->get('id'));
+        if (!$category) {
+            return $this->helper->elementNotFound('Category');
+        }
+
         return $this->helper->success($category, 200);
     }
 
     /**
-     * @REST\Delete("/restaurants/category/{id}", name="api_delete_category_restaurant")
+     * @REST\Delete("/restaurants/categories/{id}", name="api_delete_category_restaurant")
      */
     public function deleteCategoryRestaurant(Request $request)
     {
-        $category = $this->getCategoryRestaurantRepository()->findOneBy(
-            array(
-                'status' => true,
-                'id' => $request->get('id')
-            ));
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+        $category = $elasticaManager->getRepository('AppBundle:CategoryRestaurant')->findById($request->get('id'));
+        if (!$category) {
+            return $this->helper->elementNotFound('Category');
+        }
 
         $em = $this->getEntityManager();
         $em->remove($category);
@@ -85,9 +105,9 @@ class CategoryRestaurantController extends ApiBaseController
      */
     public function getRestaurantsCategories()
     {
-        $restaurants = $this->getCategoryRestaurantRepository()->findBy(array('status' => true));
-        return $this->helper->success($restaurants, 200);
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+        $categories = $elasticaManager->getRepository('AppBundle:CategoryRestaurant')->findAll();
+
+        return $this->helper->success($categories, 200);
     }
-
-
 }

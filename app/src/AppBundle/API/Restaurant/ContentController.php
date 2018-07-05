@@ -11,13 +11,31 @@ class ContentController extends ApiBaseController
 {
     /**
      *
-     * @REST\Put("/restaurant/{id}/content/{idContent}/position", name="api_update_content_position")
+     * @REST\Put("/restaurants/{id}/contents/{idContent}/position", name="api_update_content_position")
      * @REST\RequestParam(name="position")
      */
     public function updateContentPosition(Request $request, ParamFetcher $paramFetcher)
     {
         $user = $this->container->get('security.token_storage')->getToken()->getUser();
-        $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
+
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
+        if (!$request->get('idContent')) {
+            return $this->helper->error('idContent', true);
+        } elseif (!preg_match('/\d/', $request->get('idContent'))) {
+            return $this->helper->error('param \'idContent\' must be an integer');
+        }
+
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+        $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
+        if (!$restaurant) {
+            return $this->helper->elementNotFound('Restaurant');
+        }
+
         $restaurantUsers = $restaurant->getUsers();
 
         if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
@@ -26,11 +44,11 @@ class ContentController extends ApiBaseController
         }
 
         $params = $paramFetcher->all();
-        $content = $this->getContentRepository()->findOneBy(
-            array(
-                'restaurant' => $restaurant,
-                'id' => $request->get('idContent')
-            ));
+
+        $content = $elasticaManager->getRepository('AppBundle:Content')->findById($request->get('idContent'));
+        if (!$content) {
+            return $this->helper->elementNotFound('Content');
+        }
 
         $content->setPosition($params['position']);
         $em = $this->getEntityManager();
@@ -41,23 +59,71 @@ class ContentController extends ApiBaseController
     }
 
     /**
-     * @REST\Delete("/restaurant/{id}/content/{idContent}", name="api_delete_content")
+     *
+     * @REST\Get("/restaurants/{id}/tabs/{idTab}/contents", name="api_list_contents_by_tab")
+     *
+     */
+    public function getContentsFromTab(Request $request)
+    {
+        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
+        $tab = $this->getTabMealRepository()->find($request->get('idTab'));
+
+        $contents = $this->getContentRepository()->findBy(array(
+            'restaurant' => $restaurant,
+            'tab' => $tab
+        ));
+
+        return $this->helper->success($contents, 200);
+    }
+
+    /**
+     *
+     * @REST\Get("/restaurants/{id}/contents/{idContent}", name="api_show_content")
+     *
+     */
+    public function getContent(Request $request)
+    {
+        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
+        $content = $this->getContentRepository()->findOneBy(array('restaurant' => $restaurant, 'id' => $request->get('idContent')));
+        return $this->helper->success($content, 200);
+    }
+
+    /**
+     * @REST\Delete("/restaurants/{id}/contents/{idContent}", name="api_delete_content")
      */
     public function deleteContent(Request $request)
     {
         $user = $this->container->get('security.token_storage')->getToken()->getUser();
-        $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
+
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
+        if (!$request->get('idContent')) {
+            return $this->helper->error('idContent', true);
+        } elseif (!preg_match('/\d/', $request->get('idContent'))) {
+            return $this->helper->error('param \'idContent\' must be an integer');
+        }
+
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+        $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
+        if (!$restaurant) {
+            return $this->helper->elementNotFound('Restaurant');
+        }
+
         $restaurantUsers = $restaurant->getUsers();
 
         if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
             !$restaurantUsers->contains($user)){
             return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
         }
-        $content = $this->getContentRepository()->findOneBy(
-            array(
-                'restaurant' => $restaurant,
-                'id' => $request->get('idContent')
-            ));
+
+        $content = $elasticaManager->getRepository('AppBundle:Content')->findById($request->get('idContent'));
+        if (!$content) {
+            return $this->helper->elementNotFound('Content');
+        }
 
         $em = $this->getEntityManager();
         $em->remove($content);

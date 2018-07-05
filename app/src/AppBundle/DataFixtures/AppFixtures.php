@@ -153,6 +153,8 @@ class AppFixtures extends Fixture
         $restaurant->setAddress('114 Avenue de France');
         $restaurant->setPostalCode('75013');
         $restaurant->setCity('Paris');
+        $restaurant->setLatitude('48.8311081');
+        $restaurant->setLongitude('2.374514');
         $restaurant->setPhone('0123456789');
         $restaurant->setName('The Frog & British Library');
         $restaurant->setDescription('The Frog & British Library, pub et restaurant');
@@ -171,6 +173,8 @@ class AppFixtures extends Fixture
         $restaurant->setAddress('29 Rue Mazarine');
         $restaurant->setPostalCode('75006');
         $restaurant->setCity('Paris');
+        $restaurant->setLatitude('48.8546542');
+        $restaurant->setLongitude('2.3359354');
         $restaurant->setPhone('0123456789');
         $restaurant->setName('Kodawari Ramen');
         $restaurant->setDescription('Kodawari Ramen, les meilleurs de Paris');
@@ -190,6 +194,8 @@ class AppFixtures extends Fixture
         $restaurant->setAddress('19 Rue du Télégraphe');
         $restaurant->setPostalCode('75020');
         $restaurant->setCity('Paris');
+        $restaurant->setLatitude('48.8724229');
+        $restaurant->setLongitude('2.3971672');
         $restaurant->setPhone('0123456789');
         $restaurant->setName('Aarchna');
         $restaurant->setDescription('Derrière une jolie façade en bois sculpté, ce restaurant sert des spécialités indiennes traditionnelles.
