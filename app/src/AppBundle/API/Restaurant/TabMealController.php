@@ -22,6 +22,13 @@ class TabMealController extends ApiBaseController
     public function createTabMeal(Request $request, ParamFetcher $paramFetcher)
     {
         $user = $this->container->get('security.token_storage')->getToken()->getUser();
+
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
         $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
         $restaurantUsers = $restaurant->getUsers();
 
@@ -31,7 +38,6 @@ class TabMealController extends ApiBaseController
         }
 
         $params = $paramFetcher->all();
-
         $tab = $this->getTabMealRepository()->findOneBy(array('name' => $params['name']));
 
         if ($tab instanceof TabMeal && $tab->getStatus()) {
@@ -67,6 +73,12 @@ class TabMealController extends ApiBaseController
      */
     public function getTab(Request $request)
     {
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
         $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
         $tab = $this->getTabMealRepository()->findOneBy(array('status' => true, 'restaurant' => $restaurant, 'id' => $request->get('idTab')));
         return $this->helper->success($tab, 200);
@@ -87,6 +99,7 @@ class TabMealController extends ApiBaseController
             !$restaurantUsers->contains($user)){
             return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
         }
+
         $params = $paramFetcher->all();
         $tab = $this->getTabMealRepository()->findOneBy(array('status' => true, 'restaurant' => $restaurant, 'id' => $request->get('idTab')));
         $tab->setPosition($params['position']);
