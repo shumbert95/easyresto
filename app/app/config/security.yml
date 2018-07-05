@@ -28,6 +28,11 @@ security:
                 target:      /admin
             anonymous:    true
 
+        public:
+            methods: [GET]
+            pattern: ^/restaurants
+            security: false
+
         login:
             pattern:  ^/login
             stateless: true
@@ -53,19 +58,20 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
+
+
     access_control:
         - { path: ^/admin/, role: ROLE_SUPER_ADMIN }
-        - { path: ^/user/create, role: ROLE_SUPER_ADMIN }
+        - { path: ^/users/create, role: ROLE_SUPER_ADMIN }
         - { path: ^/users, role: ROLE_SUPER_ADMIN }
         - { path: ^/login, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/register, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/resetting, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/login_check, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/restaurants, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/restaurant/, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api, role: ROLE_USER }
-        - { path: ^/user, role: ROLE_USER }
-        - { path: ^/client, role: ROLE_USER }
-        - { path: ^/restorer, role: ROLE_ADMIN }
-        - { path: ^/restaurant/create, role: ROLE_ADMIN }
-        - { path: ^/restaurant/manage, role: ROLE_ADMIN }
+        - { path: ^/users/profile, role: ROLE_USER }
+        - { path: ^/clients, role: ROLE_USER }
+        - { path: ^/restorers, roles: [ROLE_SUPER_ADMIN] }
+        - { path: ^/restaurants/create, role: ROLE_ADMIN }
+        - { path: ^/restaurants/manage, role: ROLE_ADMIN }

@@ -15,7 +15,7 @@ class CategoryMealController extends ApiBaseController
      * @param Request $request
      *
      *
-     * @REST\Post("/restaurant/{id}/tab/{idTab}/category/create", name="api_create_meal_category")
+     * @REST\Post("/restaurants/{id}/tabs/{idTab}/categories/create", name="api_create_meal_category")
      * @REST\RequestParam(name="name")
      * @REST\RequestParam(name="position")
      */
@@ -58,7 +58,7 @@ class CategoryMealController extends ApiBaseController
         $category->setStatus(1);
         $category->setType(Content::TYPE_CATEGORY);
         $category->setRestaurant($restaurant);
-        $category->setTabMeal($tab);
+        $category->setTab($tab);
 
         $form = $this->createForm(CategoryMealType::class, $category);
         $form->submit($params);
@@ -76,7 +76,7 @@ class CategoryMealController extends ApiBaseController
 
     /**
      *
-     * @REST\Put("/restaurant/{id}/tab/{idTab}/category/{idCat}/edit", name="api_edit_category")
+     * @REST\Put("/restaurants/{id}/categories/{idCat}", name="api_edit_category")
      *
      */
     public function editCategory(Request $request)
@@ -119,11 +119,11 @@ class CategoryMealController extends ApiBaseController
             return $this->helper->elementNotFound('TabMeal');
         }
 
-        $category = $elasticaManager->getRepository('AppBundle:Content')->findById($request->get('idContent'));
+        $category = $elasticaManager->getRepository('AppBundle:Content')->findById($request->get('idCat'));
 
         $request_data = $request->request->all();
 
-        if($request_data['name']){
+        if(isset($request_data['name'])){
             $category->setName($request_data['name']);
         }
 
@@ -135,7 +135,7 @@ class CategoryMealController extends ApiBaseController
 
     /**
      *
-     * @REST\Get("/restaurant/{id}/categories", name="api_list_categories")
+     * @REST\Get("/restaurants/{id}/categories", name="api_list_categories")
      *
      */
     public function getCategories(Request $request)
@@ -159,7 +159,7 @@ class CategoryMealController extends ApiBaseController
 
     /**
      *
-     * @REST\Get("/restaurant/{id}/tab/{idTab}/categories", name="api_list_meal_categories")
+     * @REST\Get("/restaurants/{id}/tabs/{idTab}/categories", name="api_list_meal_categories")
      *
      */
     public function getCategoriesMealFromTab(Request $request)
@@ -189,12 +189,13 @@ class CategoryMealController extends ApiBaseController
 
         $categories = $elasticaManager->getRepository('AppBundle:Content')->findByTab($tab, Content::TYPE_CATEGORY);
 
+        $categories = $this->getContentRepository()->findBy(array('restaurant' => $restaurant, 'tab' => $tab,'type' => Content::TYPE_CATEGORY));
         return $this->helper->success($categories, 200);
     }
 
     /**
      *
-     * @REST\Get("/restaurant/{id}/category/{idCategory}", name="api_show_category")
+     * @REST\Get("/restaurants/{id}/categories/{idCategory}", name="api_show_category")
      *
      */
     public function getCategory(Request $request)
