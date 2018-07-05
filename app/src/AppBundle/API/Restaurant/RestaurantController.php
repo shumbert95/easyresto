@@ -32,10 +32,12 @@ class RestaurantController extends ApiBaseController
     public function createRestaurant(ParamFetcher $paramFetcher, Request $request)
     {
         $user = $this->container->get('security.token_storage')->getToken()->getUser();
+
         if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
             ($user->getType()!= User::TYPE_RESTORER)){
             return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
         }
+
         $restaurant = new Restaurant();
 
         $params = $paramFetcher->all();
@@ -72,6 +74,13 @@ class RestaurantController extends ApiBaseController
     public function updateSchedule(Request $request)
     {
         $user = $this->container->get('security.token_storage')->getToken()->getUser();
+
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
         $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
         $restaurantUsers = $restaurant->getUsers();
 
@@ -84,11 +93,7 @@ class RestaurantController extends ApiBaseController
         $request_data = $request->request->all();
 
         if (!$request_data['schedule']) {
-            $errors[] = 'Missing parameter "schedule"';
-        }
-
-        if (count($errors)) {
-            return $this->helper->error($errors, 400);
+            return $this->helper->error('schedule', true);
         }
 
         if (!$restaurant instanceof Restaurant) {
@@ -111,6 +116,13 @@ class RestaurantController extends ApiBaseController
     public function addCategory(Request $request)
     {
         $user = $this->container->get('security.token_storage')->getToken()->getUser();
+
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
         $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
         $restaurantUsers = $restaurant->getUsers();
 
@@ -135,6 +147,13 @@ class RestaurantController extends ApiBaseController
     public function removeCategory(Request $request)
     {
         $user = $this->container->get('security.token_storage')->getToken()->getUser();
+
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
         $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
         $restaurantUsers = $restaurant->getUsers();
 
@@ -142,6 +161,7 @@ class RestaurantController extends ApiBaseController
             !$restaurantUsers->contains($user)){
             return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
         }
+
         $request_data = $request->request->all();
 
         $restaurant->removeCategory($request_data['category']);
