@@ -28,15 +28,15 @@ class RestaurantMenuController extends ApiBaseController
 
         $elasticaManager = $this->container->get('fos_elastica.manager');
 
-        //$restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
-        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
+        $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
+        //$restaurant = $this->getRestaurantRepository()->find($request->get('id'));
 
         if (!$restaurant instanceof Restaurant) {
             return $this->helper->elementNotFound('Restaurant', 404);
         }
 
-        //$tabs = $elasticaManager->getRepository('AppBundle:TabMeal')->findByRestaurant($restaurant);
-        $tabs = $this->getTabMealRepository()->findBy(array("restaurant" => $restaurant));
+        $tabs = $elasticaManager->getRepository('AppBundle:TabMeal')->findByRestaurant($restaurant);
+        //$tabs = $this->getTabMealRepository()->findBy(array("restaurant" => $restaurant));
 
         $json = array();
         if(isset($restaurant) && isset($tabs)) {

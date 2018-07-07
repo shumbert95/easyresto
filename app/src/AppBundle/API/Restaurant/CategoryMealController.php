@@ -58,7 +58,7 @@ class CategoryMealController extends ApiBaseController
 
 
         $category = new Content();
-        $category->setStatus(1);
+        $category->setStatus(Content::STATUS_ONLINE);
         $category->setType(Content::TYPE_CATEGORY);
         $category->setRestaurant($restaurant);
         $category->setTab($tab);

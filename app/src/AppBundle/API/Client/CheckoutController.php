@@ -4,6 +4,7 @@ namespace AppBundle\API\Client ;
 
 use AppBundle\API\ApiBaseController;
 use AppBundle\Entity\Reservation;
+use AppBundle\Entity\User;
 use AppBundle\Form\ReservationType;
 use FOS\RestBundle\Request\ParamFetcher;
 use FOS\RestBundle\View\View;
@@ -26,9 +27,12 @@ class CheckoutController extends ApiBaseController
      */
     public function createReservation(Request $request, ParamFetcher $paramFetcher)
     {
-        //$user = $this->container->get('security.token_storage')->getToken()->getUser();
-        $user = $this->getDoctrine()->getRepository('AppBundle:User')->find(12);
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
         $params = $paramFetcher->all();
+
+        if($user->getType()!= User::TYPE_CLIENT){
+            return $this->helper->error('Seul un client peut effectuer une réservation');
+        }
 
         if (!$request->get('id')) {
             return $this->helper->error('id', true);
@@ -71,6 +75,7 @@ class CheckoutController extends ApiBaseController
         $reservation->setRestaurant($restaurant);
         $reservation->setUser($user);
         $reservation->setContents($meals);
+
         unset($params['meals_id']);
 
         $form = $this->createForm(ReservationType::class, $reservation);
@@ -79,7 +84,6 @@ class CheckoutController extends ApiBaseController
         if (!$form->isValid()) {
             return $this->helper->error($form->getErrors());
         }
-
         $em = $this->getEntityManager();
         $em->persist($reservation);
         $em->flush();

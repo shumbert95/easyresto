@@ -71,8 +71,8 @@ class MealController extends ApiBaseController
 
 
         $meal = new Content();
-        $meal->setStatus(1);
-        $meal->setType(CONTENT::TYPE_MEAL);
+        $meal->setStatus(Content::STATUS_ONLINE);
+        $meal->setType(Content::TYPE_MEAL);
         $meal->setRestaurant($restaurant);
         $meal->setTab($tab);
 

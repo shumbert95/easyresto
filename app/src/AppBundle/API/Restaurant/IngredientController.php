@@ -49,7 +49,7 @@ class IngredientController extends ApiBaseController
         $params = $paramFetcher->all();
 
         $ingredient = new Ingredient();
-        $ingredient->setStatus(1);
+        $ingredient->setStatus(Ingredient::STATUS_ONLINE);
         $ingredient->setRestaurant($restaurant);
 
         $form = $this->createForm(IngredientType::class, $ingredient);

@@ -25,8 +25,7 @@ class ReservationRepository extends Repository
         $nestedQuery->setPath('restaurant')
                     ->setQuery(new Match('restaurant.id', $restaurant->getId()));
         $boolQuery->addMust($nestedQuery);
-
-        return $this->find($boolQuery);
+        return $this->find($boolQuery,1000);
     }
 
     public function findByUser(User $user, \DateTime $dateFrom, \DateTime $dateTo) {
