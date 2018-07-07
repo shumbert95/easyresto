@@ -60,6 +60,20 @@ fos_elastica:
                         finder: ~
                         provider: ~
                         repository: AppBundle\SearchRepository\CategoryRestaurantRepository
+                ingredient:
+                  properties:
+                    id:
+                      type: integer
+                    status: ~
+                    name: ~
+                    stock:
+                      type: integer
+                  persistence:
+                    driver: orm
+                    model: AppBundle\Entity\Ingredient
+                    finder: ~
+                    provider: ~
+                    repository: AppBundle\SearchRepository\IngredientRepository
                 content:
                     properties:
                         id:
@@ -72,8 +86,6 @@ fos_elastica:
                             type: float
                         availability: ~
                         position:
-                            type: integer
-                        currentStock:
                             type: integer
                         restaurant:
                             type: "nested"

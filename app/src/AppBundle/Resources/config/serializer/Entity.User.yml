@@ -9,10 +9,6 @@ AppBundle\Entity\User:
         exclude: true
       civilities:
         exclude: true
-      usernameCanonical:
-        exclude: true
-      emailCanonical:
-        exclude: true
       enabled:
         exclude: true
       salt:
@@ -24,3 +20,11 @@ AppBundle\Entity\User:
       birthDate:
         expose: true
         type: DateTime<'Y-m-d'>
+      city:
+        exclude_if: "object.getType() == 1"
+      address:
+        exclude_if: "object.getType() == 1"
+      addressComplement:
+        exclude_if: "object.getType() == 1"
+      favorites:
+        exclude_if: "object.getType() == 2"
