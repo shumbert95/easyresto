@@ -31,11 +31,11 @@ class CategoryRestaurantController extends ApiBaseController
             return $this->helper->error('This name is already used.');
         }
         else if (($category instanceof CategoryRestaurant && !$category->getStatus())) {
-            $category->setStatus(1);
+            $category->setStatus(CategoryRestaurant::STATUS_ONLINE);
         }
         else if(!($category instanceof CategoryRestaurant)) {
             $category = new CategoryRestaurant();
-            $category->setStatus(1);
+            $category->setStatus(CategoryRestaurant::STATUS_ONLINE);
         }
 
         $form = $this->createForm(CategoryRestaurantType::class, $category);

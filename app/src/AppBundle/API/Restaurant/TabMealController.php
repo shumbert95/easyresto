@@ -7,6 +7,7 @@ use AppBundle\Entity\TabMeal;
 use AppBundle\Form\TabMealType;
 use FOS\RestBundle\Controller\Annotations as REST;
 use FOS\RestBundle\Request\ParamFetcher;
+use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
 
 class TabMealController extends ApiBaseController
@@ -18,6 +19,8 @@ class TabMealController extends ApiBaseController
      * @REST\Post("/restaurants/{id}/tabs/create", name="api_create_meal_tab")
      * @REST\RequestParam(name="name")
      * @REST\RequestParam(name="position")
+     *
+     * @return View
      */
     public function createTabMeal(Request $request, ParamFetcher $paramFetcher)
     {
@@ -44,19 +47,10 @@ class TabMealController extends ApiBaseController
         }
 
         $params = $paramFetcher->all();
-        $tab = $this->getTabMealRepository()->findOneBy(array('name' => $params['name']));
+        $tab = new TabMeal();
+        $tab->setStatus(TabMeal::STATUS_ONLINE);
+        $tab->setRestaurant($restaurant);
 
-        if ($tab instanceof TabMeal && $tab->getStatus()) {
-            return $this->helper->error('Ce nom est déjà utilisé.');
-        }
-        else if (($tab instanceof TabMeal && !$tab->getStatus())) {
-            $tab->setStatus(1);
-        }
-        else if(!($tab instanceof TabMeal)) {
-            $tab = new TabMeal();
-            $tab->setStatus(1);
-            $tab->setRestaurant($restaurant);
-        }
 
         $form = $this->createForm(TabMealType::class, $tab);
         $form->submit($params);

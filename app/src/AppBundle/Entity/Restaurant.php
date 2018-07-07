@@ -9,7 +9,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\RestaurantRepository")
  * @ORM\Table(name="restaurant")
  */
 class Restaurant
@@ -26,7 +26,7 @@ class Restaurant
     protected $id;
 
     /**
-     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\User")
+     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\User", cascade={"persist"})
      * @ORM\JoinTable(name="restaurant_users",
      *      joinColumns={@ORM\JoinColumn(name="restaurant_id", referencedColumnName="id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")}
@@ -509,6 +509,7 @@ class Restaurant
     {
         return $this->latitude . ',' . $this->longitude;
     }
+
 
     public function __toString()
     {

@@ -148,9 +148,18 @@ class UserController extends ApiBaseController
 
         if($user->getType() == User::TYPE_RESTORER) {
             $elasticaManager = $this->container->get('fos_elastica.manager');
-            $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findByOwner($user);
+            $em = $this->getEntityManager();
+            $restaurants = $elasticaManager->getRepository('AppBundle:Restaurant')->findByOwner($user);
+            //$restaurants = $em->getRepository('AppBundle:Restaurant')->getRestaurantByOwner($user);
             $return_data["user"] = $user;
-            $return_data["restaurant"] = array("id" => $restaurant->getId());
+            if(is_array($restaurants)) {
+                foreach ($restaurants as $restaurant) {
+                    $return_data["restaurants"][] = array("id" => $restaurant->getId());
+                }
+            }
+            else
+                $return_data["restaurant"] = array("id" => $restaurants->getId());
+
         }
         else
             $return_data=$user;

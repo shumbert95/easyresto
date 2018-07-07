@@ -19,7 +19,7 @@ class TabMealRepository extends Repository
         $fieldQuery->setFieldQuery('id', $id);
         $boolQuery->addMust($fieldQuery);
 
-        $tabs = $this->find($boolQuery);
+        $tabs = $this->find($boolQuery,1000);
 
         return $tabs ? $tabs[0] : $tabs;
     }
@@ -39,6 +39,6 @@ class TabMealRepository extends Repository
         $query = new Query($boolQuery);
         $query->addSort(array('position' => 'ASC'));
 
-        return $this->find($query);
+        return $this->find($query,1000);
     }
 }

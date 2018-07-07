@@ -54,7 +54,7 @@ class RestaurantController extends ApiBaseController
             $restaurant->setPicture($request->get('picture'));
         }
 
-        $restaurant->setStatus(1);
+        $restaurant->setStatus(Restaurant::STATUS_ONLINE);
         $restaurant->setOpen(1);
 
         $user = $this->container->get('security.token_storage')->getToken()->getUser();
