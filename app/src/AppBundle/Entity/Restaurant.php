@@ -28,8 +28,8 @@ class Restaurant
     /**
      * @ORM\ManyToMany(targetEntity="AppBundle\Entity\User")
      * @ORM\JoinTable(name="restaurant_users",
-     *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="restaurant_id", referencedColumnName="id")}
+     *      joinColumns={@ORM\JoinColumn(name="restaurant_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")}
      *      )
      */
     protected $users;

@@ -14,6 +14,11 @@ fos_elastica:
                         name: ~
                         city: ~
                         open: ~
+                        users:
+                            type: "nested"
+                            properties:
+                              id:
+                                type: integer
                         location:
                             type: geo_point
                         categories:
