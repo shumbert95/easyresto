@@ -141,7 +141,20 @@ class UserController extends ApiBaseController
     public function getLoggedUser()
     {
         $user = $this->container->get('security.token_storage')->getToken()->getUser();
-        return $this->helper->success($user, 200);
+
+        if(!is_object($user)){
+            return $this->helper->error('Vous n\'êtes pas connecté.');
+        }
+
+        if($user->getType() == User::TYPE_RESTORER) {
+            $restaurant = $this->getRestaurantRepository()->find($user);
+            $return_data["user"] = $user;
+            $return_data["restaurant"] = array("id" => $restaurant->getId());
+        }
+        else
+            $return_data=$user;
+
+        return $this->helper->success($return_data, 200);
     }
 
     /**

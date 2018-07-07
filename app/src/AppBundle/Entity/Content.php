@@ -75,23 +75,30 @@ class Content
     /**
      * @var int
      *
-     * @ORM\Column(name="initial_stock", type="integer", length=10, nullable=true)
-     */
-    protected $initialStock;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="current_stock", type="integer", length=10, nullable=true)
-     */
-    protected $currentStock;
-
-    /**
-     * @var int
-     *
      * @ORM\Column(name="position", type="integer", length=10, nullable=true)
      */
     protected $position;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\Ingredient")
+     * @ORM\JoinTable(name="ingredients_list",
+     *      joinColumns={@ORM\JoinColumn(name="ingredient_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="content_id", referencedColumnName="id")}
+     *      )
+     */
+    protected $ingredients;
+
+
+    /**
+     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\MealSetElement")
+     * @ORM\JoinTable(name="mealSetElements_list",
+     *      joinColumns={@ORM\JoinColumn(name="mealSetElement_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="content_id", referencedColumnName="id")}
+     *      )
+     */
+    protected $mealSetElements;
+
+
 
     /**
      * @var bool
@@ -102,15 +109,20 @@ class Content
 
     const TYPE_MEAL = 1;
     const TYPE_CATEGORY = 2;
+    const TYPE_MEALSET = 3;
 
 
     public static $types = array(
         self::TYPE_MEAL => 'meal',
-        self::TYPE_CATEGORY => 'category'
+        self::TYPE_CATEGORY => 'category',
+        self::TYPE_MEALSET => 'set'
     );
+
 
     public function __construct()
     {
+        $this->ingredients = new ArrayCollection();
+        $this->mealSetElements = new ArrayCollection();
     }
 
     /**
@@ -210,38 +222,6 @@ class Content
     }
 
     /**
-     * @return int
-     */
-    public function getInitialStock()
-    {
-        return $this->initialStock;
-    }
-
-    /**
-     * @param int $initialStock
-     */
-    public function setInitialStock($initialStock)
-    {
-        $this->initialStock = $initialStock;
-    }
-
-    /**
-     * @return int
-     */
-    public function getCurrentStock()
-    {
-        return $this->currentStock;
-    }
-
-    /**
-     * @param int $currentStock
-     */
-    public function setCurrentStock($currentStock)
-    {
-        $this->currentStock = $currentStock;
-    }
-
-    /**
      * @return mixed
      */
     public function getCategory()
@@ -322,6 +302,80 @@ class Content
     {
         $this->status = $status;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getIngredients()
+    {
+        return $this->ingredients;
+    }
+
+    /**
+     * @param mixed $ingredients
+     */
+    public function setIngredients($ingredients)
+    {
+        $this->ingredients = $ingredients;
+    }
+
+    public function addIngredient($ingredient)
+    {
+        if (!$this->ingredients->contains($ingredient)) {
+            $this->ingredients->add($ingredient);
+        }
+
+        return $this;
+    }
+
+    public function removeIngredient($ingredient)
+    {
+        if ($this->ingredients->contains($ingredient)) {
+            $this->ingredients->removeElement($ingredient);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMealSetElements()
+    {
+        return $this->mealSetElements;
+    }
+
+    /**
+     * @param mixed $mealSetElements
+     */
+    public function setMealSetElements($mealSetElements)
+    {
+        $this->mealSetElements = $mealSetElements;
+    }
+
+
+
+    public function addMealSetElement($content)
+    {
+        if (!$this->mealSetElements->contains($content) && $content->getType() == Content::TYPE_MEAL) {
+            $this->mealSetElements->add($content);
+        }
+
+        return $this;
+    }
+
+    public function removeMealSetElement($content)
+    {
+        if ($this->mealSetElements->contains($content)) {
+            $this->mealSetElements->removeElement($content);
+        }
+
+        return $this;
+    }
+
+
+
+
 
     public function __toString()
     {

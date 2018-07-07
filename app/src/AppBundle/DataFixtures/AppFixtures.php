@@ -5,6 +5,7 @@ namespace AppBundle\DataFixtures;
 use AppBundle\Entity\CategoryRestaurant;
 use AppBundle\Entity\Client;
 use AppBundle\Entity\Content;
+use AppBundle\Entity\Ingredient;
 use AppBundle\Entity\Restaurant;
 use AppBundle\Entity\TabMeal;
 use AppBundle\Entity\User;
@@ -211,7 +212,39 @@ class AppFixtures extends Fixture
         $this->addReference('thirdRestaurant', $restaurant);
 
 
+        //INGREDIENTS
+        for($i=1; $i<=3; $i++){
+            $ingredient = new Ingredient();
+            $ingredient->setName("Ingredient number ".$i);
+            $ingredient->setStock(15);
+            $ingredient->setStatus(1);
+            $ingredient->setRestaurant($this->getReference("firstRestaurant"));
+            $manager->persist($ingredient);
+            $manager->flush();
+            $this->addReference('firstRestaurant ingredient-'.$i,$ingredient);
+        }
 
+        for($i=1; $i<=3; $i++){
+            $ingredient = new Ingredient();
+            $ingredient->setName("Ingredient number ".$i);
+            $ingredient->setStock(15);
+            $ingredient->setStatus(1);
+            $ingredient->setRestaurant($this->getReference("secondRestaurant"));
+            $manager->persist($ingredient);
+            $manager->flush();
+            $this->addReference('secondRestaurant ingredient-'.$i,$ingredient);
+        }
+
+        for($i=1; $i<=3; $i++){
+            $ingredient = new Ingredient();
+            $ingredient->setName("Ingredient number ".$i);
+            $ingredient->setStock(15);
+            $ingredient->setStatus(1);
+            $ingredient->setRestaurant($this->getReference("thirdRestaurant"));
+            $manager->persist($ingredient);
+            $manager->flush();
+            $this->addReference('thirdRestaurant ingredient-'.$i,$ingredient);
+        }
 
         //TABS
         for($i=1; $i<=3; $i++){
@@ -270,8 +303,6 @@ class AppFixtures extends Fixture
                     $countPos++;
                     $meal->setDescription("Lorem ipsum toussa toussa vive la recette");
                     $meal->setPrice($i + $j + 0.99);
-                    $meal->setInitialStock(30);
-                    $meal->setCurrentStock(30);
                     $meal->setAvailability(1);
                     $meal->setRestaurant($this->getReference('firstRestaurant'));
                     $meal->setDescription("Good meal");
@@ -304,8 +335,6 @@ class AppFixtures extends Fixture
                     $countPos++;
                     $meal->setDescription("Lorem ipsum toussa toussa vive la recette");
                     $meal->setPrice($i + $j + 0.99);
-                    $meal->setInitialStock(30);
-                    $meal->setCurrentStock(30);
                     $meal->setAvailability(1);
                     $meal->setRestaurant($this->getReference('secondRestaurant'));
                     $meal->setDescription("Good meal");
@@ -339,8 +368,6 @@ class AppFixtures extends Fixture
                     $countPos++;
                     $meal->setDescription("Lorem ipsum toussa toussa vive la recette");
                     $meal->setPrice($i + $j + 0.99);
-                    $meal->setInitialStock(30);
-                    $meal->setCurrentStock(30);
                     $meal->setAvailability(1);
                     $meal->setRestaurant($this->getReference('thirdRestaurant'));
                     $meal->setDescription("Good meal");
