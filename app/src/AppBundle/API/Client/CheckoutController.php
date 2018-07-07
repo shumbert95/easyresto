@@ -69,6 +69,7 @@ class CheckoutController extends ApiBaseController
         $meals = $elasticaManager->getRepository('AppBundle:Content')->findByIds($params['meals_id']);
         $reservation = new Reservation($user, $restaurant);
         $reservation->setRestaurant($restaurant);
+        $reservation->setUser($user);
         $reservation->setContents($meals);
         unset($params['meals_id']);
 

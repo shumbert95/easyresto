@@ -93,3 +93,33 @@ fos_elastica:
                         finder: ~
                         provider: ~
                         repository: AppBundle\SearchRepository\ContentRepository
+                reservation:
+                    properties:
+                        id:
+                            type: integer
+                        state:
+                            type: integer
+                        nbParticipants:
+                            type: integer
+                        total:
+                            type: float
+                        date:
+                          type: date
+                        restaurant:
+                            type: "nested"
+                            properties:
+                                id :
+                                    type : integer
+                                name: ~
+                        user:
+                            type: "nested"
+                            properties:
+                                id :
+                                    type : integer
+                                name: ~
+                    persistence:
+                        driver: orm
+                        model: AppBundle\Entity\Reservation
+                        finder: ~
+                        provider: ~
+                        repository: AppBundle\SearchRepository\ReservationRepository

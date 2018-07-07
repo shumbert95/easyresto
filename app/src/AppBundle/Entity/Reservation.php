@@ -24,7 +24,7 @@ class Reservation{
     protected $id;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="integer")
      */
     protected $state;
 
@@ -165,6 +165,26 @@ class Reservation{
     {
         $this->restaurant = $restaurant;
         
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param mixed $restaurant
+     *
+     * @return $this
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
+
         return $this;
     }
     
