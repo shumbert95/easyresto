@@ -131,26 +131,6 @@ class Reservation{
     /**
      * @return mixed
      */
-    public function getClient()
-    {
-        return $this->client;
-    }
-
-    /**
-     * @param mixed $client
-     *
-     * @return $this
-     */
-    public function setClient($client)
-    {
-        $this->client = $client;
-        
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
     public function getRestaurant()
     {
         return $this->restaurant;

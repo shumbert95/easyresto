@@ -133,7 +133,7 @@ fos_elastica:
                             properties:
                                 id :
                                     type : integer
-                                name: ~
+                                username: ~
                     persistence:
                         driver: orm
                         model: AppBundle\Entity\Reservation

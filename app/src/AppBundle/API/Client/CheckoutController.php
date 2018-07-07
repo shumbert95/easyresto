@@ -16,7 +16,7 @@ class CheckoutController extends ApiBaseController
     /**
      * @param Request $request
      *
-     * @REST\Post("/restaurant/{id}/reservation", name="api_create_reservation")
+     * @REST\Post("/restaurants/{id}/reservation", name="api_create_reservation")
      * @REST\RequestParam(name="total")
      * @REST\RequestParam(name="nbParticipants")
      * @REST\RequestParam(name="date")
@@ -45,7 +45,7 @@ class CheckoutController extends ApiBaseController
         if (!$params['total']) {
             return $this->helper->error('total', true);
         } elseif (!preg_match('/^(\d+.{1}\d+)$/', $params['total'])) {
-            return $this->helper->error('param \'id\' must be a float number');
+            return $this->helper->error('param \'total\' must be a float number');
         }
 
         if (!$params['date']) {
