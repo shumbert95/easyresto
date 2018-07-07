@@ -5,3 +5,5 @@ FOS\UserBundle\Model\User:
         expose: true
       username:
         expose: true
+      roles:
+        expose: true
