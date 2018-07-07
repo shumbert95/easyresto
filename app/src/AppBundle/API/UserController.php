@@ -150,12 +150,12 @@ class UserController extends ApiBaseController
             $elasticaManager = $this->container->get('fos_elastica.manager');
             $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findByOwner($user);
             $return_data["user"] = $user;
-            //$return_data["restaurant"] = array("id" => $restaurant->getId());
+            $return_data["restaurant"] = array("id" => $restaurant->getId());
         }
         else
             $return_data=$user;
 
-        return $this->helper->success($restaurant, 200);
+        return $this->helper->success($return_data, 200);
     }
 
     /**
