@@ -15,9 +15,9 @@ AppBundle\Entity\Content:
         exclude_if: "object.getType() == 2"
       description:
         exclude_if: "object.getType() == 2"
-      mealSetElements:
-        exclude_if: "object.getType() != 3"
       ingredients:
         exclude_if: "object.getType() != 1"
       tab:
-        exclude_if: "object.getType() == 3"
+        exclude: true
+      type:
+        exclude: true

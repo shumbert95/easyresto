@@ -1,11 +1,7 @@
-AppBundle\Entity\MealSetElement:
+AppBundle\Entity\MealSet:
     exclusion_policy: none
     properties:
       restaurant:
         exclude: true
       status:
-        exclude: true
-      mealSetTypes:
-        exclude: true
-      mealSet:
         exclude: true

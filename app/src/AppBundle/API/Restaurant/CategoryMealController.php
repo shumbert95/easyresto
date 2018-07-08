@@ -129,6 +129,7 @@ class CategoryMealController extends ApiBaseController
 
         $em = $this->getEntityManager();
         $em->persist($category);
+        $em->flush();
 
         return $this->helper->success($category, 200);
     }

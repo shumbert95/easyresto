@@ -18,7 +18,7 @@ class CategoryRestaurantRepository extends Repository
         $fieldQuery->setFieldQuery('name', $name);
         $boolQuery->addMust($fieldQuery);
 
-        $categories = $this->find($boolQuery);
+        $categories = $this->find($boolQuery,10000);
       
         return $categories ? $categories[0] : $categories;
     }
@@ -30,7 +30,7 @@ class CategoryRestaurantRepository extends Repository
         $fieldQuery->setFieldQuery('id', $id);
         $boolQuery->addMust($fieldQuery);
 
-        $categories = $this->find($boolQuery);
+        $categories = $this->find($boolQuery,10000);
 
         return $categories ? $categories[0] : $categories;
     }
@@ -45,6 +45,6 @@ class CategoryRestaurantRepository extends Repository
         $query = new Query($boolQuery);
         $query->addSort(array('name' => 'desc'));
 
-        return $this->find($boolQuery);
+        return $this->find($boolQuery,10000);
     }
 }

@@ -67,7 +67,7 @@ class ContentRepository extends Repository
         $fieldQuery->setFieldQuery('id', $id);
         $boolQuery->addMust($fieldQuery);
 
-        $contents = $this->find($boolQuery);
+        $contents = $this->find($boolQuery,10000);
 
         return $contents ? $contents[0] : $contents;
     }
@@ -80,7 +80,18 @@ class ContentRepository extends Repository
 
         $boolQuery->addMust($idsQuery);
 
-        $contents = $this->find($boolQuery);
+        $contents = $this->find($boolQuery,10000);
+        return $contents;
+    }
+
+    public function findByType($type) {
+        $boolQuery = new BoolQuery();
+        $fieldQuery = new Match();
+
+        $fieldQuery->setFieldQuery('type', $type);
+        $boolQuery->addMust($fieldQuery);
+
+        $contents = $this->find($boolQuery, 10000);
         return $contents;
     }
 
@@ -96,7 +107,7 @@ class ContentRepository extends Repository
         $boolQuery->addMust($nestedQuery);
 
         //return $boolQuery;
-        $contents = $this->find($boolQuery);
+        $contents = $this->find($boolQuery,10000);
 
         return isset($contents[0]) ? true : false;
     }

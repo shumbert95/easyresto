@@ -28,6 +28,13 @@ class MealSetElement
      */
     protected $content;
 
+
+    /**
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\MealSet")
+     * @ORM\JoinColumn(name="meal_set_id", referencedColumnName="id")
+     */
+    protected $mealSet;
+
     /**
      * @var integer
      *
@@ -108,6 +115,24 @@ class MealSetElement
     {
         $this->id = $id;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getMealSet()
+    {
+        return $this->mealSet;
+    }
+
+    /**
+     * @param mixed $mealSet
+     */
+    public function setMealSet($mealSet)
+    {
+        $this->mealSet = $mealSet;
+    }
+
+
 
 
 

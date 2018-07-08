@@ -41,6 +41,6 @@ class ReservationRepository extends Repository
             ->setQuery(new Match('user.id', $user->getId()));
         $boolQuery->addMust($nestedQuery);
 
-        return $this->find($boolQuery);
+        return $this->find($boolQuery,10000);
     }
 }

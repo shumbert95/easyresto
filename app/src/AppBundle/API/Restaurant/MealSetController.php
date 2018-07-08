@@ -4,6 +4,7 @@ namespace AppBundle\API\Restaurant;
 
 use AppBundle\API\ApiBaseController;
 use AppBundle\Entity\Content;
+use AppBundle\Entity\MealSet;
 use AppBundle\Entity\MealSetElement;
 use AppBundle\Form\CategoryMealType;
 use AppBundle\Form\MealSetType;
@@ -23,7 +24,6 @@ class MealSetController extends ApiBaseController
      * @REST\RequestParam(name="name")
      * @REST\RequestParam(name="description", nullable=true)
      * @REST\RequestParam(name="price", nullable=true)
-     * @REST\RequestParam(name="meals", nullable=true)
      * @REST\RequestParam(name="position")
      *
      */
@@ -53,21 +53,18 @@ class MealSetController extends ApiBaseController
         $params = $paramFetcher->all();
 
 
-        $mealSet = new Content();
+        $mealSet = new MealSet();
         $mealSet->setStatus(Content::STATUS_ONLINE);
-        $mealSet->setType(Content::TYPE_MEALSET);
         $mealSet->setRestaurant($restaurant);
         $em = $this->getEntityManager();
 
 
-        unset($params['meals']);
         $form = $this->createForm(MealSetType::class, $mealSet);
         $form->submit($params);
 
         if (!$form->isValid()) {
             return $this->helper->error($form->getErrors());
         }
-
 
         $em->persist($mealSet);
         $em->flush();
@@ -109,23 +106,34 @@ class MealSetController extends ApiBaseController
 
         $params = $paramFetcher->all();
         $meal = $elasticaManager->getRepository('AppBundle:Content')->findById($params["meal_id"]);
+
+
+
         if($meal->getType() == Content::TYPE_MEAL) {
-            $mealSet = $elasticaManager->getRepository('AppBundle:Content')->findById($request->get('idSet'));
-            $mealSetElementCheck = $elasticaManager->getRepository('AppBundle:Content')->findIfExists($mealSet,$meal);
+            $mealSet = $elasticaManager->getRepository('AppBundle:MealSet')->findById($request->get('idSet'));
+        }
+        else{
+            return $this->helper->error('Ce n\'est pas un plat');
 
-            if (!$mealSetElementCheck) {
-
-                $mealSetElement = new MealSetElement();
-                $mealSetElement->setContent($meal);
-                $mealSetElement->setMealSetType($params['type']);
-                $mealSet->addMealSetElement($mealSetElement);
-                $em = $this->getEntityManager();
-                $em->persist($mealSetElement);
-                $em->flush();
-            }
         }
 
-        return $this->helper->success($mealSet, 200);
+        $mealSetElement = $elasticaManager->getRepository('AppBundle:MealSetElement')->findBySetAndContent($mealSet,$meal);
+
+        if (!is_object($mealSetElement)) {
+            $mealSetElement = new MealSetElement();
+            $mealSetElement->setContent($meal);
+            $mealSetElement->setMealSet($mealSet);
+            $mealSetElement->setMealSetType($params['type']);
+            $em = $this->getEntityManager();
+            $em->persist($mealSetElement);
+            $em->flush();
+        }
+        else{
+            return $this->helper->error('Cet élément fait déjà partie du menu');
+
+        }
+
+        return $this->helper->success($mealSetElement, 200);
 
 
     }
@@ -163,24 +171,16 @@ class MealSetController extends ApiBaseController
 
         $params = $paramFetcher->all();
         $meal = $elasticaManager->getRepository('AppBundle:Content')->findById($params["meal_id"]);
-        $mealSet = $elasticaManager->getRepository('AppBundle:Content')->findById($request->get('idSet'));
-        $mealSetElementCheck = $elasticaManager->getRepository('AppBundle:Content')->findIfExists($mealSet,$meal);
-
-        if($mealSetElementCheck) {
-            $mealSetElements = $this->getMealSetElementRepository()->findBy(array("content" => $meal));
-            foreach($mealSetElements as $mealSetElement) {
-                $mealSetContains = $mealSet->getMealSetElements();
-                if($mealSetContains->contains($mealSetElement)) {
-                    $mealSet->removeMealSetElement($mealSetElement);
-                    $em = $this->getEntityManager();
-                    $em->remove($mealSetElement);
-                    $em->flush();
-                }
-            }
+        if($meal->getType() == Content::TYPE_MEAL) {
+            $mealSet = $elasticaManager->getRepository('AppBundle:MealSet')->findById($request->get('idSet'));
         }
-        else{
-            return $this->helper->error('Il n\'y a rien à retirer');
 
+        $mealSetElement = $elasticaManager->getRepository('AppBundle:MealSetElement')->findBySetAndContent($mealSet,$meal);
+
+        if (is_object($mealSetElement)) {
+            $em = $this->getEntityManager();
+            $em->remove($mealSetElement);
+            $em->flush();
         }
 
         return $this->helper->success($mealSet, 200);
@@ -202,10 +202,27 @@ class MealSetController extends ApiBaseController
         $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
 
 
-        $mealSet = $elasticaManager->getRepository('AppBundle:Content')->findById($request->get('idSet'));
+        $mealSet = $elasticaManager->getRepository('AppBundle:MealSet')->findById($request->get('idSet'));
+        $mealSetElements = $elasticaManager->getRepository('AppBundle:MealSetElement')->findBySet($mealSet);
 
 
-        return $this->helper->success($mealSet, 200);
+        if(!is_object($mealSet)){
+            return $this->helper->error("Id invalide");
+        }
+        if($mealSet->getRestaurant() != $restaurant){
+            return $this->helper->error("Ce n'est pas le bon restaurant");
+        }
+
+        $json =array(
+            "id" => $mealSet->getId(),
+            "name" => $mealSet->getName(),
+            "description" => $mealSet->getDescription(),
+            "price" => $mealSet->getPrice(),
+            "position" => $mealSet->getPosition(),
+            "content" => isset($mealSetElements) ? $mealSetElements : array()
+        );
+
+        return $this->helper->success($json, 200);
 
 
     }

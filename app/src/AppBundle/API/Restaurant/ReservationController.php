@@ -101,4 +101,52 @@ class ReservationController extends ApiBaseController
 
         return $this->helper->success($availabilities, 200);
     }
+
+    /**
+     * @REST\Get("/restaurants/{id}/check_availability", name="api_check_availability")
+     *
+     * @QueryParam(name="date")
+     * @QueryParam(name="nb_participants")
+     */
+    public function checkAvailability(Request $request, ParamFetcher $paramFetcher) {
+        $params = $paramFetcher->all();
+
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
+
+
+        $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
+
+        $nbParticipants = $params['nb_participants'];
+
+        $dateFrom = new \DateTime($params['date']);
+        $dateTo = new \DateTime(($params['date']));
+
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+
+
+        $dateTo->modify("+29 minutes");
+        $reservations = $elasticaManager->getRepository('AppBundle:Reservation')->findByRestaurant($restaurant, $dateFrom, $dateTo);
+        $seats = $restaurant->getSeats();
+        if(isset($reservations)){
+            foreach ($reservations as $reservation){
+                $seats = $seats-$reservation->getNbParticipants();
+            }
+        }
+        if($seats>=$nbParticipants) {
+            $availability=array("availability" => true);
+        }
+        else{
+            $availability=array("availability" => false);
+        }
+
+        $dateTo->modify("+1 minute");
+        $dateFrom->modify("+30 minutes");
+
+        return $this->helper->success($availability, 200);
+    }
 }

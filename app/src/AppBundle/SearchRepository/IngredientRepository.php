@@ -38,7 +38,7 @@ class IngredientRepository extends Repository
         $fieldQuery->setFieldQuery('id', $id);
         $boolQuery->addMust($fieldQuery);
 
-        $ingredients = $this->find($boolQuery);
+        $ingredients = $this->find($boolQuery,10000);
 
         return $ingredients ? $ingredients[0] : $ingredients;
     }
@@ -51,7 +51,7 @@ class IngredientRepository extends Repository
 
         $boolQuery->addMust($idsQuery);
 
-        $ingredients = $this->find($boolQuery);
+        $ingredients = $this->find($boolQuery,10000);
         return $ingredients;
     }
 }
