@@ -27,8 +27,6 @@ class MealController extends ApiBaseController
      * @REST\RequestParam(name="description", nullable=true)
      * @REST\RequestParam(name="price", nullable=true)
      * @REST\RequestParam(name="availability", nullable=true)
-     * @REST\RequestParam(name="initialStock", nullable=true)
-     * @REST\RequestParam(name="currentStock", nullable=true)
      * @REST\RequestParam(name="position")
      *
      */
@@ -67,10 +65,14 @@ class MealController extends ApiBaseController
         if (!$tab) {
             return $this->helper->elementNotFound('TabMeal');
         }
+        if($tab->getRestaurant() != $restaurant){
+            return $this->helper->error('Ce n\'est pas un onglet de ce restaurant');
+        }
+
 
         $meal = new Content();
-        $meal->setStatus(1);
-        $meal->setType(CONTENT::TYPE_MEAL);
+        $meal->setStatus(Content::STATUS_ONLINE);
+        $meal->setType(Content::TYPE_MEAL);
         $meal->setRestaurant($restaurant);
         $meal->setTab($tab);
 
@@ -122,9 +124,16 @@ class MealController extends ApiBaseController
             !$restaurantUsers->contains($user)){
             return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
         }
+
         $meal = $elasticaManager->getRepository('AppBundle:Content')->findById($request->get('idMeal'));
         if (!$meal) {
             return $this->helper->elementNotFound('Meal');
+        }
+        if($meal->getType() != Content::TYPE_MEAL){
+            return $this->helper->error('Il ne s\'agit pas d\'un plat.');
+        }
+        if($meal->getRestaurant() != $restaurant){
+            return $this->helper->error('Ce n\'est pas un plat de ce restaurant');
         }
 
         $request_data = $request->request->all();
@@ -190,9 +199,10 @@ class MealController extends ApiBaseController
         if (!$meal) {
             return $this->helper->elementNotFound('Meal');
         }
+        if($meal->getRestaurant() != $restaurant){
+            return $this->helper->error('Ce n\'est pas un plat de ce restaurant');
+        }
 
-        $meal->setInitialStock($meal->getCurrentStock() + $params['initialStock']);
-        $meal->setCurrentStock($meal->getInitialStock());
         $em = $this->getEntityManager();
         $em->persist($meal);
         $em->flush();
@@ -202,10 +212,44 @@ class MealController extends ApiBaseController
 
     /**
      *
-     * @REST\Put("/restaurants/{id}/meals/{idMeal}/update_stock", name="api_stock_change")
-     * @REST\RequestParam(name="stock")
+     * @REST\Get("/restaurants/{id}/meal/{idMeal}", name="api_show_meal")
+     *
      */
-    public function updateCurrentStock(Request $request,ParamFetcher $paramFetcher)
+    public function getMeal(Request $request)
+    {
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
+        if (!$request->get('idMeal')) {
+            return $this->helper->error('idMeal', true);
+        } elseif (!preg_match('/\d/', $request->get('idMeal'))) {
+            return $this->helper->error('param \'idMeal\' must be an integer');
+        }
+
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+        $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
+        if (!$restaurant) {
+            return $this->helper->elementNotFound('Restaurant');
+        }
+
+        $meal = $elasticaManager->getRepository('AppBundle:Content')->findById($request->get('idMeal'));
+        if (!$meal) {
+            return $this->helper->elementNotFound('Meal');
+        }
+        if($meal->getRestaurant() != $restaurant){
+            return $this->helper->error('Ce n\'est pas un plat de ce restaurant');
+        }
+
+        return $this->helper->success($meal, 200);
+    }
+  
+    /**
+     * @REST\Delete("/restaurants/{id}/meals/{idMeal}", name="api_delete_meal")
+     */
+    public function deleteMeal(Request $request)
     {
         $user = $this->container->get('security.token_storage')->getToken()->getUser();
 
@@ -234,82 +278,12 @@ class MealController extends ApiBaseController
             return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
         }
 
-        $params=$paramFetcher->all();
         $meal = $elasticaManager->getRepository('AppBundle:Content')->findById($request->get('idMeal'));
         if (!$meal) {
             return $this->helper->elementNotFound('Meal');
         }
-
-        $meal->setCurrentStock($meal->getCurrentStock() + $params['stock']);
-
-        $em = $this->getEntityManager();
-        $em->persist($meal);
-        $em->flush();
-
-        return $this->helper->success($meal, 200);
-    }
-
-
-
-    /**
-     *
-     * @REST\Get("/restaurant/{id}/meal/{idMeal}", name="api_show_meal")
-     *
-     */
-    public function getMeal(Request $request)
-    {
-        if (!$request->get('id')) {
-            return $this->helper->error('id', true);
-        } elseif (!preg_match('/\d/', $request->get('id'))) {
-            return $this->helper->error('param \'id\' must be an integer');
-        }
-
-        if (!$request->get('idMeal')) {
-            return $this->helper->error('idMeal', true);
-        } elseif (!preg_match('/\d/', $request->get('idMeal'))) {
-            return $this->helper->error('param \'idMeal\' must be an integer');
-        }
-
-        $elasticaManager = $this->container->get('fos_elastica.manager');
-        $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
-        if (!$restaurant) {
-            return $this->helper->elementNotFound('Restaurant');
-        }
-
-        $meal = $elasticaManager->getRepository('AppBundle:Content')->findById($request->get('idMeal'));
-        if (!$meal) {
-            return $this->helper->elementNotFound('Meal');
-        }
-
-        return $this->helper->success($meal, 200);
-    }
-  
-    /**
-     * @REST\Delete("/restaurants/{id}/meals/{idMeal}", name="api_delete_meal")
-     */
-    public function deleteMeal(Request $request)
-    {
-        if (!$request->get('id')) {
-            return $this->helper->error('id', true);
-        } elseif (!preg_match('/\d/', $request->get('id'))) {
-            return $this->helper->error('param \'id\' must be an integer');
-        }
-
-        if (!$request->get('idMeal')) {
-            return $this->helper->error('idMeal', true);
-        } elseif (!preg_match('/\d/', $request->get('idMeal'))) {
-            return $this->helper->error('param \'idMeal\' must be an integer');
-        }
-
-        $elasticaManager = $this->container->get('fos_elastica.manager');
-        $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
-        if (!$restaurant) {
-            return $this->helper->elementNotFound('Restaurant');
-        }
-
-        $meal = $elasticaManager->getRepository('AppBundle:Content')->findById($request->get('idMeal'));
-        if (!$meal) {
-            return $this->helper->elementNotFound('Meal');
+        if($meal->getRestaurant() != $restaurant){
+            return $this->helper->error('Ce n\'est pas un plat de ce restaurant');
         }
 
         $em = $this->getEntityManager();
@@ -372,10 +346,128 @@ class MealController extends ApiBaseController
         if (!$tab) {
             return $this->helper->elementNotFound('TabMeal');
         }
+        if($tab->getRestaurant() != $restaurant){
+            return $this->helper->error('Ce n\'est pas un onglet de ce restaurant');
+        }
+
 
         $meals = $elasticaManager->getRepository('AppBundle:Content')->findByTab($tab, Content::TYPE_MEAL);
 
         return $this->helper->success($meals, 200);
+    }
+
+    /**
+     * @REST\Get("/restaurants/{id}/ingredients/{idIngredient}/meals/{idMeal}/add", name="api_add_ingredient_to_meal")
+     *
+     */
+    public function addIngredient(Request $request)
+    {
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
+        if (!$request->get('idMeal')) {
+            return $this->helper->error('idMeal', true);
+        } elseif (!preg_match('/\d/', $request->get('idMeal'))) {
+            return $this->helper->error('param \'idMeal\' must be an integer');
+        }
+
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+        $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
+        if (!$restaurant) {
+            return $this->helper->elementNotFound('Restaurant');
+        }
+
+        $restaurantUsers = $restaurant->getUsers();
+
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
+            !$restaurantUsers->contains($user)){
+            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
+        }
+
+        $meal = $elasticaManager->getRepository('AppBundle:Content')->findById($request->get('idMeal'));
+        if (!$meal) {
+            return $this->helper->elementNotFound('Meal');
+        }
+        if($meal->getRestaurant() != $restaurant){
+            return $this->helper->error('Ce n\'est pas un plat de ce restaurant');
+        }
+
+        $ingredient = $elasticaManager->getRepository('AppBundle:Ingredient')->findById($request->get('idIngredient'));
+        if (!$ingredient) {
+            return $this->helper->elementNotFound('Ingredient');
+        }
+        if($ingredient->getRestaurant() != $restaurant){
+            return $this->helper->error('Ce n\'est pas un ingrédient de ce restaurant');
+        }
+
+        $meal->addIngredient($ingredient);
+        $em = $this->getEntityManager();
+        $em->persist($meal);
+        $em->flush();
+
+        return $this->helper->success($meal, 200);
+    }
+
+    /**
+     *
+     * @REST\Get("/restaurants/{id}/ingredients/{idIngredient}/meals/{idMeal}/remove", name="api_remove_ingredient_from_meal")
+     */
+    public function removeIngredient(Request $request)
+    {
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
+        if (!$request->get('idMeal')) {
+            return $this->helper->error('idMeal', true);
+        } elseif (!preg_match('/\d/', $request->get('idMeal'))) {
+            return $this->helper->error('param \'idMeal\' must be an integer');
+        }
+
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+        $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
+        if (!$restaurant) {
+            return $this->helper->elementNotFound('Restaurant');
+        }
+
+        $restaurantUsers = $restaurant->getUsers();
+
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
+            !$restaurantUsers->contains($user)){
+            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
+        }
+
+        $meal = $elasticaManager->getRepository('AppBundle:Content')->findById($request->get('idMeal'));
+        if (!$meal) {
+            return $this->helper->elementNotFound('Meal');
+        }
+        if($meal->getRestaurant() != $restaurant){
+            return $this->helper->error('Ce n\'est pas un plat de ce restaurant');
+        }
+
+        $ingredient = $elasticaManager->getRepository('AppBundle:Ingredient')->findById($request->get('idIngredient'));
+        if (!$ingredient) {
+            return $this->helper->elementNotFound('Ingredient');
+        }
+        if($ingredient->getRestaurant() != $restaurant){
+            return $this->helper->error('Ce n\'est pas un ingrédient de ce restaurant');
+        }
+
+        $meal->removeIngredient($ingredient);
+        $em = $this->getEntityManager();
+        $em->persist($meal);
+        $em->flush();
+
+        return $this->helper->success($meal, 200);
     }
 
 

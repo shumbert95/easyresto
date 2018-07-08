@@ -24,7 +24,7 @@ class Reservation{
     protected $id;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="integer")
      */
     protected $state;
 
@@ -131,26 +131,6 @@ class Reservation{
     /**
      * @return mixed
      */
-    public function getClient()
-    {
-        return $this->client;
-    }
-
-    /**
-     * @param mixed $client
-     *
-     * @return $this
-     */
-    public function setClient($client)
-    {
-        $this->client = $client;
-        
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
     public function getRestaurant()
     {
         return $this->restaurant;
@@ -165,6 +145,26 @@ class Reservation{
     {
         $this->restaurant = $restaurant;
         
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param mixed $restaurant
+     *
+     * @return $this
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
+
         return $this;
     }
     

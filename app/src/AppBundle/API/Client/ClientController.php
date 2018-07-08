@@ -28,6 +28,9 @@ class ClientController extends ApiBaseController
     public function getClientById(Request $request)
     {
         $user = $this->getUserRepository()->find($request->get('id'));
+        if($user->getType() != User::TYPE_CLIENT){
+            return $this->helper->error('Cet utilisateur n\'est pas un client');
+        }
         return $this->helper->success($user, 200);
     }
 
@@ -39,13 +42,16 @@ class ClientController extends ApiBaseController
     public function getFavorites()
     {
         $user = $this->container->get('security.token_storage')->getToken()->getUser();
+        if($user->getType() != User::TYPE_CLIENT){
+            return $this->helper->error('En tant que restaurateur, vous ne pouvez pas effectuer cette action');
+        }
         $favorites = $user->getFavorites();
         return $this->helper->success($favorites, 200);
     }
 
     /**
      *
-     * @REST\Put("/restaurants/{id}/favorites/add", name="api_user_add_favorite")
+     * @REST\Get("/restaurants/{id}/favorites/add", name="api_user_add_favorite")
      *
      */
     public function addFavorite(Request $request)
@@ -53,6 +59,9 @@ class ClientController extends ApiBaseController
         $fosUserManager = $this->get('fos_user.user_manager');
         $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
         $user = $this->container->get('security.token_storage')->getToken()->getUser();
+        if($user->getType() != User::TYPE_CLIENT){
+            return $this->helper->error('En tant que restaurateur, vous ne pouvez pas effectuer cette action');
+        }
         $user->addFavorite($restaurant);
         $fosUserManager->updateUser($user);
         return $this->helper->success($user, 200);
@@ -60,7 +69,7 @@ class ClientController extends ApiBaseController
 
     /**
      *
-     * @REST\Put("/restaurants/{id}/favorites/remove", name="api_user_remove_favorite")
+     * @REST\Get("/restaurants/{id}/favorites/remove", name="api_user_remove_favorite")
      *
      */
     public function removeFavorite(Request $request)
@@ -68,6 +77,9 @@ class ClientController extends ApiBaseController
         $fosUserManager = $this->get('fos_user.user_manager');
         $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
         $user = $this->container->get('security.token_storage')->getToken()->getUser();
+        if($user->getType() != User::TYPE_CLIENT){
+            return $this->helper->error('En tant que restaurateur, vous ne pouvez pas effectuer cette action');
+        }
         $user->removeFavorite($restaurant);
         $fosUserManager->updateUser($user);
         return $this->helper->success($user, 200);
@@ -83,7 +95,9 @@ class ClientController extends ApiBaseController
         $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
         $user = $this->container->get('security.token_storage')->getToken()->getUser();
         $note = $this->getNoteRepository()->findOneBy(array('restaurant' => $restaurant, 'user' => $user));
-
+        if($user->getType() != User::TYPE_CLIENT){
+            return $this->helper->error('En tant que restaurateur, vous ne pouvez pas effectuer cette action');
+        }
         if($note == null){
             $note = new Note();
             $note->setUser($user);

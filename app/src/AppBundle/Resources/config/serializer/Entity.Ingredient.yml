@@ -1,7 +1,7 @@
-AppBundle\Entity\Restaurant:
+AppBundle\Entity\Ingredient:
     exclusion_policy: none
     properties:
-      users:
-        exclude: false
+      restaurant:
+        exclude: true
       status:
         exclude: true

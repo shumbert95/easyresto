@@ -14,7 +14,6 @@ class CategoryMealController extends ApiBaseController
     /**
      * @param Request $request
      *
-     *
      * @REST\Post("/restaurants/{id}/tabs/{idTab}/categories/create", name="api_create_meal_category")
      * @REST\RequestParam(name="name")
      * @REST\RequestParam(name="position")
@@ -53,9 +52,13 @@ class CategoryMealController extends ApiBaseController
         if (!$tab) {
             return $this->helper->elementNotFound('TabMeal');
         }
+        if($tab->getRestaurant() != $restaurant){
+            return $this->helper->error('Ce n\'est pas un onglet de ce restaurant');
+        }
+
 
         $category = new Content();
-        $category->setStatus(1);
+        $category->setStatus(Content::STATUS_ONLINE);
         $category->setType(Content::TYPE_CATEGORY);
         $category->setRestaurant($restaurant);
         $category->setTab($tab);
@@ -109,6 +112,14 @@ class CategoryMealController extends ApiBaseController
         }
 
         $category = $elasticaManager->getRepository('AppBundle:Content')->findById($request->get('idCat'));
+
+        if($category->getType() != Content::TYPE_CATEGORY){
+            return $this->helper->error('Il ne s\'agit pas d\'une catégorie.');
+        }
+
+        if($category->getRestaurant() != $restaurant){
+            return $this->helper->error('Ce n\'est pas une catégorie de ce restaurant');
+        }
 
         $request_data = $request->request->all();
 
@@ -175,6 +186,9 @@ class CategoryMealController extends ApiBaseController
         if (!$tab) {
             return $this->helper->elementNotFound('TabMeal');
         }
+        if($tab->getRestaurant() != $restaurant){
+            return $this->helper->error('Ce n\'est pas un onglet de ce restaurant');
+        }
 
         $categories = $elasticaManager->getRepository('AppBundle:Content')->findByTab($tab, Content::TYPE_CATEGORY);
 
@@ -210,6 +224,9 @@ class CategoryMealController extends ApiBaseController
         $category = $elasticaManager->getRepository('AppBundle:Content')->findById($request->get('idCategory'));
         if (!$category) {
             return $this->helper->elementNotFound('CategoryMeal');
+        }
+        if($category->getRestaurant() != $restaurant){
+            return $this->helper->error('Ce n\'est pas une catégorie de ce restaurant');
         }
 
         return $this->helper->success($category, 200);

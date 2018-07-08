@@ -141,7 +141,30 @@ class UserController extends ApiBaseController
     public function getLoggedUser()
     {
         $user = $this->container->get('security.token_storage')->getToken()->getUser();
-        return $this->helper->success($user, 200);
+
+        if(!is_object($user)){
+            return $this->helper->error('Vous n\'êtes pas connecté.');
+        }
+
+        if($user->getType() == User::TYPE_RESTORER) {
+            $elasticaManager = $this->container->get('fos_elastica.manager');
+            $em = $this->getEntityManager();
+            $restaurants = $elasticaManager->getRepository('AppBundle:Restaurant')->findByOwner($user);
+            //$restaurants = $em->getRepository('AppBundle:Restaurant')->getRestaurantByOwner($user);
+            $return_data["user"] = $user;
+            if(is_array($restaurants)) {
+                foreach ($restaurants as $restaurant) {
+                    $return_data["restaurants"][] = array("id" => $restaurant->getId());
+                }
+            }
+            else
+                $return_data["restaurant"] = array("id" => $restaurants->getId());
+
+        }
+        else
+            $return_data=$user;
+
+        return $this->helper->success($return_data, 200);
     }
 
     /**

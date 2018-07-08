@@ -66,7 +66,6 @@ doctrine:
 # Swiftmailer Configuration
 swiftmailer:
     transport: '%mailer_transport%'
-    host: '%mailer_host%'
     username: '%mailer_user%'
     password: '%mailer_password%'
 
@@ -113,6 +112,13 @@ fos_rest:
               priorities: ['html', 'json']
               fallback_format: html
               prefer_extension: true
+
+jms_serializer:
+    metadata:
+        directories:
+            FOSUserBundle:
+                path: "@AppBundle/Resources/config/serializer/FOS"
+                namespace_prefix: "FOS\\UserBundle"
 
 nelmio_cors:
   defaults:

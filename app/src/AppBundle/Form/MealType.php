@@ -43,22 +43,6 @@ class MealType extends AbstractType
                 ]
             )
             ->add(
-                'initialStock',
-                IntegerType::class,
-                [
-                    'required' => false,
-                    'label' => 'Stock initial'
-                ]
-            )
-            ->add(
-                'currentStock',
-                IntegerType::class,
-                [
-                    'required' => false,
-                    'label' => 'Stock actuel'
-                ]
-            )
-            ->add(
                 'position',
                 IntegerType::class,
                 [

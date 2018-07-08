@@ -1,0 +1,6 @@
+AppBundle\Entity\Reservation:
+    exclusion_policy: none
+    properties:
+      restaurant:
+        exclude: true
+      contents:
