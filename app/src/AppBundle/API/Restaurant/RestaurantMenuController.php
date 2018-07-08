@@ -64,12 +64,22 @@ class RestaurantMenuController extends ApiBaseController
                         }
 
                     }
-                    $json[] = array(
-                        "id" => $tab->getId(),
-                        "position" => $tab->getPosition(),
-                        "name" => $tab->getName()
-                        //"content" => $arrayContent[$tab->getId()]
-                    );
+                    if(isset($arrayContent[$tab->getId()])) {
+                        $json[] = array(
+                            "id" => $tab->getId(),
+                            "position" => $tab->getPosition(),
+                            "name" => $tab->getName(),
+                            "content" => $arrayContent[$tab->getId()]
+                        );
+                    }
+                    else{
+                        $json[] = array(
+                            "id" => $tab->getId(),
+                            "position" => $tab->getPosition(),
+                            "name" => $tab->getName(),
+                            "content" => array()
+                        );
+                    }
                 }
             }
         }
@@ -78,7 +88,7 @@ class RestaurantMenuController extends ApiBaseController
         }
 
 
-        return $this->helper->success($tabs, 200);
+        return $this->helper->success($json, 200);
     }
 
 }
