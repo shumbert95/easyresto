@@ -212,7 +212,7 @@ class MealController extends ApiBaseController
 
     /**
      *
-     * @REST\Get("/restaurant/{id}/meal/{idMeal}", name="api_show_meal")
+     * @REST\Get("/restaurants/{id}/meal/{idMeal}", name="api_show_meal")
      *
      */
     public function getMeal(Request $request)

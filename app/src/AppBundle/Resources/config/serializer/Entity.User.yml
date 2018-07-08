@@ -27,4 +27,4 @@ AppBundle\Entity\User:
       addressComplement:
         exclude_if: "object.getType() == 1"
       favorites:
-        exclude_if: "object.getType() == 2"
+        exclude: true
