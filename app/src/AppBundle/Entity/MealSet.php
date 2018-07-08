@@ -8,9 +8,9 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Category
  * @ORM\Entity
- * @ORM\Table(name="content")
+ * @ORM\Table(name="meal_set")
  */
-class Content
+class MealSet
 {
     const STATUS_OFFLINE = false;
     const STATUS_ONLINE = true;
@@ -20,20 +20,6 @@ class Content
      * @ORM\JoinColumn(name="restaurant_id")
      */
     protected $restaurant;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\TabMeal")
-     * @ORM\JoinColumn(name="tab_id")
-     */
-    protected $tab;
-
-
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="type", type="integer")
-     */
-    protected $type;
 
     /**
      * @var int
@@ -66,29 +52,11 @@ class Content
     protected $price;
 
     /**
-     * @var bool
-     *
-     * @ORM\Column(name="availability", type="boolean", nullable=true)
-     */
-    protected $availability;
-
-    /**
      * @var int
      *
      * @ORM\Column(name="position", type="integer", length=10, nullable=true)
      */
     protected $position;
-
-    /**
-     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\Ingredient")
-     * @ORM\JoinTable(name="ingredients_list",
-     *      joinColumns={@ORM\JoinColumn(name="ingredient_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="content_id", referencedColumnName="id")}
-     *      )
-     */
-    protected $ingredients;
-
-
 
     /**
      * @var bool
@@ -97,20 +65,9 @@ class Content
      */
     protected $status;
 
-    const TYPE_MEAL = 1;
-    const TYPE_CATEGORY = 2;
-
-
-    public static $types = array(
-        self::TYPE_MEAL => 'meal',
-        self::TYPE_CATEGORY => 'category',
-    );
-
 
     public function __construct()
     {
-        $this->ingredients = new ArrayCollection();
-        $this->mealSetElements = new ArrayCollection();
     }
 
     /**
@@ -194,22 +151,6 @@ class Content
     }
 
     /**
-     * @return bool
-     */
-    public function isAvailability()
-    {
-        return $this->availability;
-    }
-
-    /**
-     * @param bool $availability
-     */
-    public function setAvailability($availability)
-    {
-        $this->availability = $availability;
-    }
-
-    /**
      * @return int
      */
     public function getPosition()
@@ -226,40 +167,6 @@ class Content
     }
 
     /**
-     * @return int
-     */
-    public function getType()
-    {
-        return $this->type;
-    }
-
-    /**
-     * @param int $type
-     */
-    public function setType($type)
-    {
-        $this->type = $type;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getTab()
-    {
-        return $this->tab;
-    }
-
-    /**
-     * @param mixed $tab
-     */
-    public function setTab($tab)
-    {
-        $this->tab = $tab;
-    }
-
-
-
-    /**
      * @return bool
      */
     public function isStatus()
@@ -274,44 +181,6 @@ class Content
     {
         $this->status = $status;
     }
-
-    /**
-     * @return mixed
-     */
-    public function getIngredients()
-    {
-        return $this->ingredients;
-    }
-
-    /**
-     * @param mixed $ingredients
-     */
-    public function setIngredients($ingredients)
-    {
-        $this->ingredients = $ingredients;
-    }
-
-    public function addIngredient($ingredient)
-    {
-        if (!$this->ingredients->contains($ingredient)) {
-            $this->ingredients->add($ingredient);
-        }
-
-        return $this;
-    }
-
-    public function removeIngredient($ingredient)
-    {
-        if ($this->ingredients->contains($ingredient)) {
-            $this->ingredients->removeElement($ingredient);
-        }
-
-        return $this;
-    }
-
-
-
-
 
     public function __toString()
     {

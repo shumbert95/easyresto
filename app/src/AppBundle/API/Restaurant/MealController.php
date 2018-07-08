@@ -23,11 +23,11 @@ class MealController extends ApiBaseController
      *
      *
      * @REST\Post("/restaurants/{id}/tabs/{idTab}/meals/create", name="api_create_meal")
-     * @REST\RequestParam(name="name")
+     * @REST\RequestParam(name="name", nullable=true)
      * @REST\RequestParam(name="description", nullable=true)
      * @REST\RequestParam(name="price", nullable=true)
      * @REST\RequestParam(name="availability", nullable=true)
-     * @REST\RequestParam(name="position")
+     * @REST\RequestParam(name="position", nullable=true)
      *
      */
     public function createMeal(Request $request, ParamFetcher $paramFetcher)

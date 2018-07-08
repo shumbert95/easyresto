@@ -49,36 +49,51 @@ class RestaurantMenuController extends ApiBaseController
                             $arrayContent[$tab->getId()][] = array(
                                 "id" => $content->getId(),
                                 "position" => $content->getPosition(),
-                                "type" => $content::$types[Content::TYPE_CATEGORY],
+                                "type" => $content->getType(),
                                 "name" => $content->getName(),
                             );
-                        } else {
+                        }
+                        else {
                             $arrayContent[$tab->getId()][] = array(
                                 "id" => $content->getId(),
                                 "position" => $content->getPosition(),
-                                "type" => $content::$types[Content::TYPE_MEAL],
+                                "type" => $content->getType(),
                                 "name" => $content->getName(),
                                 "description" => $content->getDescription(),
                                 "price" => $content->getPrice(),
                             );
                         }
-
                     }
                     $json[] = array(
+                        "tab" => true,
                         "id" => $tab->getId(),
                         "position" => $tab->getPosition(),
-                        "name" => $tab->getName()
-                        //"content" => $arrayContent[$tab->getId()]
+                        "name" => $tab->getName(),
+                        "content" => isset($arrayContent[$tab->getId()]) ? $arrayContent[$tab->getId()] : array()
                     );
                 }
             }
+            $mealSets = $elasticaManager->getRepository('AppBundle:MealSet')->findByRestaurant($restaurant);
+            if(isset($mealSets)) {
+                foreach ($mealSets as $mealSet) {
+                    $mealSetElements = $elasticaManager->getRepository('AppBundle:MealSetElement')->findBySet($mealSet);
+                    $json[] = array(
+                        "tab" => false,
+                        "id" => $mealSet->getId(),
+                        "position" => $mealSet->getPosition(),
+                        "name" => $mealSet->getName(),
+                        "content" => $mealSetElements,
+                    );
+                }
+            }
+
         }
         else {
             $json[] = array();
         }
 
 
-        return $this->helper->success($tabs, 200);
+        return $this->helper->success($json, 200);
     }
 
 }

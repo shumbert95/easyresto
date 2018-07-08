@@ -136,13 +136,6 @@ class Restaurant
     protected $seats;
 
     /**
-     * @var int
-     *
-     * @ORM\Column(name="current_seats", type="integer", length=10, nullable=true)
-     */
-    protected $currentSeats;
-
-    /**
      * @var float
      *
      * @ORM\Column(name="average_note",type="float")
@@ -423,22 +416,6 @@ class Restaurant
     public function setSeats($seats)
     {
         $this->seats = $seats;
-    }
-
-    /**
-     * @return int
-     */
-    public function getCurrentSeats()
-    {
-        return $this->currentSeats;
-    }
-
-    /**
-     * @param int $currentSeats
-     */
-    public function setCurrentSeats($currentSeats)
-    {
-        $this->currentSeats = $currentSeats;
     }
 
     /**

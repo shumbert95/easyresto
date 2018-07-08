@@ -18,8 +18,8 @@ class ReservationRepository extends Repository
         $nestedQuery = new Nested();
 
         $boolQuery->addMust(new Range('date', array(
-            'gte' => \Elastica\Util::convertDateTimeObject($dateFrom,true),
-            'lte' => \Elastica\Util::convertDateTimeObject($dateTo,true)
+            'gte' => \Elastica\Util::convertDate($dateFrom->getTimestamp()),
+            'lte' => \Elastica\Util::convertDate($dateTo->getTimestamp())
         )));
 
         $nestedQuery->setPath('restaurant')
@@ -41,6 +41,6 @@ class ReservationRepository extends Repository
             ->setQuery(new Match('user.id', $user->getId()));
         $boolQuery->addMust($nestedQuery);
 
-        return $this->find($boolQuery);
+        return $this->find($boolQuery,10000);
     }
 }

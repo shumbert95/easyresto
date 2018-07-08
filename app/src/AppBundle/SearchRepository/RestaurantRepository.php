@@ -22,7 +22,7 @@ class RestaurantRepository extends Repository
         $fieldQuery->setFieldQuery('id', $id);
         $boolQuery->addMust($fieldQuery);
 
-        $restaurants = $this->find($boolQuery);
+        $restaurants = $this->find($boolQuery,10000);
 
         return $restaurants ? $restaurants[0] : $restaurants;
     }
@@ -38,7 +38,7 @@ class RestaurantRepository extends Repository
         $nestedQuery->setPath('users')->setQuery(new Match('users.id',$user->getId()));
         $boolQuery->addMust($nestedQuery);
 
-        $restaurants = $this->find($boolQuery);
+        $restaurants = $this->find($boolQuery,10000);
 
 
 
@@ -59,7 +59,7 @@ class RestaurantRepository extends Repository
 
         $boolQuery->addFilter($filter);
 
-        return $this->find($boolQuery);
+        return $this->find($boolQuery,10000);
     }
 
 }

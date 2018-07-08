@@ -105,11 +105,54 @@ fos_elastica:
                                     type: integer
                                 name: ~
                     persistence:
-                        driver: orm
-                        model: AppBundle\Entity\Content
-                        finder: ~
-                        provider: ~
-                        repository: AppBundle\SearchRepository\ContentRepository
+                      driver: orm
+                      model: AppBundle\Entity\Content
+                      finder: ~
+                      provider: ~
+                      repository: AppBundle\SearchRepository\ContentRepository
+
+                mealSet:
+                  properties:
+                    id:
+                      type: integer
+                    status: ~
+                    name: ~
+                    restaurant:
+                      type: "nested"
+                      properties:
+                        id:
+                          type: integer
+                  persistence:
+                    driver: orm
+                    model: AppBundle\Entity\MealSet
+                    finder: ~
+                    provider: ~
+                    repository: AppBundle\SearchRepository\MealSetRepository
+
+
+                mealSetElement:
+                    properties:
+                      id:
+                        type: integer
+                      content:
+                        type: "nested"
+                        properties:
+                          id:
+                            type: integer
+                      mealSet:
+                        type: "nested"
+                        properties:
+                          id:
+                            type: integer
+
+                    persistence:
+                      driver: orm
+                      model: AppBundle\Entity\MealSetElement
+                      finder: ~
+                      provider: ~
+                      repository: AppBundle\SearchRepository\MealSetElementRepository
+
+
                 reservation:
                     properties:
                         id:

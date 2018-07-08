@@ -69,6 +69,73 @@ class RestaurantController extends ApiBaseController
     }
 
     /**
+     *
+     * @REST\Put("/restaurants/{id}", name="api_edit_restaurant")
+     *
+     */
+    public function editRestaurant(Request $request)
+    {
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
+        $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
+        $restaurantUsers = $restaurant->getUsers();
+
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
+            !$restaurantUsers->contains($user)){
+            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
+        }
+        $request_data = $request->request->all();
+
+
+        if(isset($request_data['name'])){
+            $restaurant->setName($request_data['name']);
+        }
+        if(isset($request_data['city'])){
+            $restaurant->setCity($request_data['city']);
+        }
+        if(isset($request_data['postalCode'])){
+            $restaurant->setPostalCode($request_data['postalCode']);
+        }
+        if(isset($request_data['address'])){
+            $restaurant->setAddress($request_data['address']);
+        }
+        if(isset($request_data['addressComplement'])){
+            $restaurant->setAddressComplement($request_data['addressComplement']);
+        }
+        if(isset($request_data['phone'])){
+            $restaurant->setPhone($request_data['phone']);
+        }
+        if(isset($request_data['description'])){
+            $restaurant->setDescription($request_data['description']);
+        }
+        if(isset($request_data['picture'])){
+            $restaurant->setPicture($request_data['picture']);
+        }
+        if(isset($request_data['seats'])){
+            $restaurant->setSeats($request_data['seats']);
+        }
+        if(isset($request_data['latitude'])){
+            $restaurant->setLatitude($request_data['latitude']);
+        }
+        if(isset($request_data['longitude'])){
+            $restaurant->setLongitude($request_data['longitude']);
+        }
+
+        $em = $this->getEntityManager();
+        $em->persist($restaurant);
+        $em->flush();
+
+        return $this->helper->success($restaurant, 200);
+    }
+
+
+    /**
      * @param Request $request
      *
      * @REST\Put("/restaurants/{id}/schedule", name="api_update_schedule")
@@ -101,9 +168,8 @@ class RestaurantController extends ApiBaseController
         if (!$restaurant instanceof Restaurant) {
             return $this->helper->elementNotFound('Restaurant', 404);
         }
-
-        $restaurant->setSchedule($request_data['schedule']);
-
+        $schedule = json_encode($request_data['schedule']);
+        $restaurant->setSchedule($schedule);
         $this->getEntityManager()->persist($restaurant);
         $this->getEntityManager()->flush();
 
@@ -232,6 +298,19 @@ class RestaurantController extends ApiBaseController
         } else {
             return $this->helper->success($result, 200);
         }
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @REST\Get("/restaurants/{id}/schedule", name="api_get_schedule")
+     */
+    public function getRestaurantSchedule(Request $request)
+    {
+        $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
+        $schedule = json_decode($restaurant->getSchedule(),true);
+
+        return $this->helper->success($schedule, 200);
     }
 
 
