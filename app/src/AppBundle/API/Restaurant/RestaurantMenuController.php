@@ -64,22 +64,12 @@ class RestaurantMenuController extends ApiBaseController
                         }
 
                     }
-                    if(isset($arrayContent[$tab->getId()])) {
-                        $json[] = array(
-                            "id" => $tab->getId(),
-                            "position" => $tab->getPosition(),
-                            "name" => $tab->getName(),
-                            "content" => $arrayContent[$tab->getId()]
-                        );
-                    }
-                    else{
-                        $json[] = array(
-                            "id" => $tab->getId(),
-                            "position" => $tab->getPosition(),
-                            "name" => $tab->getName(),
-                            "content" => array()
-                        );
-                    }
+                    $json[] = array(
+                        "id" => $tab->getId(),
+                        "position" => $tab->getPosition(),
+                        "name" => $tab->getName(),
+                        "content" => isset($arrayContent[$tab->getId()]) ? $arrayContent[$tab->getId()] : array()
+                    );
                 }
             }
         }

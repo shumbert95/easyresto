@@ -47,7 +47,7 @@ class Content
     /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", length=255)
+     * @ORM\Column(name="name", type="string", length=255, nullable=true)
      */
     protected $name;
 
@@ -115,7 +115,7 @@ class Content
     public static $types = array(
         self::TYPE_MEAL => 'meal',
         self::TYPE_CATEGORY => 'category',
-        self::TYPE_MEALSET => 'set'
+        self::TYPE_MEALSET => 'set',
     );
 
 
@@ -357,7 +357,7 @@ class Content
 
     public function addMealSetElement($content)
     {
-        if (!$this->mealSetElements->contains($content) && $content->getType() == Content::TYPE_MEAL) {
+        if (!$this->mealSetElements->contains($content)) {
             $this->mealSetElements->add($content);
         }
 

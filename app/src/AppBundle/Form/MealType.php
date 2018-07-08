@@ -15,6 +15,7 @@ class MealType extends AbstractType
                 'name',
                 TextType::class,
                 [
+                    'required' => false,
                     'label' => 'Nom'
                 ]
             )

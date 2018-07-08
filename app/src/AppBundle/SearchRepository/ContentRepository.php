@@ -83,4 +83,21 @@ class ContentRepository extends Repository
         $contents = $this->find($boolQuery);
         return $contents;
     }
+
+    public function findIfExists(Content $mealSet, Content $meal) {
+        $boolQuery = new BoolQuery();
+        $nestedQuery = new Nested();
+        $fieldQuery = new Match();
+
+        $fieldQuery->setFieldQuery('id', $mealSet->getId());
+        $boolQuery->addMust($fieldQuery);
+
+        $nestedQuery->setPath('mealSetElements.content')->setQuery(new Match('mealSetElements.content.id',$meal->getId()));
+        $boolQuery->addMust($nestedQuery);
+
+        //return $boolQuery;
+        $contents = $this->find($boolQuery);
+
+        return isset($contents[0]) ? true : false;
+    }
 }

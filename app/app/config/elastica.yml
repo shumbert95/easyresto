@@ -104,6 +104,17 @@ fos_elastica:
                                 id:
                                     type: integer
                                 name: ~
+                        mealSetElements:
+                            type: "nested"
+                            properties:
+                              id:
+                                type: integer
+                              content:
+                                type: "nested"
+                                properties:
+                                  id:
+                                    type: integer
+
                     persistence:
                         driver: orm
                         model: AppBundle\Entity\Content

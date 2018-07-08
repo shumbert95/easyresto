@@ -54,8 +54,6 @@ class CheckoutController extends ApiBaseController
 
         if (!$params['date']) {
             return $this->helper->error('date', true);
-        } elseif (!preg_match('/^(\d{4}-{1}\d{2}-{1}\d{2}\s\d{2}:{1}\d{2})$/', $params['date'])) {
-            return $this->helper->error('param \'date\' must be a date time');
         }
 
         if (!$params['meals_id']) {

@@ -3,4 +3,3 @@ AppBundle\Entity\Reservation:
     properties:
       restaurant:
         exclude: true
-      contents:

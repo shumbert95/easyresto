@@ -78,7 +78,7 @@ class ReservationController extends ApiBaseController
 
         $availabilities=array();
 
-        while($dateFrom<=$dateTo){
+        while($dateFrom<$dateTo){
             $hour=$dateFrom->format('H:i');
             $dateToCompare->modify("+29 minutes");
             $reservations = $elasticaManager->getRepository('AppBundle:Reservation')->findByRestaurant($restaurant, $dateFrom, $dateToCompare);
