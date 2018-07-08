@@ -150,6 +150,7 @@ class MealController extends ApiBaseController
 
         $em = $this->getEntityManager();
         $em->persist($meal);
+        $em->flush();
 
         return $this->helper->success($meal, 200);
     }
