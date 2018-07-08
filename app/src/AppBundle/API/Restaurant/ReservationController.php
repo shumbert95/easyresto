@@ -43,9 +43,7 @@ class ReservationController extends ApiBaseController
         }
 
         $dateFrom = new \DateTime($params['date_from']);
-        $dateFrom->modify('-2 hours');
         $dateTo = new \DateTime($params['date_to']);
-        $dateTo->modify('-2 hours');
 
 
         $reservations = $elasticaManager->getRepository('AppBundle:Reservation')->findByRestaurant($restaurant, $dateFrom, $dateTo);
@@ -56,6 +54,7 @@ class ReservationController extends ApiBaseController
      * @REST\Get("/restaurants/{id}/availabilities", name="api_list_availabilites")
      *
      * @QueryParam(name="date_from")
+     * @QueryParam(name="date_to")
      */
     public function getAvailabilites(Request $request, ParamFetcher $paramFetcher) {
         $params = $paramFetcher->all();
@@ -72,21 +71,34 @@ class ReservationController extends ApiBaseController
 
 
         $dateFrom = new \DateTime($params['date_from']);
-        $dateFrom->modify('-2 hours');
-        $dateTo = new \DateTime($params['date_from']);
-        $dateTo->modify('-1 hour -30 minutes');
+        $dateTo = new \DateTime($params['date_to']);
+        $dateToCompare = new \DateTime(($params['date_from']));
 
         $elasticaManager = $this->container->get('fos_elastica.manager');
-        $reservations = $elasticaManager->getRepository('AppBundle:Reservation')->findByRestaurant($restaurant, $dateFrom, $dateTo);
 
-        $seats = $restaurant->getSeats();
-        foreach ($reservations as $reservation){
-            $seats = $seats-$reservation->getNbParticipants();
+        $availabilities=array();
+
+        while($dateFrom<$dateTo){
+            $hour=$dateFrom;
+            $dateToCompare->modify("+29 minutes");
+            $reservations = $elasticaManager->getRepository('AppBundle:Reservation')->findByRestaurant($restaurant, $dateFrom, $dateToCompare);
+            $seats = $restaurant->getSeats();
+            if(isset($reservations)){
+                foreach ($reservations as $reservation){
+                    $seats = $seats-$reservation->getNbParticipants();
+                }
+            }
+            if($seats>0) {
+                $availabilities[$hour->format('H:i')] = array("available_seats" => $seats);
+            }
+            else{
+                $availabilities[$hour->format('H:i')] = array("available_seats" => "Indisponible");
+            }
+
+            $dateToCompare->modify("+1 minute");
+            $dateFrom->modify("+30 minutes");
         }
 
-        if($seats<=0){
-            return $this->helper->error("Indisponible");
-        }
-        return $this->helper->success($seats, 200);
+        return $this->helper->success($availabilities, 200);
     }
 }
