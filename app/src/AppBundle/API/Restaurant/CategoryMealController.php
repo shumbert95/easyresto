@@ -193,7 +193,6 @@ class CategoryMealController extends ApiBaseController
 
         $categories = $elasticaManager->getRepository('AppBundle:Content')->findByTab($tab, Content::TYPE_CATEGORY);
 
-        $categories = $this->getContentRepository()->findBy(array('restaurant' => $restaurant, 'tab' => $tab,'type' => Content::TYPE_CATEGORY));
         return $this->helper->success($categories, 200);
     }
 

@@ -21,7 +21,7 @@ class MealSetController extends ApiBaseController
      *
      *
      * @REST\Post("/restaurants/{id}/meal_sets/create", name="api_create_meal_set")
-     * @REST\RequestParam(name="name")
+     * @REST\RequestParam(name="name", nullable=true)
      * @REST\RequestParam(name="description", nullable=true)
      * @REST\RequestParam(name="price", nullable=true)
      * @REST\RequestParam(name="position")
@@ -76,6 +76,62 @@ class MealSetController extends ApiBaseController
      * @param Request $request
      *
      *
+     * @REST\Put("/restaurants/{id}/meal_sets/{idSet}", name="api_create_meal_set")
+     * @REST\RequestParam(name="name")
+     * @REST\RequestParam(name="description", nullable=true)
+     * @REST\RequestParam(name="price", nullable=true)
+     * @REST\RequestParam(name="position")
+     *
+     */
+    public function editMealSet(Request $request, ParamFetcher $paramFetcher)
+    {
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+        $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
+        if (!$restaurant) {
+            return $this->helper->elementNotFound('Restaurant');
+        }
+
+        $restaurantUsers = $restaurant->getUsers();
+
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
+            !$restaurantUsers->contains($user)){
+            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
+        }
+
+        $params = $paramFetcher->all();
+
+        $mealSet = $elasticaManager->getRepository('AppBundle:MealSet')->findById($request->get('idSet'));
+
+        if(isset($params['name'])){
+            $mealSet->setName($params['name']);
+        }
+        if(isset($params['description'])){
+            $mealSet->setDescription($params['description']);
+        }
+        if(isset($params['price'])){
+            $mealSet->setPrice($params['price']);
+        }
+
+        $em = $this->getEntityManager();
+
+        $em->persist($mealSet);
+        $em->flush();
+
+        return $this->helper->success($mealSet, 200);
+    }
+
+    /**
+     * @param Request $request
+     *
+     *
      * @REST\Post("/restaurants/{id}/meal_sets/{idSet}/add", name="api_add_to_meal_set")
      * @REST\RequestParam(name="meal_id", nullable=true)
      * @REST\RequestParam(name="type", nullable=true)
@@ -107,7 +163,12 @@ class MealSetController extends ApiBaseController
         $params = $paramFetcher->all();
         $meal = $elasticaManager->getRepository('AppBundle:Content')->findById($params["meal_id"]);
 
-
+        if (!$meal) {
+            return $this->helper->elementNotFound('$meal');
+        }
+        if($meal->getRestaurant() != $restaurant){
+            return $this->helper->error('Ce n\'est pas un plat de ce restaurant');
+        }
 
         if($meal->getType() == Content::TYPE_MEAL) {
             $mealSet = $elasticaManager->getRepository('AppBundle:MealSet')->findById($request->get('idSet'));
@@ -171,6 +232,14 @@ class MealSetController extends ApiBaseController
 
         $params = $paramFetcher->all();
         $meal = $elasticaManager->getRepository('AppBundle:Content')->findById($params["meal_id"]);
+
+        if (!$meal) {
+            return $this->helper->elementNotFound('$meal');
+        }
+        if($meal->getRestaurant() != $restaurant){
+            return $this->helper->error('Ce n\'est pas un plat de ce restaurant');
+        }
+
         if($meal->getType() == Content::TYPE_MEAL) {
             $mealSet = $elasticaManager->getRepository('AppBundle:MealSet')->findById($request->get('idSet'));
         }
@@ -224,6 +293,37 @@ class MealSetController extends ApiBaseController
 
         return $this->helper->success($json, 200);
 
+    }
+
+    /**
+     * @param Request $request
+     *
+     *
+     * @REST\Get("/restaurants/{id}/meal_sets", name="api_show_meal_sets")
+     *
+     */
+    public function showMealSets(Request $request)
+    {
+
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+        $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
+
+        $mealSets = $elasticaManager->getRepository('AppBundle:MealSet')->findByRestaurant($restaurant);
+
+        $json=array();
+        foreach ($mealSets as $mealSet){
+            $mealSetElements = $elasticaManager->getRepository('AppBundle:MealSetElement')->findBySet($mealSet);
+            $json["mealSets"][] =array(
+                "id" => $mealSet->getId(),
+                "name" => $mealSet->getName(),
+                "description" => $mealSet->getDescription(),
+                "price" => $mealSet->getPrice(),
+                "position" => $mealSet->getPosition(),
+                "content" => isset($mealSetElements) ? $mealSetElements : array()
+            );
+        }
+
+        return $this->helper->success($json, 200);
 
     }
 }

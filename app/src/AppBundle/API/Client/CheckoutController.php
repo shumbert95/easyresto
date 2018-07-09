@@ -68,7 +68,7 @@ class CheckoutController extends ApiBaseController
             return $this->helper->elementNotFound('Restaurant');
         }
         
-        $meals = $elasticaManager->getRepository('AppBundle:Content')->findByIds($params['meals_id']);
+        $meals = $elasticaManager->getRepository('AppBundle:Content')->findByIds($params['meals_id'],$restaurant,true);
         $reservation = new Reservation($user, $restaurant);
         $reservation->setRestaurant($restaurant);
         $reservation->setUser($user);

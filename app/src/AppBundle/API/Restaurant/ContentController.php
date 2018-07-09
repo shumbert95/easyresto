@@ -50,6 +50,10 @@ class ContentController extends ApiBaseController
             return $this->helper->elementNotFound('Content');
         }
 
+        if($content->getRestaurant() != $restaurant){
+            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
+        }
+
         $content->setPosition($params['position']);
         $em = $this->getEntityManager();
         $em->persist($content);
@@ -65,13 +69,31 @@ class ContentController extends ApiBaseController
      */
     public function getContentsFromTab(Request $request)
     {
-        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
-        $tab = $this->getTabMealRepository()->find($request->get('idTab'));
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
 
-        $contents = $this->getContentRepository()->findBy(array(
-            'restaurant' => $restaurant,
-            'tab' => $tab
-        ));
+        if (!$request->get('idTab')) {
+            return $this->helper->error('idTab', true);
+        } elseif (!preg_match('/\d/', $request->get('idTab'))) {
+            return $this->helper->error('param \'idTab\' must be an integer');
+        }
+
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+        $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
+        if (!$restaurant) {
+            return $this->helper->elementNotFound('Restaurant');
+        }
+
+        $tab = $elasticaManager->getRepository('AppBundle:TabMeal')->findById($request->get('idTab'));
+        if (!$restaurant) {
+            return $this->helper->elementNotFound('Tab');
+        }
+
+        $contents = $elasticaManager->getRepository('AppBundle:Content')->findByTab($tab);
+
 
         return $this->helper->success($contents, 200);
     }
@@ -83,6 +105,7 @@ class ContentController extends ApiBaseController
      */
     public function getContent(Request $request)
     {
+
         $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
         $content = $this->getContentRepository()->findOneBy(array('restaurant' => $restaurant, 'id' => $request->get('idContent')));
         return $this->helper->success($content, 200);
@@ -123,6 +146,9 @@ class ContentController extends ApiBaseController
         $content = $elasticaManager->getRepository('AppBundle:Content')->findById($request->get('idContent'));
         if (!$content) {
             return $this->helper->elementNotFound('Content');
+        }
+        if($content->getRestaurant() != $restaurant){
+            return $this->helper->error('Ce n\'est pas un contenu à vous');
         }
 
         $em = $this->getEntityManager();

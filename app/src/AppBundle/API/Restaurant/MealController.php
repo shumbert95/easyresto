@@ -157,62 +157,6 @@ class MealController extends ApiBaseController
 
     /**
      *
-     * @REST\Put("/restaurants/{id}/meals/{idMeal}/daily_stock", name="api_daily_stock")
-     * @REST\RequestParam(name="initialStock")
-     */
-    public function updateDailyStock(Request $request, ParamFetcher $paramFetcher)
-    {
-        $user = $this->container->get('security.token_storage')->getToken()->getUser();
-
-        if (!$request->get('id')) {
-            return $this->helper->error('id', true);
-        } elseif (!preg_match('/\d/', $request->get('id'))) {
-            return $this->helper->error('param \'id\' must be an integer');
-        }
-
-        if (!$request->get('idMeal')) {
-            return $this->helper->error('idMeal', true);
-        } elseif (!preg_match('/\d/', $request->get('idMeal'))) {
-            return $this->helper->error('param \'idMeal\' must be an integer');
-        }
-
-        if (!$request->get('initialStock')) {
-            return $this->helper->error('initialStock', true);
-        } elseif (!preg_match('/\d/', $request->get('initialStock'))) {
-            return $this->helper->error('param \'initialStock\' must be an integer');
-        }
-
-        $elasticaManager = $this->container->get('fos_elastica.manager');
-        $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
-        if (!$restaurant) {
-            return $this->helper->elementNotFound('Restaurant');
-        }
-
-        $restaurantUsers = $restaurant->getUsers();
-
-        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
-            !$restaurantUsers->contains($user)){
-            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
-        }
-
-        $params=$paramFetcher->all();
-        $meal = $elasticaManager->getRepository('AppBundle:Content')->findById($request->get('idMeal'));
-        if (!$meal) {
-            return $this->helper->elementNotFound('Meal');
-        }
-        if($meal->getRestaurant() != $restaurant){
-            return $this->helper->error('Ce n\'est pas un plat de ce restaurant');
-        }
-
-        $em = $this->getEntityManager();
-        $em->persist($meal);
-        $em->flush();
-
-        return $this->helper->success($meal, 200);
-    }
-
-    /**
-     *
      * @REST\Get("/restaurants/{id}/meal/{idMeal}", name="api_show_meal")
      *
      */

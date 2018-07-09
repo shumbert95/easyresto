@@ -4,6 +4,7 @@ namespace AppBundle\API\Restaurant;
 
 use AppBundle\API\ApiBaseController;
 use AppBundle\Entity\CategoryRestaurant;
+use AppBundle\Entity\User;
 use AppBundle\Form\CategoryRestaurantType;
 use FOS\RestBundle\Controller\Annotations as REST;
 use FOS\RestBundle\Request\ParamFetcher;
@@ -19,6 +20,12 @@ class CategoryRestaurantController extends ApiBaseController
      */
     public function createCategory(ParamFetcher $paramFetcher)
     {
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+
+        if( !($this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) && ($user->getType() != User::TYPE_RESTORER)) {
+            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
+        }
+
         $params = $paramFetcher->all();
         if (!$params['name']) {
             return $this->helper->error('name', true);
@@ -27,16 +34,11 @@ class CategoryRestaurantController extends ApiBaseController
         $elasticaManager = $this->container->get('fos_elastica.manager');
         $category = $elasticaManager->getRepository('AppBundle:CategoryRestaurant')->findByName($params['name']);
 
-        if ($category instanceof CategoryRestaurant && $category->getStatus()) {
+        if ($category instanceof CategoryRestaurant) {
             return $this->helper->error('This name is already used.');
         }
-        else if (($category instanceof CategoryRestaurant && !$category->getStatus())) {
-            $category->setStatus(CategoryRestaurant::STATUS_ONLINE);
-        }
-        else if(!($category instanceof CategoryRestaurant)) {
-            $category = new CategoryRestaurant();
-            $category->setStatus(CategoryRestaurant::STATUS_ONLINE);
-        }
+        $category = new CategoryRestaurant();
+        $category->setStatus(CategoryRestaurant::STATUS_ONLINE);
 
         $form = $this->createForm(CategoryRestaurantType::class, $category);
         $form->submit($params);
@@ -79,6 +81,11 @@ class CategoryRestaurantController extends ApiBaseController
      */
     public function deleteCategoryRestaurant(Request $request)
     {
+
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
+            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
+        }
+
         if (!$request->get('id')) {
             return $this->helper->error('id', true);
         } elseif (!preg_match('/\d/', $request->get('id'))) {

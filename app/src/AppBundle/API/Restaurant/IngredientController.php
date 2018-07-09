@@ -105,6 +105,10 @@ class IngredientController extends ApiBaseController
             return $this->helper->elementNotFound('Ingredient');
         }
 
+        if($ingredient->getRestaurant() != $restaurant){
+            return $this->helper->error('Ce n\'est pas un ingrédient de ce restaurant');
+        }
+
         $request_data = $request->request->all();
 
         if(isset($request_data['name'])){
@@ -164,6 +168,10 @@ class IngredientController extends ApiBaseController
         $ingredient = $elasticaManager->getRepository('AppBundle:Ingredient')->findById($request->get('idIngredient'));
         if (!$ingredient) {
             return $this->helper->elementNotFound('Ingredient');
+        }
+        if($ingredient->getRestaurant() != $restaurant){
+            return $this->helper->error('Ce n\'est pas un ingrédient de ce restaurant');
+
         }
 
         $ingredient->setStock($ingredient->getStock() + $params['initialStock']);

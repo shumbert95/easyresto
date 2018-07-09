@@ -125,4 +125,32 @@ class ClientController extends ApiBaseController
         $em->flush();
         return $this->helper->success($user, 200);
     }
+
+    /**
+     * @REST\Get("/profile/reservations", name="api_list_client_reservations")
+     */
+    public function geClientReservations(Request $request, ParamFetcher $paramFetcher) {
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+
+        $reservations = $elasticaManager->getRepository('AppBundle:Reservation')->findByClient($user);
+
+        return $this->helper->success($reservations, 200);
+    }
+
+    /**
+     * @REST\Get("/profile/reservations/{idReservation}", name="api_show_reservation")
+     */
+    public function getReservation(Request $request) {
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+
+        $reservation = $elasticaManager->getRepository('AppBundle:Reservation')->findById($request->get('idReservation'));
+        if($reservation->getUser() != $user){
+            return $this->helper->error("Cette réservation n'est pas la vôtre");
+        }
+        return $this->helper->success($reservation, 200);
+    }
 }
