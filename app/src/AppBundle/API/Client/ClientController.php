@@ -150,13 +150,23 @@ class ClientController extends ApiBaseController
                 );
             }
             $json[] = array(
-                "idRes" => $reservation->getId(),
-                "lastname" => $reservation->getUser()->getLastName(),
-                "firstname" => $reservation->getUser()->getFirstName(),
-                "phoneNumber" => $reservation->getUser()->getPhoneNumber(),
-                "restaurant" => $reservation->getRestaurant()->getName(),
+                "id" => $reservation->getId(),
                 "date" => $reservation->getDate(),
+                "nbParticipants" => $reservation->getNbParticipants(),
+                "total" => $reservation->getTotal(),
+                "user" => array(
+                    "id" => $reservation->getUser()->getId(),
+                    "lastname" => $reservation->getUser()->getLastName(),
+                    "firstname" => $reservation->getUser()->getFirstName(),
+                    "phoneNumber" => $reservation->getUser()->getPhoneNumber(),
+                ),
+                "restaurant" => array(
+                    "id" => $reservation->getRestaurant()->getId(),
+                    "name" => $reservation->getRestaurant()->getName(),
+                    "picture" => $reservation->getRestaurant()->getPicture(),
+                ),
                 "content" => $jsonContents,
+
             );
         }
 
@@ -190,12 +200,19 @@ class ClientController extends ApiBaseController
             );
         }
         $reservation = array(
-            "idRes" => $reservation->getId(),
-            "lastname" => $reservation->getUser()->getLastName(),
-            "firstname" => $reservation->getUser()->getFirstName(),
-            "phoneNumber" => $reservation->getUser()->getPhoneNumber(),
-            "restaurant" => $reservation->getRestaurant()->getName(),
+            "id" => $reservation->getId(),
+            "user" => array(
+                "id" => $reservation->getUser()->getId(),
+                "lastname" => $reservation->getUser()->getLastName(),
+                "firstname" => $reservation->getUser()->getFirstName(),
+                "phoneNumber" => $reservation->getUser()->getPhoneNumber(),
+            ),
             "date" => $reservation->getDate(),
+            "restaurant" => array(
+                "id" => $reservation->getRestaurant()->getId(),
+                "name" => $reservation->getRestaurant()->getName(),
+                "picture" => $reservation->getPicture()->getName(),
+            ),
             "content" => $jsonContents,
         );
 
