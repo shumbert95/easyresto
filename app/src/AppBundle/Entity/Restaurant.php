@@ -9,9 +9,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 
 /**
- * @ORM\Entity(repositoryClass="AppBundle\Repository\RestaurantRepository")
+ * @ORM\Entity
  * @ORM\Table(name="restaurant")
  */
+
 class Restaurant
 {
     const STATUS_OFFLINE = false;
@@ -38,8 +39,8 @@ class Restaurant
     /**
      * @ORM\ManyToMany(targetEntity="AppBundle\Entity\CategoryRestaurant", cascade={"persist"})
      * @ORM\JoinTable(name="restaurant_categories",
-     *      joinColumns={@ORM\JoinColumn(name="category_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="restaurant_id", referencedColumnName="id")}
+     *      joinColumns={@ORM\JoinColumn(name="restaurant_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="category_id", referencedColumnName="id")}
      *      )
      */
     protected $categories;
@@ -72,12 +73,6 @@ class Restaurant
      */
     protected $address;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="address_complement", type="string", length=255, nullable=true)
-     */
-    protected $addressComplement;
 
     /**
      * @var float
@@ -113,6 +108,20 @@ class Restaurant
      * @ORM\Column(name="picture", type="text", nullable=true)
      */
     protected $picture;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="region", type="text", nullable=true)
+     */
+    protected $region;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="website", type="text", nullable=true)
+     */
+    protected $website;
 
 
     /**
@@ -305,24 +314,6 @@ class Restaurant
     }
 
     /**
-     * @return String
-     */
-    public function getAddressComplement()
-    {
-        return $this->addressComplement;
-    }
-
-    /**
-     * @param String $addressComplement
-     */
-    public function setAddressComplement($addressComplement)
-    {
-        $this->addressComplement = $addressComplement;
-
-        return $this;
-    }
-
-    /**
      * @return string
      */
     public function getPhone()
@@ -486,6 +477,40 @@ class Restaurant
     {
         return $this->latitude . ',' . $this->longitude;
     }
+
+    /**
+     * @return string
+     */
+    public function getRegion()
+    {
+        return $this->region;
+    }
+
+    /**
+     * @param string $region
+     */
+    public function setRegion($region)
+    {
+        $this->region = $region;
+    }
+
+    /**
+     * @return string
+     */
+    public function getWebsite()
+    {
+        return $this->website;
+    }
+
+    /**
+     * @param string $website
+     */
+    public function setWebsite($website)
+    {
+        $this->website = $website;
+    }
+
+
 
 
     public function __toString()

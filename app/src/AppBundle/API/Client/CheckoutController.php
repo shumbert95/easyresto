@@ -3,7 +3,9 @@
 namespace AppBundle\API\Client ;
 
 use AppBundle\API\ApiBaseController;
+use AppBundle\Entity\Content;
 use AppBundle\Entity\Reservation;
+use AppBundle\Entity\ReservationContent;
 use AppBundle\Entity\User;
 use AppBundle\Form\ReservationType;
 use FOS\RestBundle\Request\ParamFetcher;
@@ -67,22 +69,55 @@ class CheckoutController extends ApiBaseController
         if (!$restaurant) {
             return $this->helper->elementNotFound('Restaurant');
         }
-        
-        $meals = $elasticaManager->getRepository('AppBundle:Content')->findByIds($params['meals_id']);
-        $reservation = new Reservation($user, $restaurant);
-        $reservation->setRestaurant($restaurant);
-        $reservation->setUser($user);
-        $reservation->setContents($meals);
+        $checkMeal=false;
 
+        $arrayMeals = $params['meals_id'];
+        $meals = $elasticaManager->getRepository('AppBundle:Content')->findByIds($arrayMeals,$restaurant,true);
+        foreach($meals as $meal){
+            if($meal->getType()==Content::TYPE_MEAL)
+                $checkMeal=true;
+        }
         unset($params['meals_id']);
 
+        if(!$checkMeal){
+            return $this->helper->error('Vous n\'avez sélectionné aucun plat');
+        }
+
+        $reservation = new Reservation($user, $restaurant);
         $form = $this->createForm(ReservationType::class, $reservation);
         $form->submit($params);
-
         if (!$form->isValid()) {
             return $this->helper->error($form->getErrors());
         }
         $em = $this->getEntityManager();
+        $em->persist($reservation);
+        $em->flush();
+
+        $total = 0;
+        foreach($arrayMeals as $idMeal){
+            $meal = $elasticaManager->getRepository('AppBundle:Content')->findById($idMeal);
+
+            if($meal->getType()==Content::TYPE_MEAL){
+                $reservationContent = $this->getReservationContentRepository()->findOneBy(array("content" => $meal, "reservation" => $reservation));
+                if(!is_object($reservationContent)) {
+                    $reservationContent = new ReservationContent();
+                    $reservationContent->setContent($meal);
+                    $reservationContent->setReservation($reservation);
+                    $reservationContent->setTotalPrice($meal->getPrice());
+                    $reservationContent->setQuantity(1);
+                }
+                else{
+                    $reservationContent->setQuantity($reservationContent->getQuantity()+1);
+                    $reservationContent->setTotalPrice($reservationContent->getTotalPrice()+$meal->getPrice());
+
+                }
+                $total=$total + $meal->getPrice();
+                $em->persist($reservationContent);
+                $em->flush();
+            }
+
+        }
+        $reservation->setTotal($total);
         $em->persist($reservation);
         $em->flush();
 

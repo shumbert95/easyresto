@@ -1,0 +1,10 @@
+AppBundle\Entity\ReservationContent:
+    exclusion_policy: none
+    properties:
+      reservation:
+        exclude: true
+      content:
+        properties:
+          ingredients:
+            exclude: true
+

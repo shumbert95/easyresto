@@ -12,6 +12,9 @@ use Symfony\Component\Validator\Constraints\Date;
 
 class ReservationController extends ApiBaseController
 {
+
+
+
     /**
      * @REST\Get("/restaurants/{id}/reservations", name="api_list_reservations")
      *
@@ -47,7 +50,32 @@ class ReservationController extends ApiBaseController
 
 
         $reservations = $elasticaManager->getRepository('AppBundle:Reservation')->findByRestaurant($restaurant, $dateFrom, $dateTo);
-        return $this->helper->success($reservations, 200);
+
+        $json = array();
+        foreach($reservations as $reservation){
+            $jsonContents=array();
+            $contents = $elasticaManager->getRepository('AppBundle:ReservationContent')->findByReservation($reservation);
+            foreach($contents as $content) {
+                $jsonContents[]=array(
+                    "id" => $content->getId(),
+                    "idCont" => $content->getContent()->getId(),
+                    "name" => $content->getContent()->getName(),
+                    "quantity" => $content->getQuantity(),
+                    "totalPrice" => $content->getTotalPrice()
+                );
+            }
+            $json[] = array(
+                "idRes" => $reservation->getId(),
+                "lastname" => $reservation->getUser()->getLastName(),
+                "firstname" => $reservation->getUser()->getFirstName(),
+                "phoneNumber" => $reservation->getUser()->getPhoneNumber(),
+                "restaurant" => $reservation->getRestaurant()->getName(),
+                "date" => $reservation->getDate(),
+                "content" => $jsonContents,
+            );
+        }
+
+        return $this->helper->success($json, 200);
     }
 
     /**
@@ -148,5 +176,64 @@ class ReservationController extends ApiBaseController
         $dateFrom->modify("+30 minutes");
 
         return $this->helper->success($availability, 200);
+    }
+
+    /**
+     * @REST\Get("/restaurants/{id}/reservations/{idReservation}", name="api_show_restaurant_reservation")
+     */
+    public function getRestaurantReservation(Request $request) {
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+        $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
+
+        if (!$restaurant) {
+            return $this->helper->elementNotFound('Restaurant');
+        }
+
+        $restaurantUsers = $restaurant->getUsers();
+
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
+            !$restaurantUsers->contains($user)){
+            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
+        }
+
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
+        $reservation = $elasticaManager->getRepository('AppBundle:Reservation')->findById($request->get('idReservation'));
+
+        if (!$reservation) {
+            return $this->helper->elementNotFound('Reservation');
+        }
+        if($reservation->getRestaurant()!= $restaurant){
+            return $this->helper->error('Ce n\'est pas une réservation concernant votre restaurant');
+        }
+
+        $jsonContents=array();
+        $contents = $elasticaManager->getRepository('AppBundle:ReservationContent')->findByReservation($reservation);
+        foreach($contents as $content) {
+            $jsonContents[]=array(
+                "id" => $content->getId(),
+                "idCont" => $content->getContent()->getId(),
+                "name" => $content->getContent()->getName(),
+                "quantity" => $content->getQuantity(),
+                "totalPrice" => $content->getTotalPrice()
+            );
+        }
+        $reservation = array(
+            "idRes" => $reservation->getId(),
+            "lastname" => $reservation->getUser()->getLastName(),
+            "firstname" => $reservation->getUser()->getFirstName(),
+            "phoneNumber" => $reservation->getUser()->getPhoneNumber(),
+            "restaurant" => $reservation->getRestaurant()->getName(),
+            "date" => $reservation->getDate(),
+            "content" => $jsonContents,
+        );
+
+        return $this->helper->success($reservation, 200);
     }
 }

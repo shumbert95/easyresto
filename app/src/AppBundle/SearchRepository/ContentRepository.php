@@ -72,12 +72,21 @@ class ContentRepository extends Repository
         return $contents ? $contents[0] : $contents;
     }
 
-    public function findByIds($ids) {
+    public function findByIds($ids,Restaurant $restaurant, $reservation = false) {
         $boolQuery = new BoolQuery();
         $idsQuery = new Query\Ids();
+        $nestedQuery = new Nested();
+        $fieldQuery = new Match();
+
+        if($reservation){
+            $fieldQuery->setFieldQuery('type', Content::TYPE_MEAL);
+            $boolQuery->addMust($fieldQuery);
+        }
+
+        $nestedQuery->setPath('restaurant')->setQuery(new Match('restaurant.id',$restaurant->getId()));
+        $boolQuery->addMust($nestedQuery);
 
         $idsQuery->setIds($ids);
-
         $boolQuery->addMust($idsQuery);
 
         $contents = $this->find($boolQuery,10000);

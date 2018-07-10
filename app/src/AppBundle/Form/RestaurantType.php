@@ -30,11 +30,11 @@ class RestaurantType extends AbstractType
                 ]
             )
             ->add(
-                'addressComplement',
+                'region',
                 TextType::class,
                 [
                     'required' => false,
-                    'label' => 'Complément adresse'
+                    'label' => 'Région'
                 ]
             )
             ->add(
@@ -43,6 +43,15 @@ class RestaurantType extends AbstractType
                 [
                     'required' => true,
                     'label' => 'Ville',
+                ]
+
+            )
+            ->add(
+                'website',
+                TextType::class,
+                [
+                    'required' => false,
+                    'label' => 'Site Web',
                 ]
 
             )

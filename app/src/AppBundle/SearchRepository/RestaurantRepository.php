@@ -38,11 +38,7 @@ class RestaurantRepository extends Repository
         $nestedQuery->setPath('users')->setQuery(new Match('users.id',$user->getId()));
         $boolQuery->addMust($nestedQuery);
 
-        $restaurants = $this->find($boolQuery,10000);
-
-
-
-        return isset($restaurants[1]) ? $restaurants : $restaurants[0];
+        return $this->find($boolQuery,10000);
     }
 
     public function search(RestaurantSearch $restaurantSearch)

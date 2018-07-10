@@ -22,7 +22,8 @@ class RestaurantController extends ApiBaseController
      * @REST\Post("/restaurants/create", name="api_create_restaurant")
      * @REST\RequestParam(name="name")
      * @REST\RequestParam(name="address")
-     * @REST\RequestParam(name="addressComplement", nullable=true)
+     * @REST\RequestParam(name="region", nullable=true)
+     * @REST\RequestParam(name="website", nullable=true)
      * @REST\RequestParam(name="city")
      * @REST\RequestParam(name="postalCode")
      * @REST\RequestParam(name="latitude")
@@ -50,12 +51,12 @@ class RestaurantController extends ApiBaseController
             return $this->helper->error($form->getErrors());
         }
 
-        if ($request->get('picture') != null){
+        if ($params['picture'] != null){
             $restaurant->setPicture($request->get('picture'));
         }
 
         $restaurant->setStatus(Restaurant::STATUS_ONLINE);
-        $restaurant->setOpen(1);
+        $restaurant->setOpen(0);
 
         $user = $this->container->get('security.token_storage')->getToken()->getUser();
 
@@ -105,8 +106,8 @@ class RestaurantController extends ApiBaseController
         if(isset($request_data['address'])){
             $restaurant->setAddress($request_data['address']);
         }
-        if(isset($request_data['addressComplement'])){
-            $restaurant->setAddressComplement($request_data['addressComplement']);
+        if(isset($request_data['region'])){
+            $restaurant->setRegion($request_data['region']);
         }
         if(isset($request_data['phone'])){
             $restaurant->setPhone($request_data['phone']);
@@ -117,6 +118,9 @@ class RestaurantController extends ApiBaseController
         if(isset($request_data['picture'])){
             $restaurant->setPicture($request_data['picture']);
         }
+        if(isset($request_data['website'])){
+            $restaurant->setWebsite($request_data['website']);
+        }
         if(isset($request_data['seats'])){
             $restaurant->setSeats($request_data['seats']);
         }
@@ -125,6 +129,9 @@ class RestaurantController extends ApiBaseController
         }
         if(isset($request_data['longitude'])){
             $restaurant->setLongitude($request_data['longitude']);
+        }
+        if(isset($request_data['open'])){
+            $restaurant->setOpen($request_data['open']);
         }
 
         $em = $this->getEntityManager();

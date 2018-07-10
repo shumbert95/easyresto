@@ -43,4 +43,26 @@ class ReservationRepository extends Repository
 
         return $this->find($boolQuery,10000);
     }
+
+    public function findByClient(User $user) {
+        $boolQuery = new BoolQuery();
+        $nestedQuery = new Nested();
+
+        $nestedQuery->setPath('user')->setQuery(new Match('user.id', $user->getId()));
+        $boolQuery->addMust($nestedQuery);
+
+        return $this->find($boolQuery,10000);
+    }
+
+    public function findById($idReservation) {
+        $boolQuery = new BoolQuery();
+        $fieldQuery = new Match();
+
+        $fieldQuery->setFieldQuery('id', $idReservation);
+        $boolQuery->addMust($fieldQuery);
+
+        $contents = $this->find($boolQuery,10000);
+
+        return $contents ? $contents[0] : $contents;
+    }
 }

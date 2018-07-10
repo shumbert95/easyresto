@@ -183,3 +183,30 @@ fos_elastica:
                         finder: ~
                         provider: ~
                         repository: AppBundle\SearchRepository\ReservationRepository
+
+
+                reservationContent:
+                    properties:
+                        id:
+                          type: integer
+                        totalPrice:
+                          type: float
+                        quantity:
+                          type: integer
+                        content:
+                          type: "nested"
+                          properties:
+                            id:
+                              type: integer
+                        reservation:
+                          type: "nested"
+                          properties:
+                            id:
+                              type: integer
+
+                    persistence:
+                        driver: orm
+                        model: AppBundle\Entity\ReservationContent
+                        finder: ~
+                        provider: ~
+                        repository: AppBundle\SearchRepository\ReservationContentRepository

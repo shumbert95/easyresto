@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Category
  * @ORM\Entity
- * @ORM\Table(name="mealSetElement")
+ * @ORM\Table(name="meal_set_element")
  */
 class MealSetElement
 {
@@ -38,7 +38,7 @@ class MealSetElement
     /**
      * @var integer
      *
-     * @ORM\Column(name="mealSetType", type="integer")
+     * @ORM\Column(name="meal_set_type", type="integer")
      */
     protected $mealSetType;
 
