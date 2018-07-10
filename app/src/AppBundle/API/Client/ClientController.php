@@ -45,8 +45,18 @@ class ClientController extends ApiBaseController
         if($user->getType() != User::TYPE_CLIENT){
             return $this->helper->error('En tant que restaurateur, vous ne pouvez pas effectuer cette action');
         }
+        $elasticaManager = $this->container->get('fos_elastica.manager');
         $favorites = $user->getFavorites();
-        return $this->helper->success($favorites, 200);
+        $json=array();
+        foreach($favorites as $favorite){
+            $reservations = $elasticaManager->getRepository('AppBundle:Reservation')->findByClientAndRestaurant($user,$favorite);
+            $ordersCount = count($reservations);
+            $json[]=array(
+                "ordersCount" => $ordersCount,
+                "restaurant" => $favorite
+            );
+        }
+        return $this->helper->success($json, 200);
     }
 
     /**
@@ -138,6 +148,8 @@ class ClientController extends ApiBaseController
 
         $json = array();
         foreach($reservations as $reservation){
+            $restaurant = $reservation->getRestaurant();
+            $userFavorites = $reservation->getUser()->getFavorites();
             $jsonContents=array();
             $contents = $elasticaManager->getRepository('AppBundle:ReservationContent')->findByReservation($reservation);
             foreach($contents as $content) {
@@ -150,13 +162,24 @@ class ClientController extends ApiBaseController
                 );
             }
             $json[] = array(
-                "idRes" => $reservation->getId(),
-                "lastname" => $reservation->getUser()->getLastName(),
-                "firstname" => $reservation->getUser()->getFirstName(),
-                "phoneNumber" => $reservation->getUser()->getPhoneNumber(),
-                "restaurant" => $reservation->getRestaurant()->getName(),
+                "id" => $reservation->getId(),
                 "date" => $reservation->getDate(),
+                "nbParticipants" => $reservation->getNbParticipants(),
+                "total" => $reservation->getTotal(),
+                "user" => array(
+                    "id" => $reservation->getUser()->getId(),
+                    "lastname" => $reservation->getUser()->getLastName(),
+                    "firstname" => $reservation->getUser()->getFirstName(),
+                    "phoneNumber" => $reservation->getUser()->getPhoneNumber(),
+                ),
+                "restaurant" => array(
+                    "id" => $reservation->getRestaurant()->getId(),
+                    "name" => $reservation->getRestaurant()->getName(),
+                    "picture" => $reservation->getRestaurant()->getPicture(),
+                    "favorite" => $userFavorites->contains($restaurant) ? true : false
+                ),
                 "content" => $jsonContents,
+
             );
         }
 
@@ -177,8 +200,9 @@ class ClientController extends ApiBaseController
             return $this->helper->error("Cette réservation n'est pas la vôtre");
         }
 
-
         $jsonContents=array();
+        $restaurant = $reservation->getRestaurant();
+        $userFavorites = $reservation->getUser()->getFavorites();
         $contents = $elasticaManager->getRepository('AppBundle:ReservationContent')->findByReservation($reservation);
         foreach($contents as $content) {
             $jsonContents[]=array(
@@ -190,12 +214,20 @@ class ClientController extends ApiBaseController
             );
         }
         $reservation = array(
-            "idRes" => $reservation->getId(),
-            "lastname" => $reservation->getUser()->getLastName(),
-            "firstname" => $reservation->getUser()->getFirstName(),
-            "phoneNumber" => $reservation->getUser()->getPhoneNumber(),
-            "restaurant" => $reservation->getRestaurant()->getName(),
+            "id" => $reservation->getId(),
+            "user" => array(
+                "id" => $reservation->getUser()->getId(),
+                "lastname" => $reservation->getUser()->getLastName(),
+                "firstname" => $reservation->getUser()->getFirstName(),
+                "phoneNumber" => $reservation->getUser()->getPhoneNumber(),
+            ),
             "date" => $reservation->getDate(),
+            "restaurant" => array(
+                "id" => $reservation->getRestaurant()->getId(),
+                "name" => $reservation->getRestaurant()->getName(),
+                "picture" => $reservation->getRestaurant()->getPicture(),
+                "favorite" => $userFavorites->contains($restaurant) ? true : false
+            ),
             "content" => $jsonContents,
         );
 
