@@ -45,8 +45,18 @@ class ClientController extends ApiBaseController
         if($user->getType() != User::TYPE_CLIENT){
             return $this->helper->error('En tant que restaurateur, vous ne pouvez pas effectuer cette action');
         }
+        $elasticaManager = $this->container->get('fos_elastica.manager');
         $favorites = $user->getFavorites();
-        return $this->helper->success($favorites, 200);
+        $json=array();
+        foreach($favorites as $favorite){
+            $reservations = $elasticaManager->getRepository('AppBundle:Reservation')->findByClientAndRestaurant($user,$favorite);
+            $ordersCount = count($reservations);
+            $json[]=array(
+                "ordersCount" => $ordersCount,
+                "restaurant" => $favorite
+            );
+        }
+        return $this->helper->success($json, 200);
     }
 
     /**
