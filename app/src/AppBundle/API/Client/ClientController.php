@@ -138,6 +138,8 @@ class ClientController extends ApiBaseController
 
         $json = array();
         foreach($reservations as $reservation){
+            $restaurant = $reservation->getRestaurant();
+            $userFavorites = $reservation->getUser()->getFavorites();
             $jsonContents=array();
             $contents = $elasticaManager->getRepository('AppBundle:ReservationContent')->findByReservation($reservation);
             foreach($contents as $content) {
@@ -164,6 +166,7 @@ class ClientController extends ApiBaseController
                     "id" => $reservation->getRestaurant()->getId(),
                     "name" => $reservation->getRestaurant()->getName(),
                     "picture" => $reservation->getRestaurant()->getPicture(),
+                    "favorite" => $userFavorites->contains($restaurant) ? true : false
                 ),
                 "content" => $jsonContents,
 
@@ -187,8 +190,9 @@ class ClientController extends ApiBaseController
             return $this->helper->error("Cette réservation n'est pas la vôtre");
         }
 
-
         $jsonContents=array();
+        $restaurant = $reservation->getRestaurant();
+        $userFavorites = $reservation->getUser()->getFavorites();
         $contents = $elasticaManager->getRepository('AppBundle:ReservationContent')->findByReservation($reservation);
         foreach($contents as $content) {
             $jsonContents[]=array(
@@ -211,7 +215,8 @@ class ClientController extends ApiBaseController
             "restaurant" => array(
                 "id" => $reservation->getRestaurant()->getId(),
                 "name" => $reservation->getRestaurant()->getName(),
-                "picture" => $reservation->getPicture()->getName(),
+                "picture" => $reservation->getRestaurant()->getPicture(),
+                "favorite" => $userFavorites->contains($restaurant) ? true : false
             ),
             "content" => $jsonContents,
         );
