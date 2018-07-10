@@ -129,14 +129,39 @@ class ClientController extends ApiBaseController
     /**
      * @REST\Get("/profile/reservations", name="api_list_client_reservations")
      */
-    public function geClientReservations(Request $request, ParamFetcher $paramFetcher) {
+    public function getClientReservations(Request $request, ParamFetcher $paramFetcher) {
         $user = $this->container->get('security.token_storage')->getToken()->getUser();
 
         $elasticaManager = $this->container->get('fos_elastica.manager');
 
         $reservations = $elasticaManager->getRepository('AppBundle:Reservation')->findByClient($user);
 
-        return $this->helper->success($reservations, 200);
+        $json = array();
+        foreach($reservations as $reservation){
+            $jsonContents=array();
+            $contents = $elasticaManager->getRepository('AppBundle:ReservationContent')->findByReservation($reservation);
+            foreach($contents as $content) {
+                $jsonContents[]=array(
+                    "id" => $content->getId(),
+                    "idCont" => $content->getContent()->getId(),
+                    "name" => $content->getContent()->getName(),
+                    "quantity" => $content->getQuantity(),
+                    "totalPrice" => $content->getTotalPrice()
+                );
+            }
+            $json[] = array(
+                "idRes" => $reservation->getId(),
+                "lastname" => $reservation->getUser()->getLastName(),
+                "firstname" => $reservation->getUser()->getFirstName(),
+                "phoneNumber" => $reservation->getUser()->getPhoneNumber(),
+                "restaurant" => $reservation->getRestaurant()->getName(),
+                "date" => $reservation->getDate(),
+                "content" => $jsonContents,
+            );
+        }
+
+
+        return $this->helper->success($json, 200);
     }
 
     /**
@@ -151,6 +176,29 @@ class ClientController extends ApiBaseController
         if($reservation->getUser() != $user){
             return $this->helper->error("Cette réservation n'est pas la vôtre");
         }
+
+
+        $jsonContents=array();
+        $contents = $elasticaManager->getRepository('AppBundle:ReservationContent')->findByReservation($reservation);
+        foreach($contents as $content) {
+            $jsonContents[]=array(
+                "id" => $content->getId(),
+                "idCont" => $content->getContent()->getId(),
+                "name" => $content->getContent()->getName(),
+                "quantity" => $content->getQuantity(),
+                "totalPrice" => $content->getTotalPrice()
+            );
+        }
+        $reservation = array(
+            "idRes" => $reservation->getId(),
+            "lastname" => $reservation->getUser()->getLastName(),
+            "firstname" => $reservation->getUser()->getFirstName(),
+            "phoneNumber" => $reservation->getUser()->getPhoneNumber(),
+            "restaurant" => $reservation->getRestaurant()->getName(),
+            "date" => $reservation->getDate(),
+            "content" => $jsonContents,
+        );
+
         return $this->helper->success($reservation, 200);
     }
 }

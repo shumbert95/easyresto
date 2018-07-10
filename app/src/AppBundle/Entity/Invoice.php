@@ -19,46 +19,15 @@ class Invoice
     protected $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Restaurant")
-     * @ORM\JoinColumn(name="restaurant_id", referencedColumnName="id")
+     * @ORM\OneToOne(targetEntity="AppBundle\Entity\Reservation")
+     * @ORM\JoinColumn(name="reservation_id", referencedColumnName="id")
      */
-    protected $restaurant;
+    protected $reservation;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="User")
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
-     */
-    protected $user;
-
-    /**
-     * @ORM\Column(type="decimal", scale=2)
-     */
-    protected $price;
-
-    /**
-     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\Content")
-     * @ORM\JoinTable(name="invoice_meal",
-     *      joinColumns={@ORM\JoinColumn(name="menu_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="meal_id", referencedColumnName="id")}
-     *      )
-     */
-    protected $meals;
-
-    /**
-     * @ORM\Column(type="datetime", length=255, nullable=true)
-     */
-    protected $expectedTime;
-
-    /**
-     * @var bool
-     *
-     * @ORM\Column(name="status", type="boolean")
-     */
-    protected $status;
 
 
     public function __construct(){
-        $this->meals = new ArrayCollection();
+
     }
 
     /**
@@ -70,100 +39,29 @@ class Invoice
     }
 
     /**
-     * @return mixed
+     * @param mixed $id
      */
-    public function getPrice()
+    public function setId($id)
     {
-        return $this->price;
-    }
-
-    /**
-     * @param mixed $price
-     */
-    public function setPrice($price)
-    {
-        $this->price = $price;
-
-        return $this;
+        $this->id = $id;
     }
 
     /**
      * @return mixed
      */
-    public function getRestaurant()
+    public function getReservation()
     {
-        return $this->restaurant;
+        return $this->reservation;
     }
 
     /**
-     * @param mixed $restaurant
+     * @param mixed $reservation
      */
-    public function setRestaurant($restaurant)
+    public function setReservation($reservation)
     {
-        $this->restaurant = $restaurant;
-
-        return $this;
+        $this->reservation = $reservation;
     }
 
-    public function getMeals()
-    {
-        return $this->meals;
-    }
-
-    public function setMeals($meals)
-    {
-        $this->meals = $meals;
-    }
-
-    public function addMeal($meal)
-    {
-        if (!$this->meals->contains($meal)) {
-            $this->meals->add($meal);
-        }
-
-        return $this;
-    }
-
-    public function removeMeal($meal)
-    {
-        if ($this->meals->contains($meal)) {
-            $this->meals->remove($meal);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isStatus()
-    {
-        return $this->status;
-    }
-
-    /**
-     * @param bool $status
-     */
-    public function setStatus($status)
-    {
-        $this->status = $status;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getUser()
-    {
-        return $this->user;
-    }
-
-    /**
-     * @param mixed $user
-     */
-    public function setUser($user)
-    {
-        $this->user = $user;
-    }
 
 
 

@@ -82,8 +82,8 @@ class Content
     /**
      * @ORM\ManyToMany(targetEntity="AppBundle\Entity\Ingredient")
      * @ORM\JoinTable(name="ingredients_list",
-     *      joinColumns={@ORM\JoinColumn(name="ingredient_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="content_id", referencedColumnName="id")}
+     *      joinColumns={@ORM\JoinColumn(name="content_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="ingredient_id", referencedColumnName="id")}
      *      )
      */
     protected $ingredients;

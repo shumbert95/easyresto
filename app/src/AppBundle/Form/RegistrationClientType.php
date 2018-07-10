@@ -1,5 +1,6 @@
 <?php
 namespace AppBundle\Form;
+use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
@@ -56,11 +57,11 @@ class RegistrationClientType extends AbstractType
             )
             ->add(
                 'birthDate',
-                DateType::class,
+                DateTimeType::class,
                 [
                     'required' => false,
-                    'label' => 'Année de naissance',
                     'widget' => 'single_text',
+                    'date_format' => 'yyyy-MM-dd HH:mm'
                 ]
 
             )

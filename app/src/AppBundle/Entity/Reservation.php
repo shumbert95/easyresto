@@ -64,20 +64,10 @@ class Reservation{
      */
     protected $nbParticipants;
 
-    /**
-     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\Content")
-     * @ORM\JoinTable(name="reservation_contents",
-     *      joinColumns={@ORM\JoinColumn(name="content_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="reservation_id", referencedColumnName="id")}
-     *      )
-     */
-    protected $contents;
-
     public function __construct(User $user, Restaurant $restaurant){
         $this->user = $user;
         $this->restaurant = $restaurant;
         $this->state = self::STATE_PAID;
-        $this->contents = new ArrayCollection();
     }
 
     /**
@@ -224,54 +214,6 @@ class Reservation{
     public function setNbParticipants($nbParticipants)
     {
         $this->nbParticipants = $nbParticipants;
-
-        return $this;
-    }
-
-    /**
-     * @return ArrayCollection
-     */
-    public function getContents()
-    {
-        return $this->contents;
-    }
-
-    /**
-     * @param ArrayCollection $contents
-     *
-     * @return $this
-     */
-    public function setContents($contents)
-    {
-        $this->contents = $contents;
-
-        return $this;
-    }
-
-    /**
-     * @param Content $content
-     *
-     * @return $this
-     */
-    public function addContent($content)
-    {
-        if (!$this->contents->contains($content)) {
-            $this->contents->add($content);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param Content $content
-     *
-     * @return $this
-     */
-    public function removeContent($content)
-    {
-        if ($this->contents->contains($content)) {
-            $this->contents->remove($content);
-        }
 
         return $this;
     }
