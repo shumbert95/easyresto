@@ -45,9 +45,14 @@ class RestaurantRepository extends Repository
     {
         $boolQuery = new BoolQuery();
         $fieldQuery = new Match();
+        $nestedQuery = new Nested();
 
         $fieldQuery->setFieldQuery('status', Restaurant::STATUS_ONLINE);
         $boolQuery->addMust($fieldQuery);
+        if($restaurantSearch->getCategory() != 0){
+            $nestedQuery->setPath('categories')->setQuery(new Match('categories.id', $restaurantSearch->getCategory()));
+            $boolQuery->addMust($nestedQuery);
+        }
 
         $filter = new Query\GeoDistance('location', array('lat' => $restaurantSearch->getLatitude(),
                                                                 'lon' => $restaurantSearch->getLongitude()),

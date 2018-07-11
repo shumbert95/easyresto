@@ -1,0 +1,5 @@
+Bonjour {{ user.firstName }}.<br><br>
+
+Votre commande auprès du restaurant {{ restaurant.name }} bien été confirmée.<br><br>
+
+Rendez-vous au {{ restaurant.address }} le {{ reservation.date | date('d F, Y', "Europe/Paris") }} à {{ reservation.date| date('H:i', "Europe/Paris", "-2 hours") }}

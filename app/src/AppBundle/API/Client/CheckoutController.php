@@ -12,6 +12,7 @@ use FOS\RestBundle\Request\ParamFetcher;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations as REST;
+use Symfony\Component\Validator\Constraints\DateTime;
 
 
 class CheckoutController extends ApiBaseController
@@ -19,7 +20,7 @@ class CheckoutController extends ApiBaseController
     /**
      * @param Request $request
      *
-     * @REST\Post("/restaurants/{id}/reservation", name="api_create_reservation")
+     * @REST\Post("/restaurants/{id}/reservations", name="api_create_reservation")
      * @REST\RequestParam(name="total")
      * @REST\RequestParam(name="nbParticipants")
      * @REST\RequestParam(name="date")
@@ -83,6 +84,30 @@ class CheckoutController extends ApiBaseController
             return $this->helper->error('Vous n\'avez sélectionné aucun plat');
         }
 
+        $dateNow=new \DateTime();
+        $dateFrom=new \DateTime($params["date"]);
+        $dateTo=new \DateTime($params["date"]);
+        $dateTo->modify("+29 minutes");
+
+        if($dateFrom < $dateNow){
+            return $this->helper->error("Vous ne pouvez pas réserver à une date antérieure");
+        }
+
+
+        $reservations = $elasticaManager->getRepository('AppBundle:Reservation')->findByRestaurant($restaurant, $dateFrom, $dateTo);
+        $seats = $restaurant->getSeats();
+
+        if(isset($reservations)){
+            foreach ($reservations as $reservation){
+                if($reservation->getState() != Reservation::STATE_CANCELED)
+                    $seats = $seats-$reservation->getNbParticipants();
+            }
+        }
+
+        if($params["nbParticipants"] > $seats) {
+            return $this->helper->error($seats >= 1 ? "Il ne reste plus que ".$seats." place(s) de disponible(s)." : "Il ne reste plus de place.");
+        }
+
         $reservation = new Reservation($user, $restaurant);
         $form = $this->createForm(ReservationType::class, $reservation);
         $form->submit($params);
@@ -90,6 +115,7 @@ class CheckoutController extends ApiBaseController
             return $this->helper->error($form->getErrors());
         }
         $em = $this->getEntityManager();
+        $reservation->setState(Reservation::STATE_PENDING);
         $em->persist($reservation);
         $em->flush();
 
@@ -120,6 +146,166 @@ class CheckoutController extends ApiBaseController
         $reservation->setTotal($total);
         $em->persist($reservation);
         $em->flush();
+
+        $mailer = $this->container->get('mailer');
+        $message = (new \Swift_Message('Réservation effectuée N°'.$reservation->getId()))
+            ->setFrom($this->container->getParameter('mailer_user'))
+            ->setTo($user->getEmail())
+            ->setBody(
+                $this->renderView(
+                    '@App/mails/submit_reservation.html.twig',
+                    array(
+                        'user' => $user,
+                        'reservation' => $reservation,
+                        'restaurant' => $restaurant
+                    )
+                ),
+                'text/html'
+            );
+        $mailer->send($message);
+
+        return $this->helper->success($reservation, 200);
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @REST\Get("/restaurants/{id}/reservations/{idReservation}/confirm", name="api_confirm_reservation")
+     *
+     * @return View
+     */
+    public function confirmReservation(Request $request)
+    {
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
+        if (!$request->get('idReservation')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('idReservation'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+
+        $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
+        if (!$restaurant) {
+            return $this->helper->elementNotFound('Restaurant');
+        }
+
+        $restaurantUsers = $restaurant->getUsers();
+
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
+            !$restaurantUsers->contains($user)){
+            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
+        }
+
+        $reservation = $elasticaManager->getRepository('AppBundle:Reservation')->findById($request->get('idReservation'));
+
+        if($reservation->getState() == Reservation::STATE_PAID){
+            return $this->helper->error('Cette commande a déjà été validée');
+        }
+        if($reservation->getState() == Reservation::STATE_CANCELED){
+            return $this->helper->error('Cette commande a été annulée');
+        }
+
+        $reservation->setState(Reservation::STATE_PAID);
+        $em = $this->getEntityManager();
+        $em->persist($reservation);
+        $em->flush();
+
+        $mailer = $this->container->get('mailer');
+        $message = (new \Swift_Message('Réservation N°'.$reservation->getId()." confirmée"))
+            ->setFrom($this->container->getParameter('mailer_user'))
+            ->setTo($reservation->getUser()->getEmail())
+            ->setBody(
+                $this->renderView(
+                    '@App/mails/confirmation_commande.html.twig',
+                    array(
+                        'user' => $reservation->getUser(),
+                        'reservation' => $reservation,
+                        'restaurant' => $restaurant
+                    )
+                ),
+                'text/html'
+            );
+        $mailer->send($message);
+
+        return $this->helper->success($reservation, 200);
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @REST\Get("/restaurants/{id}/reservations/{idReservation}/cancel", name="api_cancel_reservation")
+     *
+     * @return View
+     */
+    public function cancelReservation(Request $request)
+    {
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
+        if (!$request->get('idReservation')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('idReservation'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+
+        $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
+        if (!$restaurant) {
+            return $this->helper->elementNotFound('Restaurant');
+        }
+
+        $restaurantUsers = $restaurant->getUsers();
+
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
+            !$restaurantUsers->contains($user)){
+            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
+        }
+
+        $reservation = $elasticaManager->getRepository('AppBundle:Reservation')->findById($request->get('idReservation'));
+
+        if($reservation->getState() == Reservation::STATE_CANCELED){
+            return $this->helper->error('Cette commande a déjà été annulée');
+        }
+        if($reservation->getState() == Reservation::STATE_PAID){
+            return $this->helper->error('Cette commande a été déjà été validée');
+        }
+
+        $reservation->setState(Reservation::STATE_CANCELED);
+        $reservation->setDateCanceled(New \DateTime());
+        $em = $this->getEntityManager();
+        $em->persist($reservation);
+        $em->flush();
+
+        $mailer = $this->container->get('mailer');
+        $message = (new \Swift_Message('Réservation N°'.$reservation->getId()." annulée"))
+            ->setFrom($this->container->getParameter('mailer_user'))
+            ->setTo($reservation->getUser()->getEmail())
+            ->setBody(
+                $this->renderView(
+                    '@App/mails/canceled_reservation.html.twig',
+                    array(
+                        'user' => $reservation->getUser(),
+                        'reservation' => $reservation,
+                        'restaurant' => $restaurant
+                    )
+                ),
+                'text/html'
+            );
+        $mailer->send($message);
 
         return $this->helper->success($reservation, 200);
     }

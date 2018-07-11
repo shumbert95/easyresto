@@ -40,6 +40,8 @@ framework:
 twig:
     debug: '%kernel.debug%'
     strict_variables: '%kernel.debug%'
+    globals:
+      base_front_url: '%base_front_url%'
 
 # Doctrine Configuration
 doctrine:

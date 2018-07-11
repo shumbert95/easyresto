@@ -14,6 +14,8 @@ class RestaurantSearch
 
     protected $exact;
 
+    protected $category = 0;
+
     public function __construct(){}
 
     public function setName($name)
@@ -59,4 +61,16 @@ class RestaurantSearch
     {
         return $this->exact;
     }
+    public function getCategory()
+    {
+        return $this->category;
+    }
+
+    public function setCategory($category)
+    {
+        $this->category = $category;
+        return $this;
+    }
+
+
 }
