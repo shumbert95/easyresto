@@ -4,7 +4,6 @@ namespace AppBundle\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use FOS\UserBundle\Model\User as BaseUser;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints\Date;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -63,9 +62,9 @@ class User extends BaseUser
     protected $addressComplement;
 
     /**
-     * @var Date
+     * @var \DateTime
      *
-     * @ORM\Column(name="birthDate", type="date", length=255, nullable=true)
+     * @ORM\Column(name="birthDate", type="datetime")
      */
     protected $birthDate;
 
@@ -177,20 +176,26 @@ class User extends BaseUser
     }
 
     /**
-     * @return Date
+     * @return mixed
      */
-    public function getBirthdate()
+    public function getBirthDate()
     {
         return $this->birthDate;
     }
 
     /**
-     * @param Date $birthDate
+     * @param mixed $date
+     *
+     * @return $this
      */
-    public function setBirthdate($birthDate)
+    public function setBirthDate($birthDate)
     {
         $this->birthDate = $birthDate;
+
+        return $this;
     }
+
+
 
     /**
      * @return int

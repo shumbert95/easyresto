@@ -57,8 +57,7 @@ class ReservationController extends ApiBaseController
             $contents = $elasticaManager->getRepository('AppBundle:ReservationContent')->findByReservation($reservation);
             foreach($contents as $content) {
                 $jsonContents[]=array(
-                    "id" => $content->getId(),
-                    "idCont" => $content->getContent()->getId(),
+                    "id" => $content->getContent()->getId(),
                     "name" => $content->getContent()->getName(),
                     "quantity" => $content->getQuantity(),
                     "totalPrice" => $content->getTotalPrice()
@@ -69,6 +68,7 @@ class ReservationController extends ApiBaseController
                 "date" => $reservation->getDate(),
                 "nbParticipants" => $reservation->getNbParticipants(),
                 "total" => $reservation->getTotal(),
+                "state" => $reservation->getState(),
                 "user" => array(
                     "id" => $reservation->getUser()->getId(),
                     "lastname" => $reservation->getUser()->getLastName(),
@@ -161,7 +161,7 @@ class ReservationController extends ApiBaseController
         $nbParticipants = $params['nb_participants'];
 
         $dateFrom = new \DateTime($params['date']);
-        $dateTo = new \DateTime(($params['date']));
+        $dateTo = new \DateTime($params['date']);
 
         $elasticaManager = $this->container->get('fos_elastica.manager');
 
@@ -171,7 +171,8 @@ class ReservationController extends ApiBaseController
         $seats = $restaurant->getSeats();
         if(isset($reservations)){
             foreach ($reservations as $reservation){
-                $seats = $seats-$reservation->getNbParticipants();
+                if($reservation->getState() != Reservation::STATE_CANCELED)
+                    $seats = $seats-$reservation->getNbParticipants();
             }
         }
         if($seats>=$nbParticipants) {
@@ -226,8 +227,7 @@ class ReservationController extends ApiBaseController
         $contents = $elasticaManager->getRepository('AppBundle:ReservationContent')->findByReservation($reservation);
         foreach($contents as $content) {
             $jsonContents[]=array(
-                "id" => $content->getId(),
-                "idCont" => $content->getContent()->getId(),
+                "id" => $content->getContent()->getId(),
                 "name" => $content->getContent()->getName(),
                 "quantity" => $content->getQuantity(),
                 "totalPrice" => $content->getTotalPrice()
@@ -238,6 +238,7 @@ class ReservationController extends ApiBaseController
             "date" => $reservation->getDate(),
             "nbParticipants" => $reservation->getNbParticipants(),
             "total" => $reservation->getTotal(),
+            "state" => $reservation->getState(),
             "user" => array(
                 "id" => $reservation->getUser()->getId(),
                 "lastname" => $reservation->getUser()->getLastName(),

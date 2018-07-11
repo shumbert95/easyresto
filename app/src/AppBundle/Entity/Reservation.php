@@ -67,7 +67,6 @@ class Reservation{
     public function __construct(User $user, Restaurant $restaurant){
         $this->user = $user;
         $this->restaurant = $restaurant;
-        $this->state = self::STATE_PAID;
     }
 
     /**

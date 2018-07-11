@@ -154,8 +154,7 @@ class ClientController extends ApiBaseController
             $contents = $elasticaManager->getRepository('AppBundle:ReservationContent')->findByReservation($reservation);
             foreach($contents as $content) {
                 $jsonContents[]=array(
-                    "id" => $content->getId(),
-                    "idCont" => $content->getContent()->getId(),
+                    "id" => $content->getContent()->getId(),
                     "name" => $content->getContent()->getName(),
                     "quantity" => $content->getQuantity(),
                     "totalPrice" => $content->getTotalPrice()
@@ -166,6 +165,7 @@ class ClientController extends ApiBaseController
                 "date" => $reservation->getDate(),
                 "nbParticipants" => $reservation->getNbParticipants(),
                 "total" => $reservation->getTotal(),
+                "state" => $reservation->getState(),
                 "user" => array(
                     "id" => $reservation->getUser()->getId(),
                     "lastname" => $reservation->getUser()->getLastName(),
@@ -206,8 +206,7 @@ class ClientController extends ApiBaseController
         $contents = $elasticaManager->getRepository('AppBundle:ReservationContent')->findByReservation($reservation);
         foreach($contents as $content) {
             $jsonContents[]=array(
-                "id" => $content->getId(),
-                "idCont" => $content->getContent()->getId(),
+                "id" => $content->getContent()->getId(),
                 "name" => $content->getContent()->getName(),
                 "quantity" => $content->getQuantity(),
                 "totalPrice" => $content->getTotalPrice()
@@ -215,6 +214,10 @@ class ClientController extends ApiBaseController
         }
         $reservation = array(
             "id" => $reservation->getId(),
+            "date" => $reservation->getDate(),
+            "nbParticipants" => $reservation->getNbParticipants(),
+            "total" => $reservation->getTotal(),
+            "state" => $reservation->getState(),
             "user" => array(
                 "id" => $reservation->getUser()->getId(),
                 "lastname" => $reservation->getUser()->getLastName(),

@@ -61,7 +61,7 @@ class UserController extends ApiBaseController
                 'id' => $user->getId(),
                 'firstName' => $user->getFirstName(),
                 'lastName' => $user->getLastName(),
-                'birthDate' =>  $user->getBirthdate(),
+                'birthDate' =>  $user->getBirthDate(),
                 'email' => $user->getEmail(),
                 'type' => $user->getType(),
             )
@@ -222,14 +222,27 @@ class UserController extends ApiBaseController
         $fosUserManager->updateUser($user);
 
 
-        //$this->container->get('app.mail.manager')->sendConfirmationEmailMessage($user);
+        $mailer = $this->container->get('mailer');
+        $message = (new \Swift_Message('Bienvenue sur Easyresto !'))
+            ->setFrom($this->container->getParameter('mailer_user'))
+            ->setTo($user->getEmail())
+            ->setBody(
+                $this->renderView(
+                    '@App/mails/inscription_client.html.twig',
+                    array(
+                        'user' => $user,
+                    )
+                ),
+                'text/html'
+            );
+        $mailer->send($message);
 
         return $this->json(array(
             'newUser' => array(
                 'id' => $user->getId(),
                 'firstName' => $user->getFirstName(),
                 'lastName' => $user->getLastName(),
-                'birthDate' => $user->getBirthdate(),
+                'birthDate' => $user->getBirthDate(),
                 'email' => $user->getEmail(),
                 'type' => $user->getType(),
             )
@@ -292,16 +305,29 @@ class UserController extends ApiBaseController
         $user->setType($user::TYPE_RESTORER);
         $user->addRole('ROLE_ADMIN');
         $user->setEnabled(1);
-        $fosUserManager->updateUser($user);
+        //$fosUserManager->updateUser($user);
 
-        //$this->container->get('app.mail.manager')->sendConfirmationEmailMessage($user);
+        $mailer = $this->container->get('mailer');
+        $message = (new \Swift_Message('Bienvenue sur Easyresto !'))
+            ->setFrom($this->container->getParameter('mailer_user'))
+            ->setTo($user->getEmail())
+            ->setBody(
+                $this->renderView(
+                    '@App/mails/inscription_restorer.html.twig',
+                    array(
+                        'user' => $user,
+                    )
+                ),
+                'text/html'
+            );
+        $mailer->send($message);
 
         return $this->json(array(
             'newUser' => array(
                 'id' => $user->getId(),
                 'firstName' => $user->getFirstName(),
                 'lastName' => $user->getLastName(),
-                'birthDate' => $user->getBirthdate(),
+                'birthDate' => $user->getBirthDate(),
                 'email' => $user->getEmail(),
                 'type' => $user->getType(),
                 'phoneNumber' => $user->getPhoneNumber(),
