@@ -280,8 +280,9 @@ class RestaurantController extends ApiBaseController
         $elasticaManager = $this->container->get('fos_elastica.manager');
 
         $results = $elasticaManager->getRepository('AppBundle:Restaurant')->search($restaurantSearch);
+
         if (!$results) {
-            $this->helper->elementNotFound('Restaurants');
+            return $this->helper->elementNotFound('Restaurants');
         }
 
         return $this->helper->success($results, 200);
