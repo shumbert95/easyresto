@@ -64,6 +64,29 @@ class ClientController extends ApiBaseController
     }
 
     /**
+     * @REST\Get("/profile/favoritesids", name="api_user_favorites_ids")
+     *
+     */
+    public function getFavoritesIds()
+    {
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+        if($user->getType() != User::TYPE_CLIENT){
+            return $this->helper->error('En tant que restaurateur, vous ne pouvez pas effectuer cette action');
+        }
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+        $favorites = $user->getFavorites();
+        $json=array();
+        foreach($favorites as $favorite){
+            $reservations = $elasticaManager->getRepository('AppBundle:Reservation')->findByClientAndRestaurant($user,$favorite);
+            array_push($json,$favorite->getId());
+        }
+        if(!isset($json[0]))
+            $json[]=array();
+
+        return $this->helper->success($json, 200);
+    }
+
+    /**
      *
      * @REST\Get("/restaurants/{id}/favorites/add", name="api_user_add_favorite")
      *
