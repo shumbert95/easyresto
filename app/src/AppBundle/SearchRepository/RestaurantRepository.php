@@ -65,6 +65,13 @@ class RestaurantRepository extends Repository
                 $boolQuery->addMust($nestedQuery);
             }
         }
+        if($restaurantSearch->getName()!= ""){
+            $fieldQuery = new Match();
+            $fieldQuery->setFieldQuery('name', $restaurantSearch->getName());
+            $fieldQuery->setFieldFuzziness('name', 'AUTO');
+            $fieldQuery->setFieldMinimumShouldMatch('name',"80%");
+            $boolQuery->addMust($fieldQuery);
+        }
         $filter = new Query\GeoDistance('location', array('lat' => $restaurantSearch->getLatitude(),
                                                                 'lon' => $restaurantSearch->getLongitude()),
                                                             !$restaurantSearch->isExact() ? '10km' : '1m');

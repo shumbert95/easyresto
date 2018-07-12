@@ -193,6 +193,12 @@ class ClientController extends ApiBaseController
         $reservations = $elasticaManager->getRepository('AppBundle:Reservation')->findByClient($user);
 
         foreach($reservations as $reservation) {
+            $note = $this->getNoteRepository()->findOneBy(array('restaurant' => $reservation->getRestaurant(), 'user' => $user, 'reservation' => $reservation));
+            $verif=false;
+
+            if($note){
+                $verif=true;
+            }
             $jsonContents = array();
             $contents = $elasticaManager->getRepository('AppBundle:ReservationContent')->findByReservation($reservation);
 
@@ -228,6 +234,7 @@ class ClientController extends ApiBaseController
                     "nbParticipants" => $reservation->getNbParticipants(),
                     "total" => $reservation->getTotal(),
                     "state" => $reservation->getState(),
+                    "hasNote" => $verif,
                     "user" => array(
                         "id" => $reservation->getUser()->getId(),
                         "lastname" => $reservation->getUser()->getLastName(),
@@ -271,7 +278,12 @@ class ClientController extends ApiBaseController
         $restaurant = $reservation->getRestaurant();
         $userFavorites = $reservation->getUser()->getFavorites();
         $contents = $elasticaManager->getRepository('AppBundle:ReservationContent')->findByReservation($reservation);
+        $note = $this->getNoteRepository()->findOneBy(array('restaurant' => $reservation->getRestaurant(), 'user' => $user, 'reservation' => $reservation));
+        $verif=false;
 
+        if($note){
+            $verif=true;
+        }
         $lastSeat = array();
         foreach($contents as $contentSeat) {
             $allContents = $elasticaManager->getRepository('AppBundle:ReservationContent')->findBySeat($contentSeat->getSeat());
@@ -301,6 +313,7 @@ class ClientController extends ApiBaseController
             "nbParticipants" => $reservation->getNbParticipants(),
             "total" => $reservation->getTotal(),
             "state" => $reservation->getState(),
+            "hasNote" => $verif,
             "user" => array(
                 "id" => $reservation->getUser()->getId(),
                 "lastname" => $reservation->getUser()->getLastName(),

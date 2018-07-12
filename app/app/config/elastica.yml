@@ -11,7 +11,8 @@ fos_elastica:
                         id:
                             type: integer
                         status: ~
-                        name: ~
+                        name:
+                          type: text
                         city: ~
                         open: ~
                         users:

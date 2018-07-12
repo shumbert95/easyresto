@@ -6,7 +6,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class RestaurantSearch
 {
-    protected $name;
+    protected $name = "";
 
     protected $longitude;
 
