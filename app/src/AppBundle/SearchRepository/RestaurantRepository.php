@@ -66,11 +66,11 @@ class RestaurantRepository extends Repository
             }
         }
         if($restaurantSearch->getName()!= ""){
-            $fieldQuery = new Match();
-            $fieldQuery->setFieldQuery('name', $restaurantSearch->getName());
-            $fieldQuery->setFieldFuzziness('name', 'AUTO');
-            $fieldQuery->setFieldMinimumShouldMatch('name',"80%");
-            $boolQuery->addMust($fieldQuery);
+            $queryString = new Query\QueryString();
+            $queryString->setQuery("*".$restaurantSearch->getName()."*");
+            $queryString->setDefaultField('name');
+            $boolQuery->addMust($queryString);
+
         }
         $filter = new Query\GeoDistance('location', array('lat' => $restaurantSearch->getLatitude(),
                                                                 'lon' => $restaurantSearch->getLongitude()),
