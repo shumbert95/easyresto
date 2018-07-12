@@ -4,14 +4,13 @@ namespace AppBundle\SearchRepository;
 
 use AppBundle\Entity\Content;
 use AppBundle\Entity\Reservation;
-use AppBundle\Entity\ReservationSeat;
 use Elastica\Query;
 use Elastica\Query\BoolQuery;
 use Elastica\Query\Match;
 use Elastica\Query\Nested;
 use FOS\ElasticaBundle\Repository;
 
-class ReservationContentRepository extends Repository
+class ReservationSeatRepository extends Repository
 {
     public function findById($id) {
         $boolQuery = new BoolQuery();
@@ -23,32 +22,6 @@ class ReservationContentRepository extends Repository
         $reservationContents = $this->find($boolQuery,10000);
 
         return $reservationContents ? $reservationContents[0] : $reservationContents;
-    }
-
-    public function findByReservation(Reservation $reservation) {
-        $boolQuery = new BoolQuery();
-        $nestedQuery = new Nested();
-
-        $nestedQuery->setPath('reservation')->setQuery(new Match('reservation.id',$reservation->getId()));
-        $boolQuery->addMust($nestedQuery);
-
-        $reservationContents = $this->find($boolQuery,10000);
-
-
-        return $reservationContents;
-    }
-
-    public function findBySeat(ReservationSeat $seat) {
-        $boolQuery = new BoolQuery();
-        $nestedQuery = new Nested();
-
-        $nestedQuery->setPath('seat')->setQuery(new Match('seat.id',$seat->getId()));
-        $boolQuery->addMust($nestedQuery);
-
-        $reservationContents = $this->find($boolQuery,10000);
-
-
-        return $reservationContents;
     }
 
     public function findByContentAndReservation($content, $reservation) {

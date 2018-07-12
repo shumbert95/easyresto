@@ -203,6 +203,11 @@ fos_elastica:
                           properties:
                             id:
                               type: integer
+                        seat:
+                          type: "nested"
+                          properties:
+                            id:
+                              type: integer
 
                     persistence:
                         driver: orm

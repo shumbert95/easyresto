@@ -51,40 +51,61 @@ class ReservationController extends ApiBaseController
 
         $reservations = $elasticaManager->getRepository('AppBundle:Reservation')->findByRestaurant($restaurant, $dateFrom, $dateTo);
 
-        $json = array();
-        foreach($reservations as $reservation){
-            $jsonContents=array();
+        foreach($reservations as $reservation) {
+            $jsonContents = array();
             $contents = $elasticaManager->getRepository('AppBundle:ReservationContent')->findByReservation($reservation);
-            foreach($contents as $content) {
-                $jsonContents[]=array(
-                    "id" => $content->getContent()->getId(),
-                    "name" => $content->getContent()->getName(),
-                    "quantity" => $content->getQuantity(),
-                    "totalPrice" => $content->getTotalPrice()
+
+            $lastSeat = array();
+            if (is_array($contents)) {
+
+                foreach ($contents as $contentSeat) {
+
+                    $allContents = $elasticaManager->getRepository('AppBundle:ReservationContent')->findBySeat($contentSeat->getSeat());
+                    $currentSeat = $contentSeat->getSeat()->getId();
+                    foreach ($allContents as $content) {
+                        if ($currentSeat != $lastSeat) {
+                            $jsonContents[] = array(
+                                "id" => $content->getContent()->getId(),
+                                "name" => $content->getContent()->getName(),
+                                "quantity" => $content->getQuantity(),
+                                "totalPrice" => $content->getTotalPrice()
+                            );
+                        }
+                    }
+                    if(!in_array($currentSeat,$lastSeat)) {
+                        $seatArray[] = array(
+                            "name" => $contentSeat->getSeat()->getName(),
+                            "content" => $jsonContents
+                        );
+                    }
+                    array_push($lastSeat,$currentSeat);
+                    $jsonContents = array();
+                }
+                $reservationArray[] = array(
+                    "id" => $reservation->getId(),
+                    "date" => $reservation->getDate(),
+                    "nbParticipants" => $reservation->getNbParticipants(),
+                    "total" => $reservation->getTotal(),
+                    "state" => $reservation->getState(),
+                    "user" => array(
+                        "id" => $reservation->getUser()->getId(),
+                        "lastname" => $reservation->getUser()->getLastName(),
+                        "firstname" => $reservation->getUser()->getFirstName(),
+                        "phoneNumber" => $reservation->getUser()->getPhoneNumber(),
+                    ),
+                    "date" => $reservation->getDate(),
+                    "restaurant" => array(
+                        "id" => $reservation->getRestaurant()->getId(),
+                        "name" => $reservation->getRestaurant()->getName(),
+                        "picture" => $reservation->getRestaurant()->getPicture(),
+                    ),
+                    "seat" => $seatArray,
                 );
+                $seatArray=array();
             }
-            $json[] = array(
-                "id" => $reservation->getId(),
-                "date" => $reservation->getDate(),
-                "nbParticipants" => $reservation->getNbParticipants(),
-                "total" => $reservation->getTotal(),
-                "state" => $reservation->getState(),
-                "user" => array(
-                    "id" => $reservation->getUser()->getId(),
-                    "lastname" => $reservation->getUser()->getLastName(),
-                    "firstname" => $reservation->getUser()->getFirstName(),
-                    "phoneNumber" => $reservation->getUser()->getPhoneNumber(),
-                ),
-                "restaurant" => array(
-                    "id" => $reservation->getRestaurant()->getId(),
-                    "name" => $reservation->getRestaurant()->getName(),
-                    "picture" => $reservation->getRestaurant()->getPicture(),
-                ),
-                "content" => $jsonContents,
-            );
         }
 
-        return $this->helper->success($json, 200);
+        return $this->helper->success($reservationArray, 200);
     }
 
     /**
@@ -92,6 +113,7 @@ class ReservationController extends ApiBaseController
      *
      * @QueryParam(name="date_from")
      * @QueryParam(name="date_to")
+     * @QueryParam(name="nb_participants")
      */
     public function getAvailabilites(Request $request, ParamFetcher $paramFetcher) {
         $params = $paramFetcher->all();
@@ -102,41 +124,154 @@ class ReservationController extends ApiBaseController
             return $this->helper->error('param \'id\' must be an integer');
         }
 
-
+        $dateFrom = new \DateTime($params['date_from']);
+        $dateTo = new \DateTime($params['date_to']);
+        $nbParticipants = $params['nb_participants'];
 
         $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
 
+        $elasticaManager = $this->container->get('fos_elastica.manager');
 
-        $dateFrom = new \DateTime($params['date_from']);
-        $dateTo = new \DateTime($params['date_to']);
-        $dateToCompare = new \DateTime(($params['date_from']));
+        $jsonSchedule = json_decode($restaurant->getSchedule(),true);
+        while($dateFrom <= $dateTo) {
+            foreach ($jsonSchedule as $schedule) {
+                $currentDate = clone $dateFrom;
+                $stringCurrentDay = $currentDate->format('l');
+                $stringDay = $schedule["name"];
+                $verif = true;
+                $available = false;
+
+                if ($stringCurrentDay == "Sunday" && $stringDay == "Dim") {
+                    $arrayHours = $schedule["timeSteps"];
+                } elseif ($stringCurrentDay == "Monday" && $stringDay == "Lun") {
+                    $arrayHours = $schedule["timeSteps"];
+                } elseif ($stringCurrentDay == "Tuesday" && $stringDay == "Mar") {
+                    $arrayHours = $schedule["timeSteps"];
+                } elseif ($stringCurrentDay == "Wednesday" && $stringDay == "Mer") {
+                    $arrayHours = $schedule["timeSteps"];
+                } elseif ($stringCurrentDay == "Thursday" && $stringDay == "Jeu") {
+                    $arrayHours = $schedule["timeSteps"];
+                } elseif ($stringCurrentDay == "Friday" && $stringDay == "Ven") {
+                    $arrayHours = $schedule["timeSteps"];
+                } elseif ($stringCurrentDay == "Saturday" && $stringDay == "Sam") {
+                    $arrayHours = $schedule["timeSteps"];
+                }
+                else
+                    $verif=false;
+
+                if($verif) {
+                    foreach ($arrayHours as $hour) {
+                        $dateOrigin = clone $dateFrom;
+                        $dayOrigin = $dateOrigin->format('Y-m-d');
+                        $dayFromString = $dateFrom->format('Y-m-d');
+                        $dateOriginCompareToTime = $dayOrigin . "T" . $hour . ":00Z";
+                        $dateFromCompare = new \DateTime($dateOriginCompareToTime);
+                        $dateToCompare = clone $dateFromCompare;
+                        $dateToCompare->modify("+29 minutes");
+
+
+                        $reservations = $elasticaManager->getRepository('AppBundle:Reservation')->findByRestaurant($restaurant, $dateFromCompare, $dateToCompare);
+                        $seats = $restaurant->getSeats();
+                        if (isset($reservations)) {
+                            foreach ($reservations as $reservation) {
+                                $seats = $seats - $reservation->getNbParticipants();
+                            }
+                        }
+                        if ($seats >= $nbParticipants) {
+                            $available = true;
+                        }
+                    }
+                }
+                if($available){
+                    $json[] = $dateOrigin;
+                }
+            }
+            $dateFrom->modify("+1 day");
+        }
+        if(!isset($json))
+            return $this->helper->error("Aucune disponibilité");
+
+        return $this->helper->success($json, 200);
+    }
+
+    /**
+     * @REST\Get("/restaurants/{id}/daily_availabilities", name="api_list_daily_availabilites")
+     *
+     * @QueryParam(name="date")
+     * @QueryParam(name="nb_participants")
+     */
+    public function getDailyAvailabilites(Request $request, ParamFetcher $paramFetcher) {
+        $params = $paramFetcher->all();
+
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
+        $dateFrom = new \DateTime($params['date']);
+        $nbParticipants = $params['nb_participants'];
+
+        $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
 
         $elasticaManager = $this->container->get('fos_elastica.manager');
 
-        $availabilities=array();
+        $jsonSchedule = json_decode($restaurant->getSchedule(),true);
 
-        while($dateFrom<$dateTo){
-            $hour=$dateFrom->format('H:i');
-            $dateToCompare->modify("+29 minutes");
-            $reservations = $elasticaManager->getRepository('AppBundle:Reservation')->findByRestaurant($restaurant, $dateFrom, $dateToCompare);
-            $seats = $restaurant->getSeats();
-            if(isset($reservations)){
-                foreach ($reservations as $reservation){
-                    $seats = $seats-$reservation->getNbParticipants();
+        foreach ($jsonSchedule as $schedule) {
+            $currentDate = clone $dateFrom;
+            $stringCurrentDay = $currentDate->format('l');
+            $stringDay = $schedule["name"];
+            $verif = true;
+
+
+            if ($stringCurrentDay == "Sunday" && $stringDay == "Dim") {
+                $arrayHours = $schedule["timeSteps"];
+            } elseif ($stringCurrentDay == "Monday" && $stringDay == "Lun") {
+                $arrayHours = $schedule["timeSteps"];
+            } elseif ($stringCurrentDay == "Tuesday" && $stringDay == "Mar") {
+                $arrayHours = $schedule["timeSteps"];
+            } elseif ($stringCurrentDay == "Wednesday" && $stringDay == "Mer") {
+                $arrayHours = $schedule["timeSteps"];
+            } elseif ($stringCurrentDay == "Thursday" && $stringDay == "Jeu") {
+                $arrayHours = $schedule["timeSteps"];
+            } elseif ($stringCurrentDay == "Friday" && $stringDay == "Ven") {
+                $arrayHours = $schedule["timeSteps"];
+            } elseif ($stringCurrentDay == "Saturday" && $stringDay == "Sam") {
+                $arrayHours = $schedule["timeSteps"];
+            }
+            else
+                $verif=false;
+
+            if($verif) {
+                foreach ($arrayHours as $hour) {
+                    $dateOrigin = clone $dateFrom;
+                    $dayOrigin = $dateOrigin->format('Y-m-d');
+                    $dayFromString = $dateFrom->format('Y-m-d');
+                    $dateOriginCompareToTime = $dayOrigin . "T" . $hour . ":00Z";
+                    $dateFromCompareToTime = $dayFromString . "T" ."00:00:00Z";
+                    $dateFromCompare = new \DateTime($dateOriginCompareToTime);
+                    $dateToCompare = clone $dateFromCompare;
+                    $dateToCompare->modify("+29 minutes");
+
+
+                    $reservations = $elasticaManager->getRepository('AppBundle:Reservation')->findByRestaurant($restaurant, $dateFromCompare, $dateToCompare);
+                    $seats = $restaurant->getSeats();
+                    if (isset($reservations)) {
+                        foreach ($reservations as $reservation) {
+                            $seats = $seats - $reservation->getNbParticipants();
+                        }
+                    }
+                    if ($seats >= $nbParticipants) {
+                        $json["availabilities"][] = array($hour => $seats);
+                    }
                 }
             }
-            if($seats>0) {
-                $availabilities["availabilites"][$hour] = array("available_seats" => $seats);
-            }
-            else{
-                $availabilities["availabilites"][$hour] = array("available_seats" => "Indisponible");
-            }
-
-            $dateToCompare->modify("+1 minute");
-            $dateFrom->modify("+30 minutes");
         }
+        if(!isset($json))
+            return $this->helper->error("Aucune disponibilité");
 
-        return $this->helper->success($availabilities, 200);
+        return $this->helper->success($json, 200);
     }
 
     /**
@@ -176,14 +311,11 @@ class ReservationController extends ApiBaseController
             }
         }
         if($seats>=$nbParticipants) {
-            $availability=array("availability" => true);
+            $availability=array("availability" => $seats);
         }
         else{
             $availability=array("availability" => false);
         }
-
-        $dateTo->modify("+1 minute");
-        $dateFrom->modify("+30 minutes");
 
         return $this->helper->success($availability, 200);
     }
@@ -224,16 +356,34 @@ class ReservationController extends ApiBaseController
         }
 
         $jsonContents=array();
+        $restaurant = $reservation->getRestaurant();
+        $userFavorites = $reservation->getUser()->getFavorites();
         $contents = $elasticaManager->getRepository('AppBundle:ReservationContent')->findByReservation($reservation);
-        foreach($contents as $content) {
-            $jsonContents[]=array(
-                "id" => $content->getContent()->getId(),
-                "name" => $content->getContent()->getName(),
-                "quantity" => $content->getQuantity(),
-                "totalPrice" => $content->getTotalPrice()
-            );
+
+        $lastSeat = array();
+        foreach($contents as $contentSeat) {
+            $allContents = $elasticaManager->getRepository('AppBundle:ReservationContent')->findBySeat($contentSeat->getSeat());
+            $currentSeat=$contentSeat->getSeat()->getId();
+            foreach ($allContents as $content) {
+                if($currentSeat!=$lastSeat) {
+                    $jsonContents[] = array(
+                        "id" => $content->getContent()->getId(),
+                        "name" => $content->getContent()->getName(),
+                        "quantity" => $content->getQuantity(),
+                        "totalPrice" => $content->getTotalPrice()
+                    );
+                }
+            }
+            if(!in_array($currentSeat,$lastSeat)) {
+                $seatArray[] = array(
+                    "name" => $contentSeat->getSeat()->getName(),
+                    "content" => $jsonContents
+                );
+            }
+            array_push($lastSeat,$currentSeat);
+            $jsonContents = array();
         }
-        $reservation = array(
+        $reservationArray = array(
             "id" => $reservation->getId(),
             "date" => $reservation->getDate(),
             "nbParticipants" => $reservation->getNbParticipants(),
@@ -245,14 +395,16 @@ class ReservationController extends ApiBaseController
                 "firstname" => $reservation->getUser()->getFirstName(),
                 "phoneNumber" => $reservation->getUser()->getPhoneNumber(),
             ),
+            "date" => $reservation->getDate(),
             "restaurant" => array(
                 "id" => $reservation->getRestaurant()->getId(),
                 "name" => $reservation->getRestaurant()->getName(),
                 "picture" => $reservation->getRestaurant()->getPicture(),
+                "favorite" => $userFavorites->contains($restaurant) ? true : false
             ),
-            "content" => $jsonContents,
+            "seat" => $seatArray,
         );
 
-        return $this->helper->success($reservation, 200);
+        return $this->helper->success($reservationArray, 200);
     }
 }

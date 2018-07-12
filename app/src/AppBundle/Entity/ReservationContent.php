@@ -50,6 +50,12 @@ class ReservationContent
      */
     protected $totalPrice;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\ReservationSeat")
+     * @ORM\JoinColumn(name="reservation_seat_id")
+     */
+    protected $seat;
+
 
 
 
@@ -138,6 +144,24 @@ class ReservationContent
     {
         $this->totalPrice = $totalPrice;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getSeat()
+    {
+        return $this->seat;
+    }
+
+    /**
+     * @param mixed $seat
+     */
+    public function setSeat($seat)
+    {
+        $this->seat = $seat;
+    }
+
+
 
 
 
