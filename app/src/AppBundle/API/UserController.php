@@ -130,6 +130,8 @@ class UserController extends ApiBaseController
     public function getUserById(Request $request)
     {
         $user = $this->getUserRepository()->find($request->get('id'));
+        if(!$user)
+            $user[]=array();
         return $this->helper->success($user, 200);
     }
 
@@ -176,6 +178,8 @@ class UserController extends ApiBaseController
     public function getUsers()
     {
         $users = $this->getUserRepository()->findAll();
+        if(!$users)
+            $users[]=array();
         return $this->helper->success($users, 200);
     }
 
@@ -260,6 +264,8 @@ class UserController extends ApiBaseController
     public function getClients()
     {
         $clients = $this->getUserRepository()->findBy(array("type" => 1));
+        if(!$clients)
+            $clients[]=array();
         return $this->helper->success($clients, 200);
     }
 
@@ -349,6 +355,8 @@ class UserController extends ApiBaseController
     public function getRestorers()
     {
         $restorers = $this->getUserRepository()->findBy(array('type' => 2));
+        if(!$restorers)
+            $restorers[]=array();
         return $this->helper->success($restorers, 200);
     }
 

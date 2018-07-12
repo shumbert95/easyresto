@@ -3,6 +3,7 @@
 namespace AppBundle\API\Restaurant;
 
 use AppBundle\API\ApiBaseController;
+use AppBundle\Entity\Restaurant;
 use FOS\RestBundle\Controller\Annotations as REST;
 use FOS\RestBundle\Request\ParamFetcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -50,6 +51,8 @@ class ReservationController extends ApiBaseController
 
 
         $reservations = $elasticaManager->getRepository('AppBundle:Reservation')->findByRestaurant($restaurant, $dateFrom, $dateTo);
+        if(!$reservations)
+            return $this->helper->success(array(array()), 200);
 
         foreach($reservations as $reservation) {
             $jsonContents = array();
@@ -128,9 +131,19 @@ class ReservationController extends ApiBaseController
         $dateTo = new \DateTime($params['date_to']);
         $nbParticipants = $params['nb_participants'];
 
-        $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
+        if($nbParticipants <=0)
+            return $this->helper->error('Aucun participant');
 
+        $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
+        if (!$restaurant instanceof Restaurant) {
+            return $this->helper->elementNotFound('Restaurant', 404);
+        }
         $elasticaManager = $this->container->get('fos_elastica.manager');
+
+
+
+        if(!$restaurant->getSchedule())
+            return $this->helper->success(array(array()), 404);
 
         $jsonSchedule = json_decode($restaurant->getSchedule(),true);
         while($dateFrom <= $dateTo) {
@@ -212,9 +225,16 @@ class ReservationController extends ApiBaseController
         $dateFrom = new \DateTime($params['date']);
         $nbParticipants = $params['nb_participants'];
 
+        if($nbParticipants <=0)
+            return $this->helper->error('Aucun participant');
+
+
         $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
 
         $elasticaManager = $this->container->get('fos_elastica.manager');
+
+        if(!$restaurant->getSchedule())
+            return $this->helper->success(array(array()), 404);
 
         $jsonSchedule = json_decode($restaurant->getSchedule(),true);
 
@@ -292,7 +312,9 @@ class ReservationController extends ApiBaseController
 
 
         $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
-
+        if (!$restaurant) {
+            return $this->helper->elementNotFound('Restaurant');
+        }
         $nbParticipants = $params['nb_participants'];
 
         $dateFrom = new \DateTime($params['date']);

@@ -45,13 +45,25 @@ class RestaurantMenuController extends ApiBaseController
                     $contents = $elasticaManager->getRepository('AppBundle:Content')->findByTab($tab);
 
                     foreach ($contents as $content) {
-                        if ($content->getType() == Content::TYPE_CATEGORY) {
-                            $arrayContent[$tab->getId()][] = array(
-                                "id" => $content->getId(),
-                                "position" => $content->getPosition(),
-                                "type" => $content->getType(),
-                                "name" => $content->getName(),
-                            );
+                        $maxValue=-1;
+
+                        if($content->getContents()) {
+                            foreach ($content->getIngredients() as $ingredient) {
+                                if ($maxValue == -1)
+                                    $maxValue = $ingredient->getStock();
+
+                                elseif ($ingredient->getStock() < $maxValue)
+                                    $maxValue = $ingredient->getStock();
+                            }
+
+                            if ($content->getType() == Content::TYPE_CATEGORY) {
+                                $arrayContent[$tab->getId()][] = array(
+                                    "id" => $content->getId(),
+                                    "position" => $content->getPosition(),
+                                    "type" => $content->getType(),
+                                    "name" => $content->getName(),
+                                );
+                            }
                         }
                         else {
                             $arrayContent[$tab->getId()][] = array(
@@ -60,6 +72,7 @@ class RestaurantMenuController extends ApiBaseController
                                 "type" => $content->getType(),
                                 "name" => $content->getName(),
                                 "description" => $content->getDescription(),
+                                "availability" => $maxValue,
                                 "price" => $content->getPrice(),
                             );
                         }

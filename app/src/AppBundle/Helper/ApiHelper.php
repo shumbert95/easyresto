@@ -70,14 +70,35 @@ class ApiHelper
  * @param int $statusCode
  * @return View
  */
-    public function elementNotFound($element, $statusCode = 404) {
+    public function elementNotFound($element,$feminin = false, $statusCode = 404) {
         $view = View::create();
         $view->setStatusCode($statusCode);
         $view->setFormat('json');
 
         if ($element) {
             $view->setData(array(
-                'result' => $element . ' not found.'
+                'code' => $statusCode,
+                'msg' => $feminin ? $element." non trouvée" : $element. " non trouvé",
+            ));
+        }
+
+        return $view;
+    }
+
+    /**
+     * @param string $element
+     * @param int $statusCode
+     * @return View
+     */
+    public function warning($element, $statusCode = 500) {
+        $view = View::create();
+        $view->setStatusCode($statusCode);
+        $view->setFormat('json');
+
+        if ($element) {
+            $view->setData(array(
+                'code' => $statusCode,
+                'msg' => $element,
             ));
         }
 

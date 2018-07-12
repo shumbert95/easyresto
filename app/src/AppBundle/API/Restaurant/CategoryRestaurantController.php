@@ -22,7 +22,7 @@ class CategoryRestaurantController extends ApiBaseController
     {
         $user = $this->container->get('security.token_storage')->getToken()->getUser();
 
-        if( !($this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) && ($user->getType() != User::TYPE_RESTORER)) {
+        if( !($this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN'))) {
             return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
         }
 
@@ -114,6 +114,8 @@ class CategoryRestaurantController extends ApiBaseController
     {
         $elasticaManager = $this->container->get('fos_elastica.manager');
         $categories = $elasticaManager->getRepository('AppBundle:CategoryRestaurant')->findAll();
+        if(!isset($categories[0]))
+            $categories[]=array();
 
         return $this->helper->success($categories, 200);
     }

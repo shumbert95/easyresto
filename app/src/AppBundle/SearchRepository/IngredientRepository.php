@@ -2,6 +2,7 @@
 
 namespace AppBundle\SearchRepository;
 
+use AppBundle\Entity\Content;
 use AppBundle\Entity\Ingredient;
 use AppBundle\Entity\Restaurant;
 use Elastica\Query;
@@ -23,6 +24,24 @@ class IngredientRepository extends Repository
 
         $nestedQuery->setPath('restaurant')
             ->setQuery(new Match('restaurant.id', $restaurant->getId()));
+        $boolQuery->addMust($nestedQuery);
+
+        $query = new Query($boolQuery);
+        $query->addSort(array('position' => 'asc'));
+
+        return $this->find($query);
+    }
+
+    public function findByContent(Content $content) {
+        $boolQuery = new BoolQuery();
+        $nestedQuery = new Nested();
+        $fieldQueryStatus = new Match();
+
+        $fieldQueryStatus->setFieldQuery('status', Ingredient::STATUS_ONLINE);
+        $boolQuery->addMust($fieldQueryStatus);
+
+        $nestedQuery->setPath('contents')
+            ->setQuery(new Match('contents.id', $content->getId()));
         $boolQuery->addMust($nestedQuery);
 
         $query = new Query($boolQuery);

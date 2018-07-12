@@ -186,6 +186,9 @@ class TabMealController extends ApiBaseController
         }
 
         $tab = $elasticaManager->getRepository('AppBundle:TabMeal')->findById($request->get('idTab'));
+        if(!$tab)
+            return $this->helper->elementNotFound('Onglet');
+
         if($tab->getRestaurant() != $restaurant){
             return $this->helper->error('Ce n\'est pas un onglet de ce restaurant');
         }
@@ -217,6 +220,9 @@ class TabMealController extends ApiBaseController
         }
 
         $tabs = $elasticaManager->getRepository('AppBundle:TabMeal')->findByRestaurant($restaurant);
+
+        if(!isset($tabs[0]))
+            $tabs=array();
 
         return $this->helper->success($tabs, 200);
     }

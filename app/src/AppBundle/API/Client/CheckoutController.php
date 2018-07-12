@@ -55,6 +55,7 @@ class CheckoutController extends ApiBaseController
 
         $elasticaManager = $this->container->get('fos_elastica.manager');
         $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
+
         if (!$restaurant) {
             return $this->helper->elementNotFound('Restaurant');
         }
@@ -149,6 +150,13 @@ class CheckoutController extends ApiBaseController
 
                     }
                     $total = $total + $meal->getPrice();
+                    if($meal->getIngredients()) {
+                        foreach ($meal->getIngredients() as $ingredient) {
+                            $ingredient->setStock($ingredient->getStock() - 1);
+                            $em->persist($ingredient);
+                            $em->flush();
+                        }
+                    }
                     $em->persist($reservationContent);
                     $em->flush();
                 }
@@ -219,7 +227,10 @@ class CheckoutController extends ApiBaseController
         }
 
         $reservation = $elasticaManager->getRepository('AppBundle:Reservation')->findById($request->get('idReservation'));
+        if(!$reservation){
+            return $this->helper->elementNotFound('Reservation');
 
+        }
         if($reservation->getState() == Reservation::STATE_PAID){
             return $this->helper->error('Cette commande a déjà été validée');
         }
@@ -290,7 +301,10 @@ class CheckoutController extends ApiBaseController
         }
 
         $reservation = $elasticaManager->getRepository('AppBundle:Reservation')->findById($request->get('idReservation'));
+        if(!$reservation){
+            return $this->helper->elementNotFound('Reservation',true);
 
+        }
         if($reservation->getState() == Reservation::STATE_CANCELED){
             return $this->helper->error('Cette commande a déjà été annulée');
         }

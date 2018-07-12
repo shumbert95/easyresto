@@ -157,7 +157,7 @@ class MealController extends ApiBaseController
 
     /**
      *
-     * @REST\Get("/restaurants/{id}/meal/{idMeal}", name="api_show_meal")
+     * @REST\Get("/restaurants/{id}/meals/{idMeal}", name="api_show_meal")
      *
      */
     public function getMeal(Request $request)
@@ -186,6 +186,9 @@ class MealController extends ApiBaseController
         }
         if($meal->getRestaurant() != $restaurant){
             return $this->helper->error('Ce n\'est pas un plat de ce restaurant');
+        }
+        if($meal->getType() != Content::TYPE_MEAL){
+            return $this->helper->error('Ce n\'est pas un plat.');
         }
 
         return $this->helper->success($meal, 200);
@@ -259,6 +262,10 @@ class MealController extends ApiBaseController
 
         $meals = $elasticaManager->getRepository('AppBundle:Content')->findByRestaurant($restaurant, Content::TYPE_MEAL);
 
+        if(!isset($meals[0])){
+            $meals=array();
+        }
+
         return $this->helper->success($meals, 200);
     }
 
@@ -297,6 +304,10 @@ class MealController extends ApiBaseController
 
 
         $meals = $elasticaManager->getRepository('AppBundle:Content')->findByTab($tab, Content::TYPE_MEAL);
+
+        if(!isset($meals[0])){
+            $meals=array();
+        }
 
         return $this->helper->success($meals, 200);
     }
