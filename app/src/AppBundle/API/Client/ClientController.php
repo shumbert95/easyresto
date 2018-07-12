@@ -5,6 +5,7 @@ namespace AppBundle\API\Client;
 use AppBundle\API\ApiBaseController;
 use AppBundle\Entity\Client;
 use AppBundle\Entity\Note;
+use AppBundle\Entity\Reservation;
 use AppBundle\Entity\Restaurant;
 use AppBundle\Entity\User;
 use AppBundle\Form\RegistrationClientType;
@@ -75,6 +76,8 @@ class ClientController extends ApiBaseController
         if($user->getType() != User::TYPE_CLIENT){
             return $this->helper->error('En tant que restaurateur, vous ne pouvez pas effectuer cette action');
         }
+        if(!$restaurant)
+            return $this->helper->elementNotFound('Restaurant', 404);
         $user->addFavorite($restaurant);
         $fosUserManager->updateUser($user);
         return $this->helper->success($user, 200);
@@ -93,6 +96,9 @@ class ClientController extends ApiBaseController
         if($user->getType() != User::TYPE_CLIENT){
             return $this->helper->error('En tant que restaurateur, vous ne pouvez pas effectuer cette action');
         }
+        if(!$restaurant)
+            return $this->helper->elementNotFound('Restaurant', 404);
+
         $user->removeFavorite($restaurant);
         $fosUserManager->updateUser($user);
         return $this->helper->success($user, 200);
@@ -115,7 +121,13 @@ class ClientController extends ApiBaseController
         }
         $elasticaManager = $this->container->get('fos_elastica.manager');
         $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
+        if (!$restaurant instanceof Restaurant) {
+            return $this->helper->elementNotFound('Restaurant', 404);
+        }
         $reservation = $elasticaManager->getRepository('AppBundle:Reservation')->findById($request->get('idReservation'));
+        if (!$reservation instanceof Reservation) {
+            return $this->helper->elementNotFound('Reservation', 404);
+        }
         $note = $this->getNoteRepository()->findOneBy(array('restaurant' => $restaurant, 'user' => $user, 'reservation' => $reservation));
         $em = $this->getEntityManager();
 
@@ -173,6 +185,13 @@ class ClientController extends ApiBaseController
         $elasticaManager = $this->container->get('fos_elastica.manager');
         $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
         $reservation = $elasticaManager->getRepository('AppBundle:Reservation')->findById($request->get('idReservation'));
+        if (!$restaurant instanceof Restaurant) {
+            return $this->helper->elementNotFound('Restaurant', 404);
+        }
+        $reservation = $elasticaManager->getRepository('AppBundle:Reservation')->findById($request->get('idReservation'));
+        if (!$reservation instanceof Reservation) {
+            return $this->helper->elementNotFound('Reservation', 404);
+        }
         $note = $this->getNoteRepository()->findOneBy(array('restaurant' => $restaurant, 'user' => $user, 'reservation' => $reservation));
         $verif=false;
 
@@ -194,67 +213,73 @@ class ClientController extends ApiBaseController
         $elasticaManager = $this->container->get('fos_elastica.manager');
 
         $reservations = $elasticaManager->getRepository('AppBundle:Reservation')->findByClient($user);
+        if($reservations) {
+            foreach ($reservations as $reservation) {
+                $userFavorites = $reservation->getUser()->getFavorites();
+                $note = $this->getNoteRepository()->findOneBy(array('restaurant' => $reservation->getRestaurant(), 'user' => $user, 'reservation' => $reservation));
+                $verif = false;
 
-        foreach($reservations as $reservation) {
-            $note = $this->getNoteRepository()->findOneBy(array('restaurant' => $reservation->getRestaurant(), 'user' => $user, 'reservation' => $reservation));
-            $verif=false;
+                if ($note) {
+                    $verif = true;
+                }
+                $jsonContents = array();
+                $contents = $elasticaManager->getRepository('AppBundle:ReservationContent')->findByReservation($reservation);
 
-            if($note){
-                $verif=true;
-            }
-            $jsonContents = array();
-            $contents = $elasticaManager->getRepository('AppBundle:ReservationContent')->findByReservation($reservation);
+                $lastSeat = array();
+                if (is_array($contents)) {
 
-            $lastSeat = array();
-            if (is_array($contents)) {
+                    foreach ($contents as $contentSeat) {
 
-                foreach ($contents as $contentSeat) {
-
-                    $allContents = $elasticaManager->getRepository('AppBundle:ReservationContent')->findBySeat($contentSeat->getSeat());
-                    $currentSeat = $contentSeat->getSeat()->getId();
-                    foreach ($allContents as $content) {
-                        if ($currentSeat != $lastSeat) {
-                            $jsonContents[] = array(
-                                "id" => $content->getContent()->getId(),
-                                "name" => $content->getContent()->getName(),
-                                "quantity" => $content->getQuantity(),
-                                "totalPrice" => $content->getTotalPrice()
+                        $allContents = $elasticaManager->getRepository('AppBundle:ReservationContent')->findBySeat($contentSeat->getSeat());
+                        $currentSeat = $contentSeat->getSeat()->getId();
+                        foreach ($allContents as $content) {
+                            if ($currentSeat != $lastSeat) {
+                                $jsonContents[] = array(
+                                    "id" => $content->getContent()->getId(),
+                                    "name" => $content->getContent()->getName(),
+                                    "quantity" => $content->getQuantity(),
+                                    "totalPrice" => $content->getTotalPrice()
+                                );
+                            }
+                        }
+                        if (!in_array($currentSeat, $lastSeat)) {
+                            $seatArray[] = array(
+                                "name" => $contentSeat->getSeat()->getName(),
+                                "content" => $jsonContents
                             );
                         }
+                        array_push($lastSeat, $currentSeat);
+                        $jsonContents = array();
                     }
-                    if(!in_array($currentSeat,$lastSeat)) {
-                        $seatArray[] = array(
-                            "name" => $contentSeat->getSeat()->getName(),
-                            "content" => $jsonContents
-                        );
-                    }
-                    array_push($lastSeat,$currentSeat);
-                    $jsonContents = array();
+                    $reservationArray[] = array(
+                        "id" => $reservation->getId(),
+                        "date" => $reservation->getDate(),
+                        "nbParticipants" => $reservation->getNbParticipants(),
+                        "total" => $reservation->getTotal(),
+                        "state" => $reservation->getState(),
+                        "hasNote" => $verif,
+                        "user" => array(
+                            "id" => $reservation->getUser()->getId(),
+                            "lastname" => $reservation->getUser()->getLastName(),
+                            "firstname" => $reservation->getUser()->getFirstName(),
+                            "phoneNumber" => $reservation->getUser()->getPhoneNumber(),
+                        ),
+                        "date" => $reservation->getDate(),
+                        "restaurant" => array(
+                            "id" => $reservation->getRestaurant()->getId(),
+                            "name" => $reservation->getRestaurant()->getName(),
+                            "picture" => $reservation->getRestaurant()->getPicture(),
+                            "favorite" => $userFavorites->contains($reservation->getRestaurant()) ? true : false
+
+                        ),
+                        "seat" => $seatArray,
+                    );
+                    $seatArray = array();
                 }
-                $reservationArray[] = array(
-                    "id" => $reservation->getId(),
-                    "date" => $reservation->getDate(),
-                    "nbParticipants" => $reservation->getNbParticipants(),
-                    "total" => $reservation->getTotal(),
-                    "state" => $reservation->getState(),
-                    "hasNote" => $verif,
-                    "user" => array(
-                        "id" => $reservation->getUser()->getId(),
-                        "lastname" => $reservation->getUser()->getLastName(),
-                        "firstname" => $reservation->getUser()->getFirstName(),
-                        "phoneNumber" => $reservation->getUser()->getPhoneNumber(),
-                    ),
-                    "date" => $reservation->getDate(),
-                    "restaurant" => array(
-                        "id" => $reservation->getRestaurant()->getId(),
-                        "name" => $reservation->getRestaurant()->getName(),
-                        "picture" => $reservation->getRestaurant()->getPicture(),
-                    ),
-                    "seat" => $seatArray,
-                );
-                $seatArray=array();
             }
         }
+        else
+            $reservationArray[]=array();
 
 
         return $this->helper->success($reservationArray, 200);
@@ -269,12 +294,13 @@ class ClientController extends ApiBaseController
         $elasticaManager = $this->container->get('fos_elastica.manager');
 
         $reservation = $elasticaManager->getRepository('AppBundle:Reservation')->findById($request->get('idReservation'));
-        if($reservation->getUser() != $user){
-            return $this->helper->error("Cette réservation n'est pas la vôtre");
-        }
         if (!$reservation) {
             return $this->helper->elementNotFound('Reservation');
         }
+        if($reservation->getUser() != $user){
+            return $this->helper->error("Cette réservation n'est pas la vôtre");
+        }
+
 
 
         $jsonContents=array();
