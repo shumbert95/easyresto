@@ -97,28 +97,47 @@ class ClientController extends ApiBaseController
 
     /**
      *
-     * @REST\Put("/restaurants/{id}/note", name="api_user_update_note")
+     * @REST\Post("/restaurants/{id}/reservations/{idReservation}/note", name="api_user_update_note")
      *
      */
     public function updateNote(Request $request)
     {
         $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
         $user = $this->container->get('security.token_storage')->getToken()->getUser();
-        $note = $this->getNoteRepository()->findOneBy(array('restaurant' => $restaurant, 'user' => $user));
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+
+
         if($user->getType() != User::TYPE_CLIENT){
             return $this->helper->error('En tant que restaurateur, vous ne pouvez pas effectuer cette action');
         }
-        if($note == null){
-            $note = new Note();
-            $note->setUser($user);
-            $note->setRestaurant($restaurant);
-            $note->setStatus(1);
-        }
-
-        $note->setNote($request->get('note'));
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+        $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
+        $reservation = $elasticaManager->getRepository('AppBundle:Reservation')->findById($request->get('idReservation'));
+        $note = $this->getNoteRepository()->findOneBy(array('restaurant' => $restaurant, 'user' => $user, 'reservation' => $reservation));
         $em = $this->getEntityManager();
-        $em->persist($note);
-        $em->flush();
+
+        if(!($note)){
+            $currentNote =$request->get('note');
+            if($currentNote > 0 && $currentNote< 6) {
+                $note = new Note();
+                $note->setUser($user);
+                $note->setRestaurant($restaurant);
+                $note->setReservation($reservation);
+                $note->setStatus(1);
+                $note->setNote($currentNote);
+                $em->persist($note);
+                $em->flush();
+            }
+            else{
+                return $this->helper->error('La note doit être comprise entre 1 et 5');
+
+            }
+        }
+        else
+            return $this->helper->error('Vous avez déjà noté cette commande.');
+
+
+
 
         $newAverage = 0;
         $count = 0;
@@ -134,6 +153,33 @@ class ClientController extends ApiBaseController
         $em->persist($restaurant);
         $em->flush();
         return $this->helper->success($user, 200);
+    }
+
+    /**
+     *
+     * @REST\Get("/restaurants/{id}/reservations/{idReservation}/note", name="api_user_has_note")
+     *
+     */
+    public function hasNote(Request $request)
+    {
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+
+        if($user->getType() != User::TYPE_CLIENT){
+            return $this->helper->error('En tant que restaurateur, vous ne pouvez pas effectuer cette action');
+        }
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+        $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
+        $reservation = $elasticaManager->getRepository('AppBundle:Reservation')->findById($request->get('idReservation'));
+        $note = $this->getNoteRepository()->findOneBy(array('restaurant' => $restaurant, 'user' => $user, 'reservation' => $reservation));
+        $verif=false;
+
+        if($note){
+            $verif=true;
+        }
+
+        $json=array("hasNote" => $verif);
+
+        return $this->helper->success($json, 200);
     }
 
     /**
