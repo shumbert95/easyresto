@@ -57,7 +57,7 @@ class ClientController extends ApiBaseController
             );
         }
         if(!isset($json[0]))
-            return $this->helper->error("Pas de favoris");
+            $json[]=array();
 
         return $this->helper->success($json, 200);
     }

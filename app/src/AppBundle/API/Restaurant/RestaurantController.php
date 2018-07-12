@@ -282,7 +282,7 @@ class RestaurantController extends ApiBaseController
         $results = $elasticaManager->getRepository('AppBundle:Restaurant')->search($restaurantSearch);
 
         if (!$results) {
-            return $this->helper->error('Pas de résultat');
+            $results[]=array();
         }
 
         return $this->helper->success($results, 200);
@@ -305,7 +305,7 @@ class RestaurantController extends ApiBaseController
         $result = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
 
         if (!$result) {
-            return $this->helper->error('Restaurant');
+            return $this->helper->elementNotFound('Restaurant');
         } else {
             return $this->helper->success($result, 200);
         }
