@@ -6,6 +6,7 @@ use AppBundle\API\ApiBaseController;
 use AppBundle\Entity\Content;
 use AppBundle\Entity\Reservation;
 use AppBundle\Entity\ReservationContent;
+use AppBundle\Entity\ReservationSeat;
 use AppBundle\Entity\User;
 use AppBundle\Form\ReservationType;
 use FOS\RestBundle\Request\ParamFetcher;
@@ -124,25 +125,29 @@ class CheckoutController extends ApiBaseController
 
         $total = 0;
         foreach($arraySeats as $person){
+            $seatPerson = new ReservationSeat();
+            $seatPerson->setName($person["name"]);
+            $em->persist($seatPerson);
+            $em->flush();
             foreach($person["meals"] as $meal) {
                 $idMeal=$meal["id"];
                 $meal = $elasticaManager->getRepository('AppBundle:Content')->findById($idMeal);
 
                 if ($meal->getType() == Content::TYPE_MEAL) {
-                    $reservationContent = $this->getReservationContentRepository()->findOneBy(array("content" => $meal, "reservation" => $reservation, "name" => $person["name"]));
+                    $reservationContent = $this->getReservationContentRepository()->findOneBy(array("content" => $meal, "seat" => $seatPerson));
                     if (!is_object($reservationContent)) {
                         $reservationContent = new ReservationContent();
                         $reservationContent->setContent($meal);
                         $reservationContent->setReservation($reservation);
                         $reservationContent->setTotalPrice($meal->getPrice());
                         $reservationContent->setQuantity(1);
-                        $reservationContent->setName($person["name"]);
+                        $reservationContent->setSeat($seatPerson);
                     } else {
                         $reservationContent->setQuantity($reservationContent->getQuantity() + 1);
                         $reservationContent->setTotalPrice($reservationContent->getTotalPrice() + $meal->getPrice());
 
                     }
-                    $total = $total + $meal->getPrice();
+
                     $em->persist($reservationContent);
                     $em->flush();
                 }

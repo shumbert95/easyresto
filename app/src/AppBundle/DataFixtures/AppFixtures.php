@@ -8,6 +8,7 @@ use AppBundle\Entity\Content;
 use AppBundle\Entity\Ingredient;
 use AppBundle\Entity\Reservation;
 use AppBundle\Entity\ReservationContent;
+use AppBundle\Entity\ReservationSeat;
 use AppBundle\Entity\Restaurant;
 use AppBundle\Entity\TabMeal;
 use AppBundle\Entity\User;
@@ -408,6 +409,7 @@ class AppFixtures extends Fixture
         $reservation->setDate($date);
         $reservation->setNbParticipants(4);
         $reservation->setState(1);
+        $reservation->setTimeStep("17h30");
         $firstMeal=$this->getReference('firstRestaurant tab-1-meal-1');
         $secondMeal=$this->getReference('firstRestaurant tab-2-meal-2');
         $thirdMeal=$this->getReference('firstRestaurant tab-2-meal-1');
@@ -416,11 +418,16 @@ class AppFixtures extends Fixture
         $manager->persist($reservation);
         $manager->flush();
 
+        $reservationSeat = new ReservationSeat();
+        $reservationSeat->setName("Simon");
+        $manager->persist($reservationSeat);
+        $manager->flush();
         $reservationContent = new ReservationContent();
         $reservationContent->setReservation($reservation);
         $reservationContent->setContent($firstMeal);
         $reservationContent->setTotalPrice($firstMeal->getPrice());
         $reservationContent->setQuantity(1);
+        $reservationContent->setSeat($reservationSeat);
         $manager->persist($reservationContent);
         $manager->flush();
         $reservationContent = new ReservationContent();
@@ -428,13 +435,19 @@ class AppFixtures extends Fixture
         $reservationContent->setContent($secondMeal);
         $reservationContent->setTotalPrice($secondMeal->getPrice());
         $reservationContent->setQuantity(1);
+        $reservationContent->setSeat($reservationSeat);
         $manager->persist($reservationContent);
+        $manager->flush();
+        $reservationSeat = new ReservationSeat();
+        $reservationSeat->setName("Yves");
+        $manager->persist($reservationSeat);
         $manager->flush();
         $reservationContent = new ReservationContent();
         $reservationContent->setReservation($reservation);
         $reservationContent->setContent($thirdMeal);
         $reservationContent->setTotalPrice($thirdMeal->getPrice());
-        $reservationContent->setQuantity(1);
+        $reservationContent->setQuantity(2);
+        $reservationContent->setSeat($reservationSeat);
         $manager->persist($reservationContent);
         $manager->flush();
 
@@ -444,6 +457,7 @@ class AppFixtures extends Fixture
         $date = new \DateTime('2018-10-07T11:30:00Z');
         $reservation->setDate($date);
         $reservation->setNbParticipants(4);
+        $reservation->setTimeStep("11h30");
         $reservation->setState(1);
         $firstMeal=$this->getReference('secondRestaurant tab-1-meal-2');
         $secondMeal=$this->getReference('secondRestaurant tab-1-meal-1');
@@ -453,11 +467,16 @@ class AppFixtures extends Fixture
         $manager->persist($reservation);
         $manager->flush();
 
+        $reservationSeat = new ReservationSeat();
+        $reservationSeat->setName("Antoine");
+        $manager->persist($reservationSeat);
+        $manager->flush();
         $reservationContent = new ReservationContent();
         $reservationContent->setReservation($reservation);
         $reservationContent->setContent($firstMeal);
         $reservationContent->setTotalPrice($firstMeal->getPrice());
         $reservationContent->setQuantity(1);
+        $reservationContent->setSeat($reservationSeat);
         $manager->persist($reservationContent);
         $manager->flush();
         $reservationContent = new ReservationContent();
@@ -465,6 +484,7 @@ class AppFixtures extends Fixture
         $reservationContent->setContent($secondMeal);
         $reservationContent->setTotalPrice($secondMeal->getPrice());
         $reservationContent->setQuantity(1);
+        $reservationContent->setSeat($reservationSeat);
         $manager->persist($reservationContent);
         $manager->flush();
         $reservationContent = new ReservationContent();
@@ -472,13 +492,15 @@ class AppFixtures extends Fixture
         $reservationContent->setContent($thirdMeal);
         $reservationContent->setTotalPrice($thirdMeal->getPrice());
         $reservationContent->setQuantity(1);
+        $reservationContent->setSeat($reservationSeat);
         $manager->persist($reservationContent);
         $manager->flush();
 
-        $reservationUser = $this->getReference('secondclient@test.com');
+        $reservationUser = $this->getReference('firstclient@test.com');
         $reservationRestaurant = $this->getReference('firstRestaurant');
         $reservation = new Reservation($reservationUser,$reservationRestaurant);
         $date = new \DateTime('2018-10-07T18:30:00Z');
+        $reservation->setTimeStep("18h30");
         $reservation->setDate($date);
         $reservation->setNbParticipants(4);
         $reservation->setState(1);
@@ -490,11 +512,16 @@ class AppFixtures extends Fixture
         $manager->persist($reservation);
         $manager->flush();
 
+        $reservationSeat = new ReservationSeat();
+        $reservationSeat->setName("Simon");
+        $manager->persist($reservationSeat);
+        $manager->flush();
         $reservationContent = new ReservationContent();
         $reservationContent->setReservation($reservation);
         $reservationContent->setContent($firstMeal);
         $reservationContent->setTotalPrice($firstMeal->getPrice());
         $reservationContent->setQuantity(1);
+        $reservationContent->setSeat($reservationSeat);
         $manager->persist($reservationContent);
         $manager->flush();
         $reservationContent = new ReservationContent();
@@ -502,17 +529,23 @@ class AppFixtures extends Fixture
         $reservationContent->setContent($secondMeal);
         $reservationContent->setTotalPrice($secondMeal->getPrice());
         $reservationContent->setQuantity(1);
+        $reservationContent->setSeat($reservationSeat);
         $manager->persist($reservationContent);
+        $manager->flush();
+        $reservationSeat = new ReservationSeat();
+        $reservationSeat->setName("Antoine");
+        $manager->persist($reservationSeat);
         $manager->flush();
         $reservationContent = new ReservationContent();
         $reservationContent->setReservation($reservation);
         $reservationContent->setContent($thirdMeal);
         $reservationContent->setTotalPrice($thirdMeal->getPrice());
         $reservationContent->setQuantity(1);
+        $reservationContent->setSeat($reservationSeat);
         $manager->persist($reservationContent);
         $manager->flush();
 
-        $reservationUser = $this->getReference('thirdclient@test.com');
+        /*$reservationUser = $this->getReference('firstclient@test.com');
         $reservationRestaurant = $this->getReference('firstRestaurant');
         $reservation = new Reservation($reservationUser,$reservationRestaurant);
         $date = new \DateTime('2018-10-07T18:00:00Z');
@@ -539,7 +572,7 @@ class AppFixtures extends Fixture
         $reservationContent->setTotalPrice($secondMeal->getPrice());
         $reservationContent->setQuantity(1);
         $manager->persist($reservationContent);
-        $manager->flush();
+        $manager->flush();*/
 
 
     }

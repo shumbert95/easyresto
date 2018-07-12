@@ -51,11 +51,10 @@ class ReservationContent
     protected $totalPrice;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="name", type="string", length=255, nullable=true)
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\ReservationSeat")
+     * @ORM\JoinColumn(name="reservation_seat_id")
      */
-    protected $name;
+    protected $seat;
 
 
 
@@ -147,20 +146,22 @@ class ReservationContent
     }
 
     /**
-     * @return string
+     * @return mixed
      */
-    public function getName()
+    public function getSeat()
     {
-        return $this->name;
+        return $this->seat;
     }
 
     /**
-     * @param string $name
+     * @param mixed $seat
      */
-    public function setName($name)
+    public function setSeat($seat)
     {
-        $this->name = $name;
+        $this->seat = $seat;
     }
+
+
 
 
 
