@@ -21,10 +21,9 @@ class CheckoutController extends ApiBaseController
      * @param Request $request
      *
      * @REST\Post("/restaurants/{id}/reservations", name="api_create_reservation")
-     * @REST\RequestParam(name="total")
-     * @REST\RequestParam(name="nbParticipants")
      * @REST\RequestParam(name="date")
-     * @REST\RequestParam(name="meals_id")
+     * @REST\RequestParam(name="seats")
+     * @REST\RequestParam(name="timeStep")
      *
      * @return View
      */
@@ -43,25 +42,13 @@ class CheckoutController extends ApiBaseController
             return $this->helper->error('param \'id\' must be an integer');
         }
 
-        if (!$params['nbParticipants']) {
-            return $this->helper->error('nbParticipants', true);
-        } elseif (!preg_match('/\d/', $params['nbParticipants'])) {
-            return $this->helper->error('param \'nbParticipants\' must be an integer');
-        }
-
-        if (!$params['total']) {
-            return $this->helper->error('total', true);
-        } elseif (!preg_match('/^(\d+.{1}\d+)$/', $params['total'])) {
-            return $this->helper->error('param \'total\' must be a float number');
-        }
-
         if (!$params['date']) {
             return $this->helper->error('date', true);
         }
 
-        if (!$params['meals_id']) {
-            return $this->helper->error('meals_id', true);
-        } elseif (!is_array($params['meals_id'])) {
+        if (!$params['seats']) {
+            return $this->helper->error('seats', true);
+        } elseif (!is_array($params['seats'])) {
             return $this->helper->error('param \'meals_id\' must be an array');
         }
 
@@ -72,18 +59,32 @@ class CheckoutController extends ApiBaseController
         }
         $checkMeal=false;
 
-        $arrayMeals = $params['meals_id'];
-        $meals = $elasticaManager->getRepository('AppBundle:Content')->findByIds($arrayMeals,$restaurant,true);
-        foreach($meals as $meal){
-            if($meal->getType()==Content::TYPE_MEAL)
-                $checkMeal=true;
+        $arraySeats = $params['seats'];
+        unset($params['seats']);
+        unset($params['currentSeatIndex']);
+        unset($params['restaurantId']);
+        unset($params['userId']);
+
+        $nbParticipants = 0;
+        foreach($arraySeats as $person){
+            $nbParticipants++;
+            foreach($person["meals"] as $meal){
+                $mealContent = $elasticaManager->getRepository('AppBundle:Content')->findById($meal["id"]);
+                if($mealContent->getType()==Content::TYPE_MEAL) {
+                    $checkMeal = true;
+                }
+                if($mealContent->getRestaurant()!=$restaurant){
+                    return $this->helper->error('Le plat '.$mealContent->getId().' ne fait pas partie de ce restaurant');
+                }
+
+            }
         }
-        unset($params['meals_id']);
+
+
 
         if(!$checkMeal){
             return $this->helper->error('Vous n\'avez sélectionné aucun plat');
         }
-
         $dateNow=new \DateTime();
         $dateFrom=new \DateTime($params["date"]);
         $dateTo=new \DateTime($params["date"]);
@@ -104,7 +105,7 @@ class CheckoutController extends ApiBaseController
             }
         }
 
-        if($params["nbParticipants"] > $seats) {
+        if($nbParticipants > $seats) {
             return $this->helper->error($seats >= 1 ? "Il ne reste plus que ".$seats." place(s) de disponible(s)." : "Il ne reste plus de place.");
         }
 
@@ -116,36 +117,42 @@ class CheckoutController extends ApiBaseController
         }
         $em = $this->getEntityManager();
         $reservation->setState(Reservation::STATE_PENDING);
+        $reservation->setNbParticipants($nbParticipants);
+
         $em->persist($reservation);
         $em->flush();
 
         $total = 0;
-        foreach($arrayMeals as $idMeal){
-            $meal = $elasticaManager->getRepository('AppBundle:Content')->findById($idMeal);
+        foreach($arraySeats as $person){
+            foreach($person["meals"] as $meal) {
+                $idMeal=$meal["id"];
+                $meal = $elasticaManager->getRepository('AppBundle:Content')->findById($idMeal);
 
-            if($meal->getType()==Content::TYPE_MEAL){
-                $reservationContent = $this->getReservationContentRepository()->findOneBy(array("content" => $meal, "reservation" => $reservation));
-                if(!is_object($reservationContent)) {
-                    $reservationContent = new ReservationContent();
-                    $reservationContent->setContent($meal);
-                    $reservationContent->setReservation($reservation);
-                    $reservationContent->setTotalPrice($meal->getPrice());
-                    $reservationContent->setQuantity(1);
-                }
-                else{
-                    $reservationContent->setQuantity($reservationContent->getQuantity()+1);
-                    $reservationContent->setTotalPrice($reservationContent->getTotalPrice()+$meal->getPrice());
+                if ($meal->getType() == Content::TYPE_MEAL) {
+                    $reservationContent = $this->getReservationContentRepository()->findOneBy(array("content" => $meal, "reservation" => $reservation, "name" => $person["name"]));
+                    if (!is_object($reservationContent)) {
+                        $reservationContent = new ReservationContent();
+                        $reservationContent->setContent($meal);
+                        $reservationContent->setReservation($reservation);
+                        $reservationContent->setTotalPrice($meal->getPrice());
+                        $reservationContent->setQuantity(1);
+                        $reservationContent->setName($person["name"]);
+                    } else {
+                        $reservationContent->setQuantity($reservationContent->getQuantity() + 1);
+                        $reservationContent->setTotalPrice($reservationContent->getTotalPrice() + $meal->getPrice());
 
+                    }
+                    $total = $total + $meal->getPrice();
+                    $em->persist($reservationContent);
+                    $em->flush();
                 }
-                $total=$total + $meal->getPrice();
-                $em->persist($reservationContent);
-                $em->flush();
             }
-
         }
         $reservation->setTotal($total);
         $em->persist($reservation);
         $em->flush();
+        return $this->helper->success($reservation, 200);
+
 
         $mailer = $this->container->get('mailer');
         $message = (new \Swift_Message('Réservation effectuée N°'.$reservation->getId()))

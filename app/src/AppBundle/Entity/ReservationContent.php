@@ -50,6 +50,13 @@ class ReservationContent
      */
     protected $totalPrice;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="name", type="string", length=255, nullable=true)
+     */
+    protected $name;
+
 
 
 
@@ -137,6 +144,22 @@ class ReservationContent
     public function setTotalPrice($totalPrice)
     {
         $this->totalPrice = $totalPrice;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param string $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
     }
 
 

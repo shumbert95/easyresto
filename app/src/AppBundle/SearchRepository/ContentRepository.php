@@ -67,7 +67,7 @@ class ContentRepository extends Repository
         $fieldQuery->setFieldQuery('id', $id);
         $boolQuery->addMust($fieldQuery);
 
-        $contents = $this->find($boolQuery,10000);
+        $contents = $this->find($boolQuery);
 
         return $contents ? $contents[0] : $contents;
     }

@@ -29,7 +29,7 @@ class Reservation{
     protected $state;
 
     /**
-     * @ORM\Column(type="decimal", scale=2)
+     * @ORM\Column(type="decimal", scale=2, nullable=true)
      */
     protected $total;
     
@@ -39,6 +39,13 @@ class Reservation{
      * @ORM\Column(name="date", type="datetime")
      */
     protected $date;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="date_submitted", type="datetime")
+     */
+    protected $dateSubmitted;
     
     /**
      * @var \DateTime
@@ -46,6 +53,13 @@ class Reservation{
      * @ORM\Column(name="date_canceled", type="datetime", nullable=true)
      */
     protected $dateCanceled;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="timeStep", type="string", length=255)
+     */
+    protected $timeStep;
 
     /**
      * @ORM\ManyToOne(targetEntity="AppBundle\Entity\User")
@@ -67,6 +81,7 @@ class Reservation{
     public function __construct(User $user, Restaurant $restaurant){
         $this->user = $user;
         $this->restaurant = $restaurant;
+        $this->dateSubmitted = new \DateTime();
     }
 
     /**
@@ -200,6 +215,16 @@ class Reservation{
     /**
      * @return mixed
      */
+    public function getDateSubmitted()
+    {
+        return $this->dateSubmitted;
+    }
+
+
+
+    /**
+     * @return mixed
+     */
     public function getNbParticipants()
     {
         return $this->nbParticipants;
@@ -216,5 +241,25 @@ class Reservation{
 
         return $this;
     }
+
+    /**
+     * @return string
+     */
+    public function getTimeStep()
+    {
+        return $this->timeStep;
+    }
+
+    /**
+     * @param string $timeStep
+     */
+    public function setTimeStep($timeStep)
+    {
+        $this->timeStep = $timeStep;
+    }
+
+
+
+
 }
 

@@ -14,14 +14,8 @@ class ReservationType extends AbstractType
     {
         $builder
             ->add(
-                'nbParticipants',
-                IntegerType::class,
-                [
-                    'required' => true
-                ]
-            )->add(
-                'total',
-                MoneyType::class,
+                'timeStep',
+                TextType::class,
                 [
                     'required' => true
                 ]
