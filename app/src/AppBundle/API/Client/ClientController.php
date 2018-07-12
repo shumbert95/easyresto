@@ -56,6 +56,9 @@ class ClientController extends ApiBaseController
                 "restaurant" => $favorite
             );
         }
+        if(!isset($json[0]))
+            $json[]=array();
+
         return $this->helper->success($json, 200);
     }
 
