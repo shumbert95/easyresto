@@ -71,12 +71,13 @@ class CheckoutController extends ApiBaseController
             $nbParticipants++;
             foreach($person["meals"] as $meal){
                 $mealContent = $elasticaManager->getRepository('AppBundle:Content')->findById($meal["id"]);
-                if($mealContent->getType()==Content::TYPE_MEAL) {
+                if($mealContent && $mealContent->getType()==Content::TYPE_MEAL) {
                     $checkMeal = true;
+                    if($mealContent->getRestaurant()!=$restaurant){
+                        return $this->helper->error('Le plat '.$mealContent->getId().' ne fait pas partie de ce restaurant');
+                    }
                 }
-                if($mealContent->getRestaurant()!=$restaurant){
-                    return $this->helper->error('Le plat '.$mealContent->getId().' ne fait pas partie de ce restaurant');
-                }
+
 
             }
         }
@@ -133,7 +134,7 @@ class CheckoutController extends ApiBaseController
                 $idMeal=$meal["id"];
                 $meal = $elasticaManager->getRepository('AppBundle:Content')->findById($idMeal);
 
-                if ($meal->getType() == Content::TYPE_MEAL) {
+                if ($meal && $meal->getType() == Content::TYPE_MEAL) {
                     $reservationContent = $this->getReservationContentRepository()->findOneBy(array("content" => $meal, "seat" => $seatPerson));
                     if (!is_object($reservationContent)) {
                         $reservationContent = new ReservationContent();
@@ -147,10 +148,11 @@ class CheckoutController extends ApiBaseController
                         $reservationContent->setTotalPrice($reservationContent->getTotalPrice() + $meal->getPrice());
 
                     }
-
+                    $total = $total + $meal->getPrice();
                     $em->persist($reservationContent);
                     $em->flush();
                 }
+
             }
         }
         $reservation->setTotal($total);

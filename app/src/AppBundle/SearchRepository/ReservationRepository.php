@@ -25,7 +25,10 @@ class ReservationRepository extends Repository
         $nestedQuery->setPath('restaurant')
                     ->setQuery(new Match('restaurant.id', $restaurant->getId()));
         $boolQuery->addMust($nestedQuery);
-        return $this->find($boolQuery,1000);
+        $finalQuery = new Query($boolQuery);
+        $finalQuery->addSort(array("id" => "asc"));
+
+        return $this->find($finalQuery,10000);
     }
 
     public function findByUser(User $user, \DateTime $dateFrom, \DateTime $dateTo) {
@@ -41,7 +44,10 @@ class ReservationRepository extends Repository
             ->setQuery(new Match('user.id', $user->getId()));
         $boolQuery->addMust($nestedQuery);
 
-        return $this->find($boolQuery,10000);
+        $finalQuery = new Query($boolQuery);
+        $finalQuery->addSort(array("id" => "asc"));
+
+        return $this->find($finalQuery,10000);
     }
 
     public function findByClient(User $user) {
@@ -51,7 +57,11 @@ class ReservationRepository extends Repository
         $nestedQuery->setPath('user')->setQuery(new Match('user.id', $user->getId()));
         $boolQuery->addMust($nestedQuery);
 
-        return $this->find($boolQuery,10000);
+
+        $finalQuery = new Query($boolQuery);
+        $finalQuery->addSort(array("id" => "asc"));
+
+        return $this->find($finalQuery,10000);
     }
 
     public function findByClientAndRestaurant(User $user, Restaurant $restaurant) {
@@ -65,7 +75,10 @@ class ReservationRepository extends Repository
         $secondNestedQuery->setPath('restaurant')->setQuery(new Match('restaurant.id', $restaurant->getId()));
         $boolQuery->addMust($secondNestedQuery);
 
-        return $this->find($boolQuery,10000);
+        $finalQuery = new Query($boolQuery);
+        $finalQuery->addSort(array("id" => "asc"));
+
+        return $this->find($finalQuery,10000);
     }
 
     public function findById($idReservation) {
@@ -74,6 +87,7 @@ class ReservationRepository extends Repository
 
         $fieldQuery->setFieldQuery('id', $idReservation);
         $boolQuery->addMust($fieldQuery);
+
 
         $contents = $this->find($boolQuery,10000);
 
