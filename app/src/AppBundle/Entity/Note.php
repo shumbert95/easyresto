@@ -45,6 +45,12 @@ class Note
     public $user;
 
     /**
+     *
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Reservation", cascade={"persist"})
+     */
+    public $reservation;
+
+    /**
      * @return mixed
      */
     public function getId()
@@ -123,6 +129,24 @@ class Note
     {
         $this->user = $user;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getReservation()
+    {
+        return $this->reservation;
+    }
+
+    /**
+     * @param mixed $reservation
+     */
+    public function setReservation($reservation)
+    {
+        $this->reservation = $reservation;
+    }
+
+
 
 
 

@@ -169,7 +169,7 @@ class AppFixtures extends Fixture
         $restaurant->setSeats(20);
         $restaurant->setPicture("http://www.frogpubs.com/fr/pics/data/pubs/illustrations/4-191-1200x650.jpg");
         $restaurant->setWebsite("https://www.frogpubs.com/fr/");
-        $restaurant->setAverageNote(8.3);
+        $restaurant->setAverageNote(4.7);
         $schedule="[{\"name\":\"Dim\",\"timeSteps\":[\"01:30\",\"02:00\",\"02:30\"]},{\"name\":\"Lun\",\"timeSteps\":[\"00:30\",\"01:00\",\"01:30\",\"02:00\"]},{\"name\":\"Mar\",\"timeSteps\":[\"05:30\"]},{\"name\":\"Mer\",\"timeSteps\":[\"00:30\",\"01:00\",\"01:30\",\"02:00\",\"02:30\"]},{\"name\":\"Jeu\",\"timeSteps\":[\"06:30\"]},{\"name\":\"Ven\",\"timeSteps\":[\"01:00\",\"01:30\",\"02:00\",\"02:30\",\"03:00\"]},{\"name\":\"Sam\",\"timeSteps\":[\"02:00\",\"02:30\",\"03:00\"]}]";
         $restaurant->setSchedule($schedule);
         $manager->persist($restaurant);
@@ -193,7 +193,7 @@ class AppFixtures extends Fixture
         $restaurant->setSeats(20);
         $restaurant->setPicture("http://www.hemaposesesvalises.fr/wp-content/uploads/2017/11/Kodawari_ramen_restaurant_paris_japon_decor-1080x675.jpg");
         $restaurant->setWebsite("https://www.kodawari-ramen.com/");
-        $restaurant->setAverageNote(9.1);
+        $restaurant->setAverageNote(4.9);
         $schedule="[{\"name\":\"Dim\",\"timeSteps\":[\"01:30\",\"02:00\",\"02:30\"]},{\"name\":\"Lun\",\"timeSteps\":[\"00:30\",\"01:00\",\"01:30\",\"02:00\"]},{\"name\":\"Mar\",\"timeSteps\":[\"05:30\"]},{\"name\":\"Mer\",\"timeSteps\":[\"00:30\",\"01:00\",\"01:30\",\"02:00\",\"02:30\"]},{\"name\":\"Jeu\",\"timeSteps\":[\"06:30\"]},{\"name\":\"Ven\",\"timeSteps\":[\"01:00\",\"01:30\",\"02:00\",\"02:30\",\"03:00\"]},{\"name\":\"Sam\",\"timeSteps\":[\"02:00\",\"02:30\",\"03:00\"]}]";
         $restaurant->setSchedule($schedule);
         $manager->persist($restaurant);
@@ -218,7 +218,7 @@ class AppFixtures extends Fixture
         $restaurant->setSeats(20);
         $restaurant->setPicture("https://u.tfstatic.com/restaurant_photos/964/15964/169/612/aarchna-vue-de-la-salle-9c000.jpg");
         $restaurant->setWebsite("http://www.aarchna.com/");
-        $restaurant->setAverageNote(7.9);
+        $restaurant->setAverageNote(4.3);
         $schedule="[{\"name\":\"Dim\",\"timeSteps\":[\"01:30\",\"02:00\",\"02:30\"]},{\"name\":\"Lun\",\"timeSteps\":[\"00:30\",\"01:00\",\"01:30\",\"02:00\"]},{\"name\":\"Mar\",\"timeSteps\":[\"05:30\"]},{\"name\":\"Mer\",\"timeSteps\":[\"00:30\",\"01:00\",\"01:30\",\"02:00\",\"02:30\"]},{\"name\":\"Jeu\",\"timeSteps\":[\"06:30\"]},{\"name\":\"Ven\",\"timeSteps\":[\"01:00\",\"01:30\",\"02:00\",\"02:30\",\"03:00\"]},{\"name\":\"Sam\",\"timeSteps\":[\"02:00\",\"02:30\",\"03:00\"]}]";
         $restaurant->setSchedule($schedule);
         $manager->persist($restaurant);
@@ -445,8 +445,8 @@ class AppFixtures extends Fixture
         $reservationContent = new ReservationContent();
         $reservationContent->setReservation($reservation);
         $reservationContent->setContent($thirdMeal);
-        $reservationContent->setTotalPrice($thirdMeal->getPrice());
         $reservationContent->setQuantity(2);
+        $reservationContent->setTotalPrice($thirdMeal->getPrice()*2);
         $reservationContent->setSeat($reservationSeat);
         $manager->persist($reservationContent);
         $manager->flush();
