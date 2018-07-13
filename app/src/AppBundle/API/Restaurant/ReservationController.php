@@ -89,6 +89,7 @@ class ReservationController extends ApiBaseController
                     "date" => $reservation->getDate(),
                     "nbParticipants" => $reservation->getNbParticipants(),
                     "total" => $reservation->getTotal(),
+                    "timeStep" => $reservation->getTimeStep(),
                     "state" => $reservation->getState(),
                     "user" => array(
                         "id" => $reservation->getUser()->getId(),
@@ -102,7 +103,7 @@ class ReservationController extends ApiBaseController
                         "name" => $reservation->getRestaurant()->getName(),
                         "picture" => $reservation->getRestaurant()->getPicture(),
                     ),
-                    "seat" => $seatArray,
+                    "seats" => $seatArray,
                 );
                 $seatArray=array();
             }
@@ -410,6 +411,7 @@ class ReservationController extends ApiBaseController
             "date" => $reservation->getDate(),
             "nbParticipants" => $reservation->getNbParticipants(),
             "total" => $reservation->getTotal(),
+            "timeStep" => $reservation->getTimeStep(),
             "state" => $reservation->getState(),
             "user" => array(
                 "id" => $reservation->getUser()->getId(),
@@ -424,7 +426,7 @@ class ReservationController extends ApiBaseController
                 "picture" => $reservation->getRestaurant()->getPicture(),
                 "favorite" => $userFavorites->contains($restaurant) ? true : false
             ),
-            "seat" => $seatArray,
+            "seats" => $seatArray,
         );
 
         return $this->helper->success($reservationArray, 200);

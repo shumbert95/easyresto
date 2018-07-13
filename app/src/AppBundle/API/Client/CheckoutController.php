@@ -34,23 +34,23 @@ class CheckoutController extends ApiBaseController
         $params = $paramFetcher->all();
 
         if($user->getType()!= User::TYPE_CLIENT){
-            return $this->helper->error('Seul un client peut effectuer une réservation');
+            return $this->helper->warning('Seul un client peut effectuer une réservation',403);
         }
 
         if (!$request->get('id')) {
-            return $this->helper->error('id', true);
+            return $this->helper->warning('Il manque le paramètre Id', 400);
         } elseif (!preg_match('/\d/', $request->get('id'))) {
-            return $this->helper->error('param \'id\' must be an integer');
+            return $this->helper->warning('Le paramètre Id doit être un integer',400);
         }
 
         if (!$params['date']) {
-            return $this->helper->error('date', true);
+            return $this->helper->warning('Il manque le paramètre date', 400);
         }
 
         if (!$params['seats']) {
-            return $this->helper->error('seats', true);
+            return $this->helper->warning('Il manque le paramètre seats', 400);
         } elseif (!is_array($params['seats'])) {
-            return $this->helper->error('param \'meals_id\' must be an array');
+            return $this->helper->warning('Le paramètre seats doit être un array', 400);
         }
 
         $elasticaManager = $this->container->get('fos_elastica.manager');
@@ -75,7 +75,7 @@ class CheckoutController extends ApiBaseController
                 if($mealContent && $mealContent->getType()==Content::TYPE_MEAL) {
                     $checkMeal = true;
                     if($mealContent->getRestaurant()!=$restaurant){
-                        return $this->helper->error('Le plat '.$mealContent->getId().' ne fait pas partie de ce restaurant');
+                        return $this->helper->error('Le plat '.$mealContent->getId().' ne fait pas partie de ce restaurant',403);
                     }
                 }
 
@@ -86,7 +86,7 @@ class CheckoutController extends ApiBaseController
 
 
         if(!$checkMeal){
-            return $this->helper->error('Vous n\'avez sélectionné aucun plat');
+            return $this->helper->warning('Vous n\'avez sélectionné aucun plat',400);
         }
         $dateNow=new \DateTime();
         $dateFrom=new \DateTime($params["date"]);
@@ -94,7 +94,7 @@ class CheckoutController extends ApiBaseController
         $dateTo->modify("+29 minutes");
 
         if($dateFrom < $dateNow){
-            return $this->helper->error("Vous ne pouvez pas réserver à une date antérieure");
+            return $this->helper->warning("Vous ne pouvez pas réserver à une date antérieure",400);
         }
 
 
@@ -109,7 +109,7 @@ class CheckoutController extends ApiBaseController
         }
 
         if($nbParticipants > $seats) {
-            return $this->helper->error($seats >= 1 ? "Il ne reste plus que ".$seats." place(s) de disponible(s)." : "Il ne reste plus de place.");
+            return $this->helper->warning($seats >= 1 ? "Il ne reste plus que ".$seats." place(s) de disponible(s)." : "Il ne reste plus de place.",400);
         }
 
         $reservation = new Reservation($user, $restaurant);
@@ -166,6 +166,8 @@ class CheckoutController extends ApiBaseController
         $reservation->setTotal($total);
         $em->persist($reservation);
         $em->flush();
+
+        //TODO remove this
         return $this->helper->success($reservation, 200);
 
 
