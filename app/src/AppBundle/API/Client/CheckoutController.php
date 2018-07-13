@@ -25,6 +25,7 @@ class CheckoutController extends ApiBaseController
      * @REST\RequestParam(name="date")
      * @REST\RequestParam(name="seats")
      * @REST\RequestParam(name="timeStep")
+     * @REST\RequestParam(name="nbparticipants", nullable=true)
      *
      * @return View
      */
@@ -82,6 +83,10 @@ class CheckoutController extends ApiBaseController
 
             }
         }
+
+        //pour mobile
+        if(isset($params['nbParticipants']))
+            $nbParticipants=$params['nbParticipants'];
 
 
 
