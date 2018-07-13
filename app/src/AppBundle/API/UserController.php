@@ -112,7 +112,8 @@ class UserController extends ApiBaseController
             $user->setAddressComplement($request_data['addressComplement']);
         }
         if(isset($request_data['birthDate'])){
-            $user->setBirthDate($request_data['birthDate']);
+            $birthDate = new \DateTime($request_data['birthDate']);
+            $user->setBirthDate($birthDate);
         }
         if(isset($request_data['city'])){
             $user->setCity($request_data['city']);
