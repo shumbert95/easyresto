@@ -30,6 +30,28 @@ class IngredientRepository extends Repository
         $query->addSort(array('position' => 'asc'));
 
         return $this->find($query);
+
+    }
+
+    public function findByNameAndRestaurant($name,Restaurant $restaurant) {
+        $boolQuery = new BoolQuery();
+        $nestedQuery = new Nested();
+        $fieldQueryStatus = new Match();
+
+        $fieldQueryStatus->setFieldQuery('name', $name);
+        $fieldQueryStatus->setFieldMinimumShouldMatch('name','100%');
+        $boolQuery->addMust($fieldQueryStatus);
+
+
+
+        $nestedQuery->setPath('restaurant')
+            ->setQuery(new Match('restaurant.id', $restaurant->getId()));
+        $boolQuery->addMust($nestedQuery);
+
+        $ingredients = $this->find($boolQuery);
+
+        return $ingredients ? $ingredients[0] : $ingredients;
+
     }
 
     public function findByContent(Content $content) {
