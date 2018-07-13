@@ -104,7 +104,7 @@ class RestaurantRepository extends Repository
         }
         $filter = new Query\GeoDistance('location', array('lat' => $restaurantSearch->getLatitude(),
                                                                 'lon' => $restaurantSearch->getLongitude()),
-                                                            !$restaurantSearch->isExact() ? '10km' : '1m');
+                                                            !$restaurantSearch->isExact() ? '20km' : '1m');
 
         $boolQuery->addFilter($filter);
         return $this->find($boolQuery,10000);
