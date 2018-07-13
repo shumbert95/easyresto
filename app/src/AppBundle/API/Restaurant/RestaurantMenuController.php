@@ -55,6 +55,7 @@ class RestaurantMenuController extends ApiBaseController
                                 elseif ($ingredient->getStock() < $maxValue)
                                     $maxValue = $ingredient->getStock();
                             }
+                        }
 
                             if ($content->getType() == Content::TYPE_CATEGORY) {
                                 $arrayContent[$tab->getId()][] = array(
@@ -64,7 +65,7 @@ class RestaurantMenuController extends ApiBaseController
                                     "name" => $content->getName(),
                                 );
                             }
-                        }
+                        
                         else {
                             $arrayContent[$tab->getId()][] = array(
                                 "id" => $content->getId(),
