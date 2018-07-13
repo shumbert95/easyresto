@@ -47,7 +47,7 @@ class RestaurantMenuController extends ApiBaseController
                     foreach ($contents as $content) {
                         $maxValue=-1;
 
-                        if($content->getContents()) {
+                        if($content->getIngredients()) {
                             foreach ($content->getIngredients() as $ingredient) {
                                 if ($maxValue == -1)
                                     $maxValue = $ingredient->getStock();
