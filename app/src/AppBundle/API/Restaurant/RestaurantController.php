@@ -317,6 +317,84 @@ class RestaurantController extends ApiBaseController
         return $this->helper->success($restaurant, 200);
     }
 
+    /**
+     * @param Request $request
+     *
+     * @REST\Get("/restaurants/{id}/moments/{idMoment}/add", name="api_add_moment")
+     */
+    public function addMoment(Request $request)
+    {
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
+        $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
+        if(!$restaurant){
+            return $this->helper->elementNotFound('Restaurant');
+
+        }
+        $restaurantUsers = $restaurant->getUsers();
+
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
+            !$restaurantUsers->contains($user)){
+            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
+        }
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+        $moment = $elasticaManager->getRepository('AppBundle:Moment')->findById($request->get('idMoment'));
+        if(!$moment){
+            return $this->helper->elementNotFound('Category');
+
+        }
+        $restaurant->addMoment($moment);
+        $this->getEntityManager()->persist($restaurant);
+        $this->getEntityManager()->flush();
+
+        return $this->helper->success($restaurant, 200);
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @REST\Get("/restaurants/{id}/moments/{idMoment}/remove", name="api_remove_moment")
+     */
+    public function removeMoment(Request $request)
+    {
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
+        $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
+        if(!$restaurant){
+            return $this->helper->elementNotFound('Restaurant');
+
+        }
+        $restaurantUsers = $restaurant->getUsers();
+
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
+            !$restaurantUsers->contains($user)){
+            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
+        }
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+        $moment = $elasticaManager->getRepository('AppBundle:Moment')->findById($request->get('idMoment'));
+        if(!$moment){
+            return $this->helper->elementNotFound('Moment');
+
+        }
+        $restaurant->removeMoment($moment);
+        $this->getEntityManager()->persist($restaurant);
+        $this->getEntityManager()->flush();
+
+        return $this->helper->success($restaurant, 200);
+    }
+
 
 
     /**
@@ -325,6 +403,7 @@ class RestaurantController extends ApiBaseController
      * @QueryParam(name="exact", nullable=false)
      * @QueryParam(name="categories", nullable=true)
      * @QueryParam(name="name", nullable=true)
+     * @QueryParam(name="moments", nullable=true)
      *
      * @REST\Get("/restaurants", name="api_list_restaurants")
      *
@@ -351,6 +430,7 @@ class RestaurantController extends ApiBaseController
         $restaurantSearch->setExact((bool)$params['exact']);
         $restaurantSearch->setCategory($params['categories']);
         $restaurantSearch->setName($params['name']);
+        $restaurantSearch->setMoment($params['moments']);
         $elasticaManager = $this->container->get('fos_elastica.manager');
 
         $results = $elasticaManager->getRepository('AppBundle:Restaurant')->search($restaurantSearch);

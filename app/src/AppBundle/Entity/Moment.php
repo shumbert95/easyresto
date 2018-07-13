@@ -43,6 +43,10 @@ class Moment
      */
     protected $status;
 
+    CONST TYPE_MORNING=1;
+    CONST TYPE_LUNCH=2;
+    CONST TYPE_APERITIF=3;
+    CONST TYPE_DINNER=4;
 
     public function __construct()
     {

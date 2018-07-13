@@ -6,7 +6,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class RestaurantSearch
 {
-    protected $name = "";
+    protected $name;
 
     protected $longitude;
 
@@ -15,6 +15,8 @@ class RestaurantSearch
     protected $exact;
 
     protected $category = 0;
+
+    protected $moment = 0;
 
     public function __construct(){}
 
@@ -71,6 +73,18 @@ class RestaurantSearch
         $this->category = $category;
         return $this;
     }
+
+    public function getMoment()
+    {
+        return $this->moment;
+    }
+
+    public function setMoment($moment)
+    {
+        $this->moment = $moment;
+    }
+
+
 
 
 }
