@@ -25,7 +25,7 @@ class CheckoutController extends ApiBaseController
      * @REST\RequestParam(name="date")
      * @REST\RequestParam(name="seats")
      * @REST\RequestParam(name="timeStep")
-     * @REST\RequestParam(name="nbparticipants", nullable=true)
+     * @REST\RequestParam(name="nbParticipants",nullable=true)
      *
      * @return View
      */
@@ -84,10 +84,15 @@ class CheckoutController extends ApiBaseController
             }
         }
 
-        //pour mobile
-        if(isset($params['nbParticipants']))
-            $nbParticipants=$params['nbParticipants'];
 
+        //pour mobile
+        $verifMobile=false;
+        if(isset($params['nbParticipants'])) {
+            $verifMobile=true;
+            $nbParticipants = $params['nbParticipants'];
+            unset($params['nbParticipants']);
+
+        }
 
 
         if(!$checkMeal){
@@ -133,7 +138,10 @@ class CheckoutController extends ApiBaseController
         $total = 0;
         foreach($arraySeats as $person){
             $seatPerson = new ReservationSeat();
-            $seatPerson->setName($person["name"]);
+            if(!$verifMobile)
+                $seatPerson->setName($person["name"]);
+            else
+                $seatPerson->setName("Mobile");
             $em->persist($seatPerson);
             $em->flush();
             foreach($person["meals"] as $meal) {
