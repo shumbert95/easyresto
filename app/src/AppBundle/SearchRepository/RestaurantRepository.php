@@ -48,17 +48,19 @@ class RestaurantRepository extends Repository
         $boolQuery = new BoolQuery();
         $fieldQuery = new Match();
         $filterQuery = new BoolQuery();
+        $momentsFilter = "";
+        $categoriesFilter = "";
 
         $fieldQuery->setFieldQuery('status', Restaurant::STATUS_ONLINE);
         $boolQuery->addMust($fieldQuery);
 
         if($restaurantSearch->getCategory() != 0){
             if(is_array($restaurantSearch->getCategory())){
+                $categoriesFilter = new BoolQuery();
                 foreach($restaurantSearch->getCategory() as $category) {
                     $nestedQuery = new Nested();
                     $nestedQuery->setPath('categories')->setQuery(new Match('categories.id', $category));
-                    $filterQuery->setMinimumNumberShouldMatch(1);
-                    $filterQuery->addShould($nestedQuery);
+                    $categoriesFilter->addShould($nestedQuery);
                 }
                 $boolQuery->addMust($filterQuery);
             }
@@ -72,12 +74,12 @@ class RestaurantRepository extends Repository
 
         if($restaurantSearch->getMoment() != 0){
             if(is_array($restaurantSearch->getMoment())){
+                $momentsFilter = new BoolQuery();
                 foreach($restaurantSearch->getMoment() as $moment) {
                     $nestedQuery = new Nested();
                     $nestedQuery->setPath('moments')->setQuery(new Match('moments.id', $moment));
-                    $filterQuery->addShould($nestedQuery);
+                    $momentsFilter->addShould($nestedQuery);
                 }
-                $boolQuery->addMust($filterQuery);
             }
             else{
                 $nestedQuery = new Nested();
@@ -85,6 +87,13 @@ class RestaurantRepository extends Repository
                 $boolQuery->addMust($nestedQuery);
             }
         }
+        if($categoriesFilter != "")
+            $filterQuery->addFilter($categoriesFilter);
+
+        if($momentsFilter != "")
+            $filterQuery->addFilter($momentsFilter);
+
+        $boolQuery->addMust($filterQuery);
 
         if($restaurantSearch->getName()!= ""){
             $queryString = new Query\QueryString();

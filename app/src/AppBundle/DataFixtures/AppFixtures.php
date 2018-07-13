@@ -200,8 +200,8 @@ class AppFixtures extends Fixture
         $restaurant->setOpen(1);
         $restaurant->addCategory($this->getReference('categoryBurgers'));
         $restaurant->addUser($this->getReference('firstrestorer@test.com'));
-        $restaurant->addMoment("aperitif");
-        $restaurant->addMoment("dinner");
+        $restaurant->addMoment($this->getReference("aperitif"));
+        $restaurant->addMoment($this->getReference("dinner"));
         $restaurant->setSeats(20);
         $restaurant->setPicture("http://www.frogpubs.com/fr/pics/data/pubs/illustrations/4-191-1200x650.jpg");
         $restaurant->setWebsite("https://www.frogpubs.com/fr/");
@@ -226,8 +226,8 @@ class AppFixtures extends Fixture
         $restaurant->setOpen(1);
         $restaurant->addCategory($this->getReference('categoryJap'));
         $restaurant->addUser($this->getReference('secondrestorer@test.com'));
-        $restaurant->addMoment("lunch");
-        $restaurant->addMoment("dinner");
+        $restaurant->addMoment($this->getReference("lunch"));
+        $restaurant->addMoment($this->getReference("dinner"));
         $restaurant->setSeats(20);
         $restaurant->setPicture("http://www.hemaposesesvalises.fr/wp-content/uploads/2017/11/Kodawari_ramen_restaurant_paris_japon_decor-1080x675.jpg");
         $restaurant->setWebsite("https://www.kodawari-ramen.com/");
@@ -253,8 +253,8 @@ class AppFixtures extends Fixture
         $restaurant->addCategory($this->getReference('categoryIndien'));
         $restaurant->setOpen(1);
         $restaurant->addUser($this->getReference('thirdrestorer@test.com'));
-        $restaurant->addMoment("morning");
-        $restaurant->addMoment("lunch");
+        $restaurant->addMoment($this->getReference("morning"));
+        $restaurant->addMoment($this->getReference("lunch"));
         $restaurant->setSeats(20);
         $restaurant->setPicture("https://u.tfstatic.com/restaurant_photos/964/15964/169/612/aarchna-vue-de-la-salle-9c000.jpg");
         $restaurant->setWebsite("http://www.aarchna.com/");
