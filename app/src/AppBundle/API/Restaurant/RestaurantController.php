@@ -143,6 +143,8 @@ class RestaurantController extends ApiBaseController
             return $this->helper->error('param \'id\' must be an integer');
         }
 
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+
         $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
         $restaurantUsers = $restaurant->getUsers();
 
@@ -191,6 +193,30 @@ class RestaurantController extends ApiBaseController
         }
         if(isset($request_data['open'])){
             $restaurant->setOpen($request_data['open']);
+        }
+
+        if(isset($request_data['moments'])){
+            $moments = $request_data['moments'];
+            $arrayMoments = new ArrayCollection();
+            foreach($moments as $momentId){
+                $moment = $elasticaManager->getRepository('AppBundle:Moment')->findById($momentId["id"]);
+                if($moment && !$arrayMoments->contains($moment)){
+                    $arrayMoments->add($moment);
+                }
+            }
+            $restaurant->setMoments($arrayMoments);
+        }
+
+        if(isset($request_data['categories'])){
+            $categories = $request_data['categories'];
+            $arrayCategories = new ArrayCollection();
+            foreach($categories as $categoryId){
+                $category = $elasticaManager->getRepository('AppBundle:CategoryRestaurant')->findById($categoryId["id"]);
+                if($category && !$arrayCategories->contains($category)){
+                    $arrayCategories->add($category);
+                }
+            }
+            $restaurant->setCategories($arrayCategories);
         }
 
         $em = $this->getEntityManager();

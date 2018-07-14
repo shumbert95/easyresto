@@ -80,7 +80,8 @@ class MealSetController extends ApiBaseController
      * @REST\RequestParam(name="name")
      * @REST\RequestParam(name="description", nullable=true)
      * @REST\RequestParam(name="price", nullable=true)
-     * @REST\RequestParam(name="position")
+     * @REST\RequestParam(name="position", nullable=true)
+     * @REST\RequestParam(name="contents", nullable=true)
      *
      */
     public function editMealSet(Request $request, ParamFetcher $paramFetcher)
@@ -107,8 +108,13 @@ class MealSetController extends ApiBaseController
         }
 
         $params = $paramFetcher->all();
+        $em = $this->getEntityManager();
 
         $mealSet = $elasticaManager->getRepository('AppBundle:MealSet')->findById($request->get('idSet'));
+        if($mealSet->getRestaurant() != $restaurant){
+            return $this->helper->warning('Ce n\'est pas votre menu');
+
+        }
 
         if(isset($params['name'])){
             $mealSet->setName($params['name']);
@@ -119,8 +125,36 @@ class MealSetController extends ApiBaseController
         if(isset($params['price'])){
             $mealSet->setPrice($params['price']);
         }
+        if(isset($params['content'])){
+            $contents = $params['content'];
+            $mealSetElements = $elasticaManager->getRepository('AppBundle:MealSetElement')->findBySet($mealSet);
+            if($mealSetElements) {
+                foreach ($mealSetElements as $mealSetElement) {
+                    $em->remove($mealSetElement);
+                    $em->flush();
+                }
+            }
+            foreach($contents as $content){
+                $meal = $elasticaManager->getRepository('AppBundle:Content')->findById($content["id"]);
+                if($meal->getRestaurant() == $restaurant){
+                    $type=$content["type"];
 
-        $em = $this->getEntityManager();
+                    $mealSetElement = $this->getMealSetElementRepository()->findOneBy(array("mealSetType" => $type,"content" => $content));
+                    if(!$mealSetElement) {
+                        $mealSetElement = new MealSetElement();
+                        $mealSetElement->setContent($meal);
+                        $mealSetElement->setMealSet($mealSet);
+                        $mealSetElement->setMealSetType($type);
+                        $em = $this->getEntityManager();
+                        $em->persist($mealSetElement);
+                        $em->flush();
+                    }
+                }
+
+            }
+
+        }
+
 
         $em->persist($mealSet);
         $em->flush();
