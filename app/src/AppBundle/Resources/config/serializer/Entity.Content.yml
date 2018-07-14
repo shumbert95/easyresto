@@ -9,8 +9,6 @@ AppBundle\Entity\Content:
         exclude: true
       availability:
         exclude: true
-      mealSetTypes:
-        exclude: true
       price:
         exclude_if: "object.getType() == 2"
       description:
