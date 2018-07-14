@@ -136,7 +136,7 @@ class TagController extends ApiBaseController
         $tags = $elasticaManager->getRepository('AppBundle:Tag')->findByNameBest($name);
 
         if (!$tags) {
-            return $this->helper->success(array());
+            return $this->helper->empty();
         }
 
         $count = 0;

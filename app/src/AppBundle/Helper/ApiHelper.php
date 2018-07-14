@@ -104,4 +104,17 @@ class ApiHelper
 
         return $view;
     }
+
+    /**
+     * @param string $element
+     * @param int $statusCode
+     * @return View
+     */
+    public function empty() {
+        $view = View::create();
+        $view->setFormat('json');
+        $view->setData(array());
+
+        return $view;
+    }
 }
