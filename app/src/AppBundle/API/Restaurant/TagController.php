@@ -127,7 +127,7 @@ class TagController extends ApiBaseController
 
     /**
      *
-     * @REST\Get("/restaurants/{id}/tags", name="api_list_moments")
+     * @REST\Get("/restaurants/{id}/tags", name="api_list_tags")
      *
      */
     public function getMoments(Request $request)
