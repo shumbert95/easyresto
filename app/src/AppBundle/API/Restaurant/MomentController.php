@@ -4,21 +4,24 @@ namespace AppBundle\API\Restaurant;
 
 use AppBundle\API\ApiBaseController;
 use AppBundle\Entity\CategoryRestaurant;
+use AppBundle\Entity\Moment;
 use AppBundle\Entity\User;
 use AppBundle\Form\CategoryRestaurantType;
+use AppBundle\Form\MomentType;
 use FOS\RestBundle\Controller\Annotations as REST;
 use FOS\RestBundle\Request\ParamFetcher;
 use Symfony\Component\HttpFoundation\Request;
 
-class CategoryRestaurantController extends ApiBaseController
+class MomentController extends ApiBaseController
 {
     /**
      * @param ParamFetcher $paramFetcher
      *
-     * @REST\Post("/categories/create", name="api_create_category_restaurant")
+     * @REST\Post("/moments/create", name="api_create_moment")
      * @REST\RequestParam(name="name")
+     * @REST\RequestParam(name="moment")
      */
-    public function createCategory(ParamFetcher $paramFetcher)
+    public function createMoment(ParamFetcher $paramFetcher)
     {
         $user = $this->container->get('security.token_storage')->getToken()->getUser();
 
@@ -32,15 +35,15 @@ class CategoryRestaurantController extends ApiBaseController
         }
 
         $elasticaManager = $this->container->get('fos_elastica.manager');
-        $category = $elasticaManager->getRepository('AppBundle:CategoryRestaurant')->findByName($params['name']);
+        $moment = $elasticaManager->getRepository('AppBundle:Moment')->findByName($params['name']);
 
-        if ($category instanceof CategoryRestaurant) {
-            return $this->helper->error('This name is already used.');
+        if ($moment instanceof Moment) {
+            return $this->helper->warning('Nom déjà utilisé',400);
         }
-        $category = new CategoryRestaurant();
-        $category->setStatus(CategoryRestaurant::STATUS_ONLINE);
+        $moment = new Moment();
+        $moment->setStatus(CategoryRestaurant::STATUS_ONLINE);
 
-        $form = $this->createForm(CategoryRestaurantType::class, $category);
+        $form = $this->createForm(MomentType::class, $moment);
         $form->submit($params);
 
         if (!$form->isValid()) {
@@ -48,18 +51,18 @@ class CategoryRestaurantController extends ApiBaseController
         }
 
         $em = $this->getEntityManager();
-        $em->persist($category);
+        $em->persist($moment);
         $em->flush();
 
-        return $this->helper->success($category, 200);
+        return $this->helper->success($moment, 200);
     }
 
     /**
      *
-     * @REST\Get("/categories/{id}", name="api_show_category_restaurant")
+     * @REST\Get("/moments/{id}", name="api_show_moment")
      *
      */
-    public function getCategoryRestaurant(Request $request)
+    public function getMoment(Request $request)
     {
         if (!$request->get('id')) {
             return $this->helper->error('id', true);
@@ -68,18 +71,18 @@ class CategoryRestaurantController extends ApiBaseController
         }
 
         $elasticaManager = $this->container->get('fos_elastica.manager');
-        $category = $elasticaManager->getRepository('AppBundle:CategoryRestaurant')->findById($request->get('id'));
-        if (!$category) {
-            return $this->helper->elementNotFound('Category');
+        $moment = $elasticaManager->getRepository('AppBundle:Moment')->findById($request->get('id'));
+        if (!$moment) {
+            return $this->helper->elementNotFound('Moment');
         }
 
-        return $this->helper->success($category, 200);
+        return $this->helper->success($moment, 200);
     }
 
     /**
-     * @REST\Delete("/categories/{id}", name="api_delete_category_restaurant")
+     * @REST\Delete("/moments/{id}", name="api_delete_moment")
      */
-    public function deleteCategoryRestaurant(Request $request)
+    public function deleteMoment(Request $request)
     {
 
         if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
@@ -93,30 +96,30 @@ class CategoryRestaurantController extends ApiBaseController
         }
 
         $elasticaManager = $this->container->get('fos_elastica.manager');
-        $category = $elasticaManager->getRepository('AppBundle:CategoryRestaurant')->findById($request->get('id'));
-        if (!$category) {
-            return $this->helper->elementNotFound('Category');
+        $moment = $elasticaManager->getRepository('AppBundle:Moment')->findById($request->get('id'));
+        if (!$moment) {
+            return $this->helper->elementNotFound('Moment');
         }
 
         $em = $this->getEntityManager();
-        $em->remove($category);
+        $em->remove($moment);
         $em->flush();
 
-        return $this->helper->success($category, 200);
+        return $this->helper->success($moment, 200);
     }
 
     /**
      *
-     * @REST\Get("/categories", name="api_list_restaurants_categories")
+     * @REST\Get("/moments", name="api_list_moments")
      *
      */
-    public function getRestaurantsCategories()
+    public function getMoments()
     {
         $elasticaManager = $this->container->get('fos_elastica.manager');
-        $categories = $elasticaManager->getRepository('AppBundle:CategoryRestaurant')->findAll();
-        if(!isset($categories[0]))
+        $moments = $elasticaManager->getRepository('AppBundle:Moment')->findAll();
+        if(!isset($moments[0]))
             return $this->helper->empty();
 
-        return $this->helper->success($categories, 200);
+        return $this->helper->success($moments, 200);
     }
 }

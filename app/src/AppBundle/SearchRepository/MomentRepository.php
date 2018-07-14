@@ -2,7 +2,8 @@
 
 namespace AppBundle\SearchRepository;
 
-use AppBundle\Entity\CategoryRestaurant;
+use AppBundle\Entity\Content;
+use AppBundle\Entity\Ingredient;
 use AppBundle\Entity\Restaurant;
 use Elastica\Query;
 use Elastica\Query\BoolQuery;
@@ -10,8 +11,9 @@ use Elastica\Query\Match;
 use Elastica\Query\Nested;
 use FOS\ElasticaBundle\Repository;
 
-class CategoryRestaurantRepository extends Repository
+class MomentRepository extends Repository
 {
+
     public function findByName($name) {
         $boolQuery = new BoolQuery();
         $fieldQuery = new Match();
@@ -19,9 +21,9 @@ class CategoryRestaurantRepository extends Repository
         $fieldQuery->setFieldQuery('name', $name);
         $boolQuery->addMust($fieldQuery);
 
-        $categories = $this->find($boolQuery,10000);
-      
-        return $categories ? $categories[0] : $categories;
+        $moments = $this->find($boolQuery,10000);
+
+        return $moments ? $moments[0] : $moments;
     }
 
     public function findById($id) {
@@ -31,9 +33,21 @@ class CategoryRestaurantRepository extends Repository
         $fieldQuery->setFieldQuery('id', $id);
         $boolQuery->addMust($fieldQuery);
 
-        $categories = $this->find($boolQuery,10000);
+        $moments = $this->find($boolQuery,10000);
 
-        return $categories ? $categories[0] : $categories;
+        return $moments ? $moments[0] : $moments;
+    }
+
+    public function findByIds($ids) {
+        $boolQuery = new BoolQuery();
+        $idsQuery = new Query\Ids();
+
+        $idsQuery->setIds($ids);
+
+        $boolQuery->addMust($idsQuery);
+
+        $moments = $this->find($boolQuery,10000);
+        return $moments;
     }
 
     public function findAll() {

@@ -112,7 +112,8 @@ class UserController extends ApiBaseController
             $user->setAddressComplement($request_data['addressComplement']);
         }
         if(isset($request_data['birthDate'])){
-            $user->setBirthDate($request_data['birthDate']);
+            $birthDate = new \DateTime($request_data['birthDate']);
+            $user->setBirthDate($birthDate);
         }
         if(isset($request_data['city'])){
             $user->setCity($request_data['city']);
@@ -130,6 +131,8 @@ class UserController extends ApiBaseController
     public function getUserById(Request $request)
     {
         $user = $this->getUserRepository()->find($request->get('id'));
+        if(!$user)
+            return $this->helper->empty();
         return $this->helper->success($user, 200);
     }
 
@@ -176,6 +179,8 @@ class UserController extends ApiBaseController
     public function getUsers()
     {
         $users = $this->getUserRepository()->findAll();
+        if(!$users)
+            return $this->helper->empty();
         return $this->helper->success($users, 200);
     }
 
@@ -260,6 +265,8 @@ class UserController extends ApiBaseController
     public function getClients()
     {
         $clients = $this->getUserRepository()->findBy(array("type" => 1));
+        if(!$clients)
+            return $this->helper->empty();
         return $this->helper->success($clients, 200);
     }
 
@@ -349,6 +356,8 @@ class UserController extends ApiBaseController
     public function getRestorers()
     {
         $restorers = $this->getUserRepository()->findBy(array('type' => 2));
+        if(!$restorers)
+            return $this->helper->empty();
         return $this->helper->success($restorers, 200);
     }
 

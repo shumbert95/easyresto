@@ -3,6 +3,7 @@
 namespace AppBundle\API\Restaurant;
 
 use AppBundle\API\ApiBaseController;
+use AppBundle\Entity\Restaurant;
 use AppBundle\Entity\TabMeal;
 use AppBundle\Form\TabMealType;
 use FOS\RestBundle\Controller\Annotations as REST;
@@ -186,6 +187,9 @@ class TabMealController extends ApiBaseController
         }
 
         $tab = $elasticaManager->getRepository('AppBundle:TabMeal')->findById($request->get('idTab'));
+        if(!$tab)
+            return $this->helper->elementNotFound('Onglet');
+
         if($tab->getRestaurant() != $restaurant){
             return $this->helper->error('Ce n\'est pas un onglet de ce restaurant');
         }
@@ -218,6 +222,59 @@ class TabMealController extends ApiBaseController
 
         $tabs = $elasticaManager->getRepository('AppBundle:TabMeal')->findByRestaurant($restaurant);
 
+        if(!isset($tabs[0]))
+            $tabs=array();
+
         return $this->helper->success($tabs, 200);
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @REST\Put("/restaurants/{id}/tabs/{idTab}/contents", name="api_put_tab_contents")
+     */
+    public function updateTabContents(Request $request)
+    {
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
+        $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
+
+        if (!$restaurant instanceof Restaurant) {
+            return $this->helper->elementNotFound('Restaurant');
+        }
+        $restaurantUsers = $restaurant->getUsers();
+
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
+            !$restaurantUsers->contains($user)){
+            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
+        }
+        $tab = $this->getTabMealRepository()->findOneBy(array("id" => $request->get('idTab')));
+        if (!$tab instanceof TabMeal) {
+            return $this->helper->elementNotFound('Onglet');
+        }
+        if($tab->getRestaurant() != $restaurant){
+            return $this->helper->warning('Ce n\'est pas un onglet de votre restaurant',403);
+
+        }
+        $errors = array();
+        $request_data = $request->request->all();
+
+        if (!$request_data['contents']) {
+            return $this->helper->error('contents', true);
+        }
+
+
+        $contents = json_encode($request_data['contents']);
+        $tab->setMealsIds($contents);
+        $this->getEntityManager()->persist($tab);
+        $this->getEntityManager()->flush();
+
+        return $this->helper->success($tab, 200);
     }
 }

@@ -76,7 +76,7 @@ class MealSetController extends ApiBaseController
      * @param Request $request
      *
      *
-     * @REST\Put("/restaurants/{id}/meal_sets/{idSet}", name="api_create_meal_set")
+     * @REST\Put("/restaurants/{id}/meal_sets/{idSet}", name="api_edit_meal_set")
      * @REST\RequestParam(name="name")
      * @REST\RequestParam(name="description", nullable=true)
      * @REST\RequestParam(name="price", nullable=true)
@@ -309,6 +309,9 @@ class MealSetController extends ApiBaseController
         $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
 
         $mealSets = $elasticaManager->getRepository('AppBundle:MealSet')->findByRestaurant($restaurant);
+        if(!$mealSets){
+            return $this->helper->empty();
+        }
 
         $json=array();
         foreach ($mealSets as $mealSet){

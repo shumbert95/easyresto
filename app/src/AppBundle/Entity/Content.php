@@ -88,7 +88,20 @@ class Content
      */
     protected $ingredients;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\Tag")
+     * @ORM\JoinTable(name="content_tags",
+     *      joinColumns={@ORM\JoinColumn(name="content_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="tag_id", referencedColumnName="id")}
+     *      )
+     */
+    protected $tags;
 
+    /**
+     * @var string
+     * @ORM\Column(name="picture", type="text", nullable=true)
+     */
+    protected $picture;
 
     /**
      * @var bool
@@ -110,7 +123,7 @@ class Content
     public function __construct()
     {
         $this->ingredients = new ArrayCollection();
-        $this->mealSetElements = new ArrayCollection();
+        $this->tags = new ArrayCollection();
     }
 
     /**
@@ -309,7 +322,55 @@ class Content
         return $this;
     }
 
+    public function addTag($tag)
+    {
+        if (!$this->tags->contains($tag)) {
+            $this->tags->add($tag);
+        }
 
+        return $this;
+    }
+
+    public function removeTag($tag)
+    {
+        if ($this->tags->contains($tag)) {
+            $this->tags->removeElement($tag);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTags()
+    {
+        return $this->tags;
+    }
+
+    /**
+     * @param mixed $tags
+     */
+    public function setTags($tags)
+    {
+        $this->tags = $tags;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPicture()
+    {
+        return $this->picture;
+    }
+
+    /**
+     * @param string $picture
+     */
+    public function setPicture($picture)
+    {
+        $this->picture = $picture;
+    }
 
 
 

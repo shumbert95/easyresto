@@ -19,3 +19,7 @@ AppBundle\Entity\Content:
         exclude_if: "object.getType() != 1"
       tab:
         exclude: true
+      type:
+        exclude: true
+      position:
+        exclude: true

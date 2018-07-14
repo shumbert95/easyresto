@@ -10,6 +10,7 @@ use AppBundle\Form\MealType;
 use FOS\RestBundle\Controller\Annotations as REST;
 use FOS\RestBundle\Request\ParamFetcher;
 use Symfony\Component\HttpFoundation\Request;
+use FOS\RestBundle\Controller\Annotations\QueryParam;
 
 class IngredientController extends ApiBaseController
 {
@@ -183,28 +184,90 @@ class IngredientController extends ApiBaseController
         return $this->helper->success($ingredient, 200);
     }
 
+
     /**
      *
-     * @REST\Get("/restaurants/{id}/ingredients", name="api_edit_ingredient")
+     * @REST\Get("/restaurants/{id}/ingredients", name="api_get_ingredients")
      *
      */
     public function getIngredients(Request $request)
     {
-        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
+
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+        $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
+        if (!$restaurant) {
+            return $this->helper->elementNotFound('Restaurant');
+        }
+
+        $restaurantUsers = $restaurant->getUsers();
+
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
+            !$restaurantUsers->contains($user)){
+            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
+        }
 
         $ingredients = $this->getIngredientRepository()->findBy(array(
             'restaurant' => $restaurant
         ));
+        if(!$ingredients)
+            return $this->helper->empty();
+
 
         return $this->helper->success($ingredients, 200);
     }
 
     /**
      *
-     * @REST\Put("/restaurants/{id}/ingredients", name="api_edit_ingredients")
+     * @REST\Get("/restaurants/{id}/ingredients/{idIngredient}", name="api_get_ingredient")
      *
      */
-    public function editIngredients(Request $request)
+    public function getIngredient(Request $request)
+    {
+
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+        $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
+        if (!$restaurant) {
+            return $this->helper->elementNotFound('Restaurant');
+        }
+
+        $restaurantUsers = $restaurant->getUsers();
+
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
+            !$restaurantUsers->contains($user)){
+            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
+        }
+
+        $ingredient = $this->getIngredientRepository()->findOneBy(array(
+            'restaurant' => $restaurant,
+            'id'        => $request->get('idIngredient'),
+        ));
+        if(!$ingredient)
+            return $this->helper->empty();
+
+
+        return $this->helper->success($ingredient, 200);
+    }
+
+    /**
+     *
+     * @REST\Post("/restaurants/{id}/ingredients", name="api_update_ingredients")
+     *
+     */
+    public function updateIngredients(Request $request)
     {
         $user = $this->container->get('security.token_storage')->getToken()->getUser();
 
@@ -234,34 +297,86 @@ class IngredientController extends ApiBaseController
         $em = $this->getEntityManager();
 
         foreach($request_data as $data){
-            $ingredient = $this->getIngredientRepository()->findOneBy(array('id' => $data['id']));
+            $ingredient = $elasticaManager->getRepository('AppBundle:Ingredient')->findByNameAndRestaurant($data['name'],$restaurant);
+
 
             if(!$ingredient){
-                $return_data[] = $this->helper->elementNotFound('Ingredient id : '.$data['id']);
+                $ingredient=new Ingredient();
+                $ingredient->setName($data["name"]);
+                $ingredient->setStatus(Ingredient::STATUS_ONLINE);
+                $ingredient->setRestaurant($restaurant);
+                if(isset($data['stock']))
+                    $ingredient->setStock($data['stock']);
+                else
+                    $ingredient->setStock(0);
+
+                $em->persist($ingredient);
+                $em->flush();
+                $return_data[] = $ingredient;
+            }
+            else {
+                $ingredient->setName($data['name']);
+                if (isset($data['stock'])) {
+                    $stock = $ingredient->getStock() + $data['stock'];
+                    $ingredient->setStock($stock);
+                }
+                $em->persist($ingredient);
+                $em->flush();
+                $return_data[] = $ingredient;
             }
 
-            else {
-                if($ingredient->getRestaurant() != $restaurant){
-                    $return_data[] = $this->helper->error('Ce n\'est pas un ingrédient de ce restaurant');
-                }
-                else {
-                    if (isset($data['stock'])) {
-                        $stock = $ingredient->getStock() + $data['stock'];
-                        $ingredient->setStock($stock);
-                    }
-                    if (isset($data['name'])) {
-                        $name = $data['name'];
-                        $ingredient->setName($name);
-                    }
-                    $em->persist($ingredient);
-                    $em->flush();
-                    $return_data[] = $ingredient;
-                }
-            }
         }
 
 
         return $this->helper->success($return_data, 200);
+    }
+
+    /**
+     * @QueryParam(name="name", nullable=true)
+     * @REST\Get("/restaurants/{id}/ingredients/search", name="api_search_ingredient_by_name")
+     */
+    public function getIngredientsByName(Request $request,ParamFetcher $paramFetcher)
+    {
+        $params = $paramFetcher->all();
+
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+        $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
+        if (!$restaurant) {
+            return $this->helper->elementNotFound('Restaurant');
+        }
+
+        $restaurantUsers = $restaurant->getUsers();
+
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
+            !$restaurantUsers->contains($user)){
+            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
+        }
+
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+
+        $name = $params['name'];
+        $ingredients = $elasticaManager->getRepository('AppBundle:Ingredient')->findByNameAndRestaurantBest($restaurant, $name);
+
+        if (!$ingredients) {
+            return $this->helper->empty();
+        }
+
+        foreach($ingredients as $ingredient){
+            $json[]=array(
+                "id" => $ingredient->getId(),
+                "name" => $ingredient->getName()
+            );
+        }
+
+        return $this->helper->success($json, 200);
     }
 
 

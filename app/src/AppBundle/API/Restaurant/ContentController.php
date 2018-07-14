@@ -93,6 +93,9 @@ class ContentController extends ApiBaseController
         }
 
         $contents = $elasticaManager->getRepository('AppBundle:Content')->findByTab($tab);
+        if(!$contents){
+            return $this->helper->empty();
+        }
 
 
         return $this->helper->success($contents, 200);
@@ -106,8 +109,32 @@ class ContentController extends ApiBaseController
     public function getContent(Request $request)
     {
 
-        $restaurant = $this->getRestaurantRepository()->find($request->get('id'));
-        $content = $this->getContentRepository()->findOneBy(array('restaurant' => $restaurant, 'id' => $request->get('idContent')));
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
+        if (!$request->get('idContent')) {
+            return $this->helper->error('idMeal', true);
+        } elseif (!preg_match('/\d/', $request->get('idContent'))) {
+            return $this->helper->error('param \'idContent\' must be an integer');
+        }
+
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+        $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
+        if (!$restaurant) {
+            return $this->helper->elementNotFound('Restaurant');
+        }
+
+        $content = $elasticaManager->getRepository('AppBundle:Content')->findById($request->get('idContent'));
+        if (!$content) {
+            return $this->helper->elementNotFound('Meal');
+        }
+        if($content->getRestaurant() != $restaurant){
+            return $this->helper->error('Ce n\'est pas un plat de ce restaurant');
+        }
+
         return $this->helper->success($content, 200);
     }
 

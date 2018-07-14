@@ -28,6 +28,13 @@ fos_elastica:
                                 id :
                                     type : integer
                                 name: ~
+                        moments:
+                          type: "nested"
+                          properties:
+                            id:
+                              type: integer
+                            moment:
+                              type: integer
                     persistence:
                        driver: orm
                        model: AppBundle\Entity\Restaurant
@@ -74,6 +81,12 @@ fos_elastica:
                     name: ~
                     stock:
                       type: integer
+                    restaurant:
+                      type: "nested"
+                      properties:
+                        id:
+                          type: integer
+                        name: ~
                   persistence:
                     driver: orm
                     model: AppBundle\Entity\Ingredient
@@ -105,6 +118,12 @@ fos_elastica:
                                 id:
                                     type: integer
                                 name: ~
+                        tags:
+                          type: "nested"
+                          properties:
+                            id:
+                              type: integer
+                            name: ~
                     persistence:
                       driver: orm
                       model: AppBundle\Entity\Content
@@ -184,6 +203,33 @@ fos_elastica:
                         finder: ~
                         provider: ~
                         repository: AppBundle\SearchRepository\ReservationRepository
+
+                moment:
+                  properties:
+                      id:
+                          type: integer
+                      name: ~
+                      moment:
+                        type: integer
+                  persistence:
+                      driver: orm
+                      model: AppBundle\Entity\Moment
+                      finder: ~
+                      provider: ~
+                      repository: AppBundle\SearchRepository\MomentRepository
+
+                tag:
+                  properties:
+                      id:
+                          type: integer
+                      name: ~
+                  persistence:
+                      driver: orm
+                      model: AppBundle\Entity\Tag
+                      finder: ~
+                      provider: ~
+                      repository: AppBundle\SearchRepository\TagRepository
+
 
 
                 reservationContent:

@@ -55,7 +55,7 @@ class ContentRepository extends Repository
         $boolQuery->addMust($nestedQuery);
 
         $query = new Query($boolQuery);
-        $query->addSort(array('position' => 'asc'));
+        $query->addSort(array('id' => 'asc'));
 
         return $this->find($query);
     }
@@ -119,5 +119,15 @@ class ContentRepository extends Repository
         $contents = $this->find($boolQuery,10000);
 
         return isset($contents[0]) ? true : false;
+    }
+
+    public function findAll() {
+        $boolQuery = new BoolQuery();
+        $fieldQueryStatus = new Match();
+
+        $query = new Query($boolQuery);
+        $query->addSort(array('name' => 'desc'));
+
+        return $this->find($boolQuery,10000);
     }
 }

@@ -44,6 +44,15 @@ class MealType extends AbstractType
                 ]
             )
             ->add(
+                'picture',
+                TextType::class,
+                [
+                    'required' => false,
+                    'label' => 'Photo',
+                ]
+
+            )
+            ->add(
                 'position',
                 IntegerType::class,
                 [

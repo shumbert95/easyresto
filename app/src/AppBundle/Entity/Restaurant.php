@@ -46,6 +46,15 @@ class Restaurant
     protected $categories;
 
     /**
+     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\Moment", cascade={"persist"})
+     * @ORM\JoinTable(name="restaurant_moments",
+     *      joinColumns={@ORM\JoinColumn(name="restaurant_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="moment_id", referencedColumnName="id")}
+     *      )
+     */
+    protected $moments;
+
+    /**
      * @var string
      * @Assert\NotBlank()
      * @ORM\Column(name="name", type="string", length=255)
@@ -162,6 +171,7 @@ class Restaurant
     public function __construct()
     {
         $this->categories = new ArrayCollection();
+        $this->moments = new ArrayCollection();
         $this->users = new ArrayCollection();
     }
 
@@ -232,6 +242,41 @@ class Restaurant
 
         return $this;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getMoments()
+    {
+        return $this->moments;
+    }
+
+    /**
+     * @param mixed $moment
+     */
+    public function setMoments($moments)
+    {
+        $this->moments = $moments;
+    }
+
+    public function addMoment($moments)
+    {
+        if (!$this->moments->contains($moments)) {
+            $this->moments->add($moments);
+        }
+
+        return $this;
+    }
+
+    public function removeMoment($moments)
+    {
+        if ($this->moments->contains($moments)) {
+            $this->moments->removeElement($moments);
+        }
+
+        return $this;
+    }
+
 
     /**
      * @return int
