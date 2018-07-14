@@ -30,6 +30,8 @@ class MealController extends ApiBaseController
      * @REST\RequestParam(name="availability", nullable=true)
      * @REST\RequestParam(name="position", nullable=true)
      * @REST\RequestParam(name="picture", nullable=true)
+     * @REST\RequestParam(name="tags", nullable=true)
+     * @REST\RequestParam(name="ingredients", nullable=true)
      *
      */
     public function createMeal(Request $request, ParamFetcher $paramFetcher)
@@ -63,13 +65,39 @@ class MealController extends ApiBaseController
         $meal->setType(Content::TYPE_MEAL);
         $meal->setRestaurant($restaurant);
 
+
+        if(isset($params['tags'])){
+            $tags = $params['tags'];
+            $arrayTags = new ArrayCollection();
+            foreach($tags as $tagId){
+                $tag = $elasticaManager->getRepository('AppBundle:Tag')->findById($tagId["id"]);
+                if($tag && !$arrayTags->contains($tag)){
+                    $arrayTags->add($tag);
+                }
+            }
+            $meal->setTags($arrayTags);
+        }
+        if(isset($params['ingredients'])){
+            $ingredients = $params['ingredients'];
+            $arrayIngredients = new ArrayCollection();
+            foreach($ingredients as $ingredientId){
+                $ingredient = $elasticaManager->getRepository('AppBundle:Ingredient')->findById($ingredientId["id"]);
+                if($ingredient && !$arrayIngredients->contains($ingredient) && $ingredient->getRestaurant() == $restaurant){
+                    $arrayIngredients->add($ingredient);
+                }
+            }
+            $meal->setIngredients($arrayIngredients);
+        }
+
+        unset($params['tags']);
+        unset($params['ingredients']);
+
         $form = $this->createForm(MealType::class, $meal);
         $form->submit($params);
 
         if (!$form->isValid()) {
             return $this->helper->error($form->getErrors());
         }
-
 
         $em = $this->getEntityManager();
         $em->persist($meal);
