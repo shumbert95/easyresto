@@ -50,13 +50,17 @@ class TagRepository extends Repository
         return $tags;
     }
 
-    public function findAll($restaurant) {
+    public function findAllByRestaurant(Restaurant $restaurant) {
         $boolQuery = new BoolQuery();
-        $fieldQueryStatus = new Match();
+        $nestedQuery = new Nested();
+
+        $nestedQuery->setPath('restaurant')
+            ->setQuery(new Match('restaurant.id', $restaurant->getId()));
+        $boolQuery->addMust($nestedQuery);
 
         $query = new Query($boolQuery);
-        $query->addSort(array('name' => 'asc'));
+        $query->addSort(array('position' => 'asc'));
 
-        return $this->find($boolQuery,10000);
+        return $this->find($query);
     }
 }
