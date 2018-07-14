@@ -115,7 +115,7 @@ class CategoryRestaurantController extends ApiBaseController
         $elasticaManager = $this->container->get('fos_elastica.manager');
         $categories = $elasticaManager->getRepository('AppBundle:CategoryRestaurant')->findAll();
         if(!isset($categories[0]))
-            $categories[]=array();
+            return $this->helper->empty();
 
         return $this->helper->success($categories, 200);
     }

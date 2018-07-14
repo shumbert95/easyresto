@@ -95,4 +95,23 @@ class IngredientRepository extends Repository
         $ingredients = $this->find($boolQuery,10000);
         return $ingredients;
     }
+
+    public function findByNameAndRestaurantBest(Restaurant $restaurant, $name)
+    {
+        $boolQuery = new BoolQuery();
+        $nestedQuery = new Nested();
+
+        $nestedQuery->setPath('restaurant')
+            ->setQuery(new Match('restaurant.id', $restaurant->getId()));
+        $boolQuery->addMust($nestedQuery);
+
+        if($name != ""){
+            $queryString = new Query\QueryString();
+            $queryString->setQuery("*".$name."*");
+            $queryString->setDefaultField('name');
+            $boolQuery->addMust($queryString);
+        }
+
+        return $this->find($boolQuery,10000);
+    }
 }

@@ -93,6 +93,9 @@ class ContentController extends ApiBaseController
         }
 
         $contents = $elasticaManager->getRepository('AppBundle:Content')->findByTab($tab);
+        if(!$contents){
+            return $this->helper->empty();
+        }
 
 
         return $this->helper->success($contents, 200);

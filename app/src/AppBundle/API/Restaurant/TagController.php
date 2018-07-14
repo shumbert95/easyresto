@@ -115,7 +115,7 @@ class TagController extends ApiBaseController
         $elasticaManager = $this->container->get('fos_elastica.manager');
         $tag = $elasticaManager->getRepository('AppBundle:Tag')->findAll();
         if(!isset($tag[0]))
-            $tag[]=array();
+            return $this->helper->empty();
 
         return $this->helper->success($tag, 200);
     }

@@ -52,7 +52,7 @@ class ReservationController extends ApiBaseController
 
         $reservations = $elasticaManager->getRepository('AppBundle:Reservation')->findByRestaurant($restaurant, $dateFrom, $dateTo);
         if(!$reservations)
-            return $this->helper->success(array(array()), 200);
+            return $this->helper->empty();
 
         foreach($reservations as $reservation) {
             $jsonContents = array();
@@ -145,7 +145,7 @@ class ReservationController extends ApiBaseController
 
 
         if(!$restaurant->getSchedule())
-            return $this->helper->success(array(array()), 404);
+            return $this->helper->empty();
 
         $jsonSchedule = json_decode($restaurant->getSchedule(),true);
         while($dateFrom <= $dateTo) {
@@ -236,7 +236,7 @@ class ReservationController extends ApiBaseController
         $elasticaManager = $this->container->get('fos_elastica.manager');
 
         if(!$restaurant->getSchedule())
-            return $this->helper->success(array(array()), 404);
+            return $this->helper->empty();
 
         $jsonSchedule = json_decode($restaurant->getSchedule(),true);
 

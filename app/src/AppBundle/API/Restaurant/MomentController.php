@@ -118,7 +118,7 @@ class MomentController extends ApiBaseController
         $elasticaManager = $this->container->get('fos_elastica.manager');
         $moments = $elasticaManager->getRepository('AppBundle:Moment')->findAll();
         if(!isset($moments[0]))
-            $moments[]=array();
+            return $this->helper->empty();
 
         return $this->helper->success($moments, 200);
     }

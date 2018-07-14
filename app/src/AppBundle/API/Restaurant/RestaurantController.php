@@ -437,7 +437,7 @@ class RestaurantController extends ApiBaseController
         $results = $elasticaManager->getRepository('AppBundle:Restaurant')->search($restaurantSearch);
 
         if (!$results) {
-            $results[]=array();
+            return $this->helper->empty();
         }
 
         return $this->helper->success($results, 200);

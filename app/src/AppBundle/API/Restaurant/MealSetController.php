@@ -309,6 +309,9 @@ class MealSetController extends ApiBaseController
         $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
 
         $mealSets = $elasticaManager->getRepository('AppBundle:MealSet')->findByRestaurant($restaurant);
+        if(!$mealSets){
+            return $this->helper->empty();
+        }
 
         $json=array();
         foreach ($mealSets as $mealSet){
