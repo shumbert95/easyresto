@@ -66,10 +66,10 @@ class TagController extends ApiBaseController
 
     /**
      *
-     * @REST\Get("/restaurants/{id}/tags/{idTag}", name="api_show_moment")
+     * @REST\Get("/restaurants/{id}/tags/{idTag}", name="api_show_tag")
      *
      */
-    public function getMoment(Request $request)
+    public function getTag(Request $request)
     {
         if (!$request->get('id')) {
             return $this->helper->error('id', true);
@@ -78,18 +78,18 @@ class TagController extends ApiBaseController
         }
 
         $elasticaManager = $this->container->get('fos_elastica.manager');
-        $moment = $elasticaManager->getRepository('AppBundle:Moment')->findById($request->get('id'));
-        if (!$moment) {
-            return $this->helper->elementNotFound('Moment');
+        $tag = $elasticaManager->getRepository('AppBundle:Tag')->findById($request->get('id'));
+        if (!$tag) {
+            return $this->helper->elementNotFound('Tag');
         }
 
-        return $this->helper->success($moment, 200);
+        return $this->helper->success($tag, 200);
     }
 
     /**
-     * @REST\Delete("/restaurants/{id}/tags/{idTag}", name="api_delete_moment")
+     * @REST\Delete("/restaurants/{id}/tags/{idTag}", name="api_delete_tag")
      */
-    public function deleteMoment(Request $request)
+    public function deleteTag(Request $request)
     {
 
         $user = $this->container->get('security.token_storage')->getToken()->getUser();
@@ -113,16 +113,16 @@ class TagController extends ApiBaseController
         }
 
         $elasticaManager = $this->container->get('fos_elastica.manager');
-        $moment = $elasticaManager->getRepository('AppBundle:Moment')->findById($request->get('id'));
-        if (!$moment) {
-            return $this->helper->elementNotFound('Moment');
+        $tag = $elasticaManager->getRepository('AppBundle:Tag')->findById($request->get('id'));
+        if (!$tag) {
+            return $this->helper->elementNotFound('Tag');
         }
 
         $em = $this->getEntityManager();
-        $em->remove($moment);
+        $em->remove($tag);
         $em->flush();
 
-        return $this->helper->success($moment, 200);
+        return $this->helper->success($tag, 200);
     }
 
     /**
@@ -130,7 +130,7 @@ class TagController extends ApiBaseController
      * @REST\Get("/restaurants/{id}/tags", name="api_list_tags")
      *
      */
-    public function getMoments(Request $request)
+    public function getTags(Request $request)
     {
         $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
         if(!$restaurant){
@@ -138,10 +138,10 @@ class TagController extends ApiBaseController
 
         }
         $elasticaManager = $this->container->get('fos_elastica.manager');
-        $moments = $elasticaManager->getRepository('AppBundle:Tag')->findAllByRestaurant($restaurant);
-        if(!isset($moments[0]))
-            $moments[]=array();
+        $tag = $elasticaManager->getRepository('AppBundle:Tag')->findAllByRestaurant($restaurant);
+        if(!isset($tag[0]))
+            $tag[]=array();
 
-        return $this->helper->success($moments, 200);
+        return $this->helper->success($tag, 200);
     }
 }
