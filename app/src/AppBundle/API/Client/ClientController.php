@@ -260,6 +260,7 @@ class ClientController extends ApiBaseController
                                 $jsonContents[] = array(
                                     "id" => $content->getContent()->getId(),
                                     "name" => $content->getContent()->getName(),
+                                    "picture" => $content->getContent()->getPicture(),
                                     "quantity" => $content->getQuantity(),
                                     "totalPrice" => $content->getTotalPrice()
                                 );
@@ -346,6 +347,7 @@ class ClientController extends ApiBaseController
                     $jsonContents[] = array(
                         "id" => $content->getContent()->getId(),
                         "name" => $content->getContent()->getName(),
+                        "picture" => $content->getContent()->getPicture(),
                         "quantity" => $content->getQuantity(),
                         "totalPrice" => $content->getTotalPrice()
                     );

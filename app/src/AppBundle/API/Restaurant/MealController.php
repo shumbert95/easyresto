@@ -28,6 +28,7 @@ class MealController extends ApiBaseController
      * @REST\RequestParam(name="price", nullable=true)
      * @REST\RequestParam(name="availability", nullable=true)
      * @REST\RequestParam(name="position", nullable=true)
+     * @REST\RequestParam(name="picture", nullable=true)
      *
      */
     public function createMeal(Request $request, ParamFetcher $paramFetcher)
@@ -131,6 +132,9 @@ class MealController extends ApiBaseController
         }
         if($request_data['description']){
             $meal->setDescription($request_data['description']);
+        }
+        if($request_data['picture']){
+            $meal->setPicture($request_data['picture']);
         }
 
         $em = $this->getEntityManager();

@@ -97,7 +97,11 @@ class Content
      */
     protected $tags;
 
-
+    /**
+     * @var string
+     * @ORM\Column(name="picture", type="text", nullable=true)
+     */
+    protected $picture;
 
     /**
      * @var bool
@@ -352,10 +356,21 @@ class Content
         $this->tags = $tags;
     }
 
+    /**
+     * @return string
+     */
+    public function getPicture()
+    {
+        return $this->picture;
+    }
 
-
-
-
+    /**
+     * @param string $picture
+     */
+    public function setPicture($picture)
+    {
+        $this->picture = $picture;
+    }
 
 
 

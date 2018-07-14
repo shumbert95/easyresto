@@ -340,6 +340,7 @@ class AppFixtures extends Fixture
             $meal->setAvailability(1);
             $meal->setRestaurant($this->getReference('firstRestaurant'));
             $meal->setDescription("Good meal");
+            $meal->setPicture("http://bk-ca-prd.s3.amazonaws.com/sites/burgerking.ca/files/02280-9-BaconandCheeseWhopper_300x270_CR.jpg");
             $meal->addTag($this->getReference('firstRestaurant tag'));
             $meal->addIngredient($this->getReference('firstRestaurant ingredient-'.$i));
             $manager->persist($meal);
@@ -348,7 +349,7 @@ class AppFixtures extends Fixture
         }
         for($i=1;$i<=6;$i++){
             $meal = new Content();
-            $meal->setName("Burger");
+            $meal->setName("Ramen");
             $meal->setStatus(1);
             $meal->setType(Content::TYPE_MEAL);
             $meal->setDescription("Lorem ipsum toussa toussa vive la recette");
@@ -356,6 +357,7 @@ class AppFixtures extends Fixture
             $meal->setAvailability(1);
             $meal->setRestaurant($this->getReference('secondRestaurant'));
             $meal->setDescription("Good meal");
+            $meal->setPicture("https://image.afcdn.com/recipe/20140814/34558_w420h344c1cx900cy1350.jpg");
             $meal->addTag($this->getReference('secondRestaurant tag'));
             $meal->addIngredient($this->getReference('secondRestaurant ingredient-'.$i));
             $manager->persist($meal);
@@ -364,10 +366,11 @@ class AppFixtures extends Fixture
         }
         for($i=1;$i<=6;$i++){
             $meal = new Content();
-            $meal->setName("Burger");
+            $meal->setName("Curry");
             $meal->setStatus(1);
             $meal->setType(Content::TYPE_MEAL);
             $meal->setDescription("Lorem ipsum toussa toussa vive la recette");
+            $meal->setPicture("https://image.afcdn.com/recipe/20170315/63894_w420h344c1cx2592cy1728.jpg");
             $meal->setPrice($i * 2 + 0.99);
             $meal->setAvailability(1);
             $meal->setRestaurant($this->getReference('thirdRestaurant'));

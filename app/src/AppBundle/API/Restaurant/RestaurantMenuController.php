@@ -64,6 +64,7 @@ class RestaurantMenuController extends ApiBaseController
                                         "description" => $content->getDescription(),
                                         "availability" => $maxValue,
                                         "price" => $content->getPrice(),
+                                        "picture" => $content->getPicture(),
                                         "tags" => $content->getTags(),
                                     );
                                 }
