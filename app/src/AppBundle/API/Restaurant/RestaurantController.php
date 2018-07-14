@@ -216,6 +216,9 @@ class RestaurantController extends ApiBaseController
         }
 
         $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
+        if (!$restaurant instanceof Restaurant) {
+            return $this->helper->elementNotFound('Restaurant', 404);
+        }
         $restaurantUsers = $restaurant->getUsers();
 
         if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
@@ -230,9 +233,7 @@ class RestaurantController extends ApiBaseController
             return $this->helper->error('schedule', true);
         }
 
-        if (!$restaurant instanceof Restaurant) {
-            return $this->helper->elementNotFound('Restaurant', 404);
-        }
+
         $schedule = json_encode($request_data['schedule']);
         $restaurant->setSchedule($schedule);
         $this->getEntityManager()->persist($restaurant);

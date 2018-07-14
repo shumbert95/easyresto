@@ -262,6 +262,7 @@ class IngredientController extends ApiBaseController
 
             if(!$ingredient){
                 $ingredient=new Ingredient();
+                $ingredient->setName($data["name"]);
                 $ingredient->setStatus(Ingredient::STATUS_ONLINE);
                 $ingredient->setRestaurant($restaurant);
                 if(isset($data['stock']))
