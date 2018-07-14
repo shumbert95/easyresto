@@ -10,6 +10,7 @@ use AppBundle\Entity\Menu;
 use AppBundle\Form\CategoryMealType;
 use AppBundle\Form\MealType;
 use AppBundle\Form\MenuType;
+use Doctrine\Common\Collections\ArrayCollection;
 use FOS\RestBundle\Controller\Annotations as REST;
 use FOS\RestBundle\Request\ParamFetcher;
 use FOS\RestBundle\View\View;
@@ -124,17 +125,39 @@ class MealController extends ApiBaseController
 
         $request_data = $request->request->all();
 
-        if($request_data['name']){
+        if(isset($request_data['name'])){
             $meal->setName($request_data['name']);
         }
-        if($request_data['price']){
+        if(isset($request_data['price'])){
             $meal->setPrice($request_data['price']);
         }
-        if($request_data['description']){
+        if(isset($request_data['description'])){
             $meal->setDescription($request_data['description']);
         }
-        if($request_data['picture']){
+        if(isset($request_data['picture'])){
             $meal->setPicture($request_data['picture']);
+        }
+        if(isset($request_data['tags'])){
+            $tags = $request_data['tags'];
+            $arrayTags = new ArrayCollection();
+            foreach($tags as $tagId){
+                $tag = $elasticaManager->getRepository('AppBundle:Tag')->findById($tagId["id"]);
+                if(!$arrayTags->contains($tag)){
+                    $arrayTags->add($tag);
+                }
+            }
+            $meal->setTags($arrayTags);
+        }
+        if(isset($request_data['ingredients'])){
+            $ingredients = $request_data['ingredients'];
+            $arrayIngredients = new ArrayCollection();
+            foreach($ingredients as $ingredientId){
+                $ingredient = $elasticaManager->getRepository('AppBundle:Ingredient')->findById($ingredientId["id"]);
+                if(!$arrayIngredients->contains($ingredient) && $ingredient->getRestaurant() == $restaurant){
+                    $arrayIngredients->add($ingredient);
+                }
+            }
+            $meal->setIngredients($arrayIngredients);
         }
 
         $em = $this->getEntityManager();
