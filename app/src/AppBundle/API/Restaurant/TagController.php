@@ -152,6 +152,7 @@ class TagController extends ApiBaseController
             }
 
             $json[]=array(
+                "id" => $tag->getId(),
                 "name" => $tag->getName(),
                 "count" => $count
             );
