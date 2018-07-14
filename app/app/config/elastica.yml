@@ -118,6 +118,12 @@ fos_elastica:
                                 id:
                                     type: integer
                                 name: ~
+                        tags:
+                          type: "nested"
+                          properties:
+                            id:
+                              type: integer
+                            name: ~
                     persistence:
                       driver: orm
                       model: AppBundle\Entity\Content
@@ -211,6 +217,25 @@ fos_elastica:
                       finder: ~
                       provider: ~
                       repository: AppBundle\SearchRepository\MomentRepository
+
+                tag:
+                  properties:
+                      id:
+                          type: integer
+                      name: ~
+                      restaurant:
+                        type: "nested"
+                        properties:
+                          id:
+                            type: integer
+                          name: ~
+                  persistence:
+                      driver: orm
+                      model: AppBundle\Entity\Tag
+                      finder: ~
+                      provider: ~
+                      repository: AppBundle\SearchRepository\TagRepository
+
 
 
                 reservationContent:

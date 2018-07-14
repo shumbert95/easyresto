@@ -46,6 +46,12 @@ class TabMeal
      */
     private $restaurant;
 
+    /**
+     * @var array
+     * @ORM\Column(name="meals_ids", type="text", nullable=true)
+     */
+    protected $mealsIds;
+
     public function __construct()
     {
     }
@@ -127,6 +133,23 @@ class TabMeal
     {
         $this->restaurant = $restaurant;
     }
+
+    /**
+     * @return array
+     */
+    public function getMealsIds()
+    {
+        return $this->mealsIds;
+    }
+
+    /**
+     * @param array $mealsIds
+     */
+    public function setMealsIds($mealsIds)
+    {
+        $this->mealsIds = $mealsIds;
+    }
+
 
 
 

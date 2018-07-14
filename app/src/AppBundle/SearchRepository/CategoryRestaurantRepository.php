@@ -3,6 +3,7 @@
 namespace AppBundle\SearchRepository;
 
 use AppBundle\Entity\CategoryRestaurant;
+use AppBundle\Entity\Restaurant;
 use Elastica\Query;
 use Elastica\Query\BoolQuery;
 use Elastica\Query\Match;
@@ -35,16 +36,17 @@ class CategoryRestaurantRepository extends Repository
         return $categories ? $categories[0] : $categories;
     }
 
-    public function findAll() {
+    public function findAllByRestaurant(Restaurant $restaurant) {
         $boolQuery = new BoolQuery();
-        $fieldQueryStatus = new Match();
+        $nestedQuery = new Nested();
 
-        $fieldQueryStatus->setFieldQuery('status', CategoryRestaurant::STATUS_ONLINE);
-        $boolQuery->addMust($fieldQueryStatus);
+        $nestedQuery->setPath('restaurant')
+            ->setQuery(new Match('restaurant.id', $restaurant->getId()));
+        $boolQuery->addMust($nestedQuery);
 
         $query = new Query($boolQuery);
-        $query->addSort(array('name' => 'desc'));
+        $query->addSort(array('position' => 'asc'));
 
-        return $this->find($boolQuery,10000);
+        return $this->find($query);
     }
 }

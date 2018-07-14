@@ -11,7 +11,7 @@ use Elastica\Query\Match;
 use Elastica\Query\Nested;
 use FOS\ElasticaBundle\Repository;
 
-class MomentRepository extends Repository
+class TagRepository extends Repository
 {
 
     public function findByName($name) {
@@ -21,9 +21,9 @@ class MomentRepository extends Repository
         $fieldQuery->setFieldQuery('name', $name);
         $boolQuery->addMust($fieldQuery);
 
-        $moments = $this->find($boolQuery,10000);
+        $tags = $this->find($boolQuery,10000);
 
-        return $moments ? $moments[0] : $moments;
+        return $tags ? $tags[0] : $tags;
     }
 
     public function findById($id) {
@@ -33,9 +33,9 @@ class MomentRepository extends Repository
         $fieldQuery->setFieldQuery('id', $id);
         $boolQuery->addMust($fieldQuery);
 
-        $moments = $this->find($boolQuery,10000);
+        $tags = $this->find($boolQuery,10000);
 
-        return $moments ? $moments[0] : $moments;
+        return $tags ? $tags[0] : $tags;
     }
 
     public function findByIds($ids) {
@@ -46,16 +46,16 @@ class MomentRepository extends Repository
 
         $boolQuery->addMust($idsQuery);
 
-        $moments = $this->find($boolQuery,10000);
-        return $moments;
+        $tags = $this->find($boolQuery,10000);
+        return $tags;
     }
 
-    public function findAll() {
+    public function findAll($restaurant) {
         $boolQuery = new BoolQuery();
         $fieldQueryStatus = new Match();
 
         $query = new Query($boolQuery);
-        $query->addSort(array('name' => 'desc'));
+        $query->addSort(array('name' => 'asc'));
 
         return $this->find($boolQuery,10000);
     }

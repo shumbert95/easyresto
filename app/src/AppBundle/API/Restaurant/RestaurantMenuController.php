@@ -29,65 +29,58 @@ class RestaurantMenuController extends ApiBaseController
         $elasticaManager = $this->container->get('fos_elastica.manager');
 
         $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
-        //$restaurant = $this->getRestaurantRepository()->find($request->get('id'));
 
         if (!$restaurant instanceof Restaurant) {
             return $this->helper->elementNotFound('Restaurant', 404);
         }
 
         $tabs = $elasticaManager->getRepository('AppBundle:TabMeal')->findByRestaurant($restaurant);
-        //$tabs = $this->getTabMealRepository()->findBy(array("restaurant" => $restaurant));
 
         $json = array();
         if(isset($restaurant) && isset($tabs)) {
             foreach ($tabs as $tab) {
                 if (isset ($tab)) {
-                    $contents = $elasticaManager->getRepository('AppBundle:Content')->findByTab($tab);
+                    if($tab->getMealsIds()){
+                        $meals = json_decode($tab->getMealsIds());
 
-                    foreach ($contents as $content) {
-                        $maxValue=-1;
+                        if(is_array($meals)) {
+                            foreach ($meals as $meal) {
+                                $content = $elasticaManager->getRepository('AppBundle:Content')->findById($meal);
+                                if ($content->getType() == Content::TYPE_MEAL) {
+                                    $maxValue = -1;
 
-                        if($content->getIngredients()) {
-                            foreach ($content->getIngredients() as $ingredient) {
-                                if ($maxValue == -1)
-                                    $maxValue = $ingredient->getStock();
+                                    if ($content->getIngredients()) {
+                                        foreach ($content->getIngredients() as $ingredient) {
+                                            if ($maxValue == -1)
+                                                $maxValue = $ingredient->getStock();
 
-                                elseif ($ingredient->getStock() < $maxValue)
-                                    $maxValue = $ingredient->getStock();
+                                            elseif ($ingredient->getStock() < $maxValue)
+                                                $maxValue = $ingredient->getStock();
+                                        }
+                                    }
+                                    $arrayContent[$tab->getId()][] = array(
+                                        "id" => $content->getId(),
+                                        "name" => $content->getName(),
+                                        "description" => $content->getDescription(),
+                                        "availability" => $maxValue,
+                                        "price" => $content->getPrice(),
+                                        "tags" => $content->getTags(),
+                                    );
+                                }
                             }
                         }
 
-                            if ($content->getType() == Content::TYPE_CATEGORY) {
-                                $arrayContent[$tab->getId()][] = array(
-                                    "id" => $content->getId(),
-                                    "position" => $content->getPosition(),
-                                    "type" => $content->getType(),
-                                    "name" => $content->getName(),
-                                );
-                            }
-                        
-                        else {
-                            $arrayContent[$tab->getId()][] = array(
-                                "id" => $content->getId(),
-                                "position" => $content->getPosition(),
-                                "type" => $content->getType(),
-                                "name" => $content->getName(),
-                                "description" => $content->getDescription(),
-                                "availability" => $maxValue,
-                                "price" => $content->getPrice(),
-                            );
-                        }
                     }
-                    $json[] = array(
-                        "tab" => true,
-                        "id" => $tab->getId(),
-                        "position" => $tab->getPosition(),
-                        "name" => $tab->getName(),
-                        "content" => isset($arrayContent[$tab->getId()]) ? $arrayContent[$tab->getId()] : array()
-                    );
                 }
+                $json[] = array(
+                    "tab" => true,
+                    "id" => $tab->getId(),
+                    "position" => $tab->getPosition(),
+                    "name" => $tab->getName(),
+                    "content" => isset($arrayContent[$tab->getId()]) ? $arrayContent[$tab->getId()] : array()
+                );
             }
-            $mealSets = $elasticaManager->getRepository('AppBundle:MealSet')->findByRestaurant($restaurant);
+            /*$mealSets = $elasticaManager->getRepository('AppBundle:MealSet')->findByRestaurant($restaurant);
             if(isset($mealSets)) {
                 foreach ($mealSets as $mealSet) {
                     $mealSetElements = $elasticaManager->getRepository('AppBundle:MealSetElement')->findBySet($mealSet);
@@ -99,7 +92,7 @@ class RestaurantMenuController extends ApiBaseController
                         "content" => $mealSetElements,
                     );
                 }
-            }
+            }*/
 
         }
         else {

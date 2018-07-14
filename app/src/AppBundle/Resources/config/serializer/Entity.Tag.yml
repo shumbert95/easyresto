@@ -1,11 +1,7 @@
-AppBundle\Entity\Meal:
+AppBundle\Entity\Tag:
     exclusion_policy: none
     properties:
       restaurant:
         exclude: true
       status:
-        exclude: true
-      position:
-        exclude: true
-      type:
         exclude: true

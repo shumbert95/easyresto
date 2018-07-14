@@ -30,7 +30,7 @@ security:
 
         public:
             methods: [GET]
-            pattern: ^/(restaurants)(?!/[0-9]+/(favorites|note|ingredients|reservations|users|(categories|moments/[0-9]+/(add|remove))))
+            pattern: ^/(restaurants)(?!/[0-9]+/(favorites|note|ingredients|reservations|users|(categories|moments|tags/[0-9]+/(meals|add|remove))))
             security: false
 
         login:

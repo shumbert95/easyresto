@@ -12,6 +12,7 @@ use AppBundle\Entity\ReservationContent;
 use AppBundle\Entity\ReservationSeat;
 use AppBundle\Entity\Restaurant;
 use AppBundle\Entity\TabMeal;
+use AppBundle\Entity\Tag;
 use AppBundle\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -267,7 +268,7 @@ class AppFixtures extends Fixture
 
 
         //INGREDIENTS
-        for($i=1; $i<=3; $i++){
+        for($i=1; $i<=6; $i++){
             $ingredient = new Ingredient();
             $ingredient->setName("Ingredient number ".$i);
             $ingredient->setStock(15);
@@ -278,7 +279,7 @@ class AppFixtures extends Fixture
             $this->addReference('firstRestaurant ingredient-'.$i,$ingredient);
         }
 
-        for($i=1; $i<=3; $i++){
+        for($i=1; $i<=6; $i++){
             $ingredient = new Ingredient();
             $ingredient->setName("Ingredient number ".$i);
             $ingredient->setStock(15);
@@ -289,7 +290,7 @@ class AppFixtures extends Fixture
             $this->addReference('secondRestaurant ingredient-'.$i,$ingredient);
         }
 
-        for($i=1; $i<=3; $i++){
+        for($i=1; $i<=6; $i++){
             $ingredient = new Ingredient();
             $ingredient->setName("Ingredient number ".$i);
             $ingredient->setStock(15);
@@ -300,146 +301,156 @@ class AppFixtures extends Fixture
             $this->addReference('thirdRestaurant ingredient-'.$i,$ingredient);
         }
 
+        //Tags
+        $tag = new Tag();
+        $tag->setRestaurant($this->getReference('firstRestaurant'));
+        $tag->setStatus(Content::STATUS_ONLINE);
+        $tag->setName('Gluten full');
+        $manager->persist($tag);
+        $manager->flush();
+        $this->setReference('firstRestaurant tag',$tag);
+
+
+        $tag = new Tag();
+        $tag->setRestaurant($this->getReference('secondRestaurant'));
+        $tag->setStatus(Content::STATUS_ONLINE);
+        $tag->setName('Gluten Free');
+        $manager->persist($tag);
+        $manager->flush();
+        $this->setReference('secondRestaurant tag',$tag);
+
+
+        $tag = new Tag();
+        $tag->setRestaurant($this->getReference('thirdRestaurant'));
+        $tag->setStatus(Content::STATUS_ONLINE);
+        $tag->setName('Regime');
+        $manager->persist($tag);
+        $manager->flush();
+        $this->setReference('thirdRestaurant tag',$tag);
+
+
+        //MEALS
+        for($i=1;$i<=6;$i++){
+            $meal = new Content();
+            $meal->setName("Burger");
+            $meal->setStatus(1);
+            $meal->setType(Content::TYPE_MEAL);
+            $meal->setDescription("Lorem ipsum toussa toussa vive la recette");
+            $meal->setPrice($i * 2 + 0.99);
+            $meal->setAvailability(1);
+            $meal->setRestaurant($this->getReference('firstRestaurant'));
+            $meal->setDescription("Good meal");
+            $meal->addTag($this->getReference('firstRestaurant tag'));
+            $meal->addIngredient($this->getReference('firstRestaurant ingredient-'.$i));
+            $manager->persist($meal);
+            $manager->flush();
+            $this->setReference('firstRestaurant meal-'.$i,$meal);
+        }
+        for($i=1;$i<=6;$i++){
+            $meal = new Content();
+            $meal->setName("Burger");
+            $meal->setStatus(1);
+            $meal->setType(Content::TYPE_MEAL);
+            $meal->setDescription("Lorem ipsum toussa toussa vive la recette");
+            $meal->setPrice($i * 2 + 0.99);
+            $meal->setAvailability(1);
+            $meal->setRestaurant($this->getReference('secondRestaurant'));
+            $meal->setDescription("Good meal");
+            $meal->addTag($this->getReference('secondRestaurant tag'));
+            $meal->addIngredient($this->getReference('secondRestaurant ingredient-'.$i));
+            $manager->persist($meal);
+            $manager->flush();
+            $this->setReference('secondRestaurant meal-'.$i,$meal);
+        }
+        for($i=1;$i<=6;$i++){
+            $meal = new Content();
+            $meal->setName("Burger");
+            $meal->setStatus(1);
+            $meal->setType(Content::TYPE_MEAL);
+            $meal->setDescription("Lorem ipsum toussa toussa vive la recette");
+            $meal->setPrice($i * 2 + 0.99);
+            $meal->setAvailability(1);
+            $meal->setRestaurant($this->getReference('thirdRestaurant'));
+            $meal->setDescription("Good meal");
+            $meal->addTag($this->getReference('thirdRestaurant tag'));
+            $meal->addIngredient($this->getReference('thirdRestaurant ingredient-'.$i));
+            $manager->persist($meal);
+            $manager->flush();
+            $this->setReference('thirdRestaurant meal-'.$i,$meal);
+        }
+
+
+
         //TABS
-        for($i=1; $i<=3; $i++){
-            $tab = new TabMeal();
-            $tab->setName("Tab number ".$i);
-            $tab->setPosition($i);
-            $tab->setStatus(1);
-            $tab->setRestaurant($this->getReference("firstRestaurant"));
-            $manager->persist($tab);
-            $manager->flush();
-            $this->addReference('firstRestaurant tab-'.$i,$tab);
-        }
-        for($i=1; $i<=3; $i++){
-            $tab = new TabMeal();
-            $tab->setName("Tab number ".$i);
-            $tab->setPosition($i+1);
-            $tab->setStatus(1);
-            $tab->setRestaurant($this->getReference("secondRestaurant"));
-            $manager->persist($tab);
-            $manager->flush();
-            $this->addReference('secondRestaurant tab-'.$i,$tab);
-        }
-        for($i=1; $i<=3; $i++){
-            $tab = new TabMeal();
-            $tab->setName("Tab number ".$i);
-            $tab->setPosition($i+1);
-            $tab->setStatus(1);
-            $tab->setRestaurant($this->getReference("thirdRestaurant"));
-            $manager->persist($tab);
-            $manager->flush();
-            $this->addReference('thirdRestaurant tab-'.$i,$tab);
+        $tab = new TabMeal();
+        $tab->setName("Tab number 1");
+        $tab->setPosition(1);
+        $tab->setStatus(1);
+        $tab->setRestaurant($this->getReference("firstRestaurant"));
+        $arrayMeals="[1,2,3]";
+        $tab->setMealsIds($arrayMeals);
+        $manager->persist($tab);
+        $manager->flush();
+        $this->addReference('firstRestaurant tab-1',$tab);
+
+        $tab = new TabMeal();
+        $tab->setName("Tab number 2");
+        $tab->setPosition(2);
+        $tab->setStatus(1);
+        $tab->setRestaurant($this->getReference("firstRestaurant"));
+        $arrayMeals="[4,5,6]";
+        $tab->setMealsIds($arrayMeals);
+        $manager->persist($tab);
+        $manager->flush();
+        $this->addReference('firstRestaurant tab-2',$tab);
+
+        $tab = new TabMeal();
+        $tab->setName("Tab number 1");
+        $tab->setPosition(1);
+        $tab->setStatus(1);
+        $tab->setRestaurant($this->getReference("secondRestaurant"));
+        $arrayMeals="[7,8,9]";
+        $tab->setMealsIds($arrayMeals);
+        $manager->persist($tab);
+        $manager->flush();
+        $this->addReference('secondRestaurant tab-1',$tab);
+
+        $tab = new TabMeal();
+        $tab->setName("Tab number 2");
+        $tab->setPosition(2);
+        $tab->setStatus(1);
+        $tab->setRestaurant($this->getReference("secondRestaurant"));
+        $arrayMeals="[10,11,12]";
+        $tab->setMealsIds($arrayMeals);
+        $manager->persist($tab);
+        $manager->flush();
+        $this->addReference('secondRestaurant tab-2',$tab);
+
+        $tab = new TabMeal();
+        $tab->setName("Tab number 1");
+        $tab->setPosition(1);
+        $tab->setStatus(1);
+        $tab->setRestaurant($this->getReference("thirdRestaurant"));
+        $arrayMeals="[13,14,15]";
+        $tab->setMealsIds($arrayMeals);
+        $manager->persist($tab);
+        $manager->flush();
+        $this->addReference('thirdRestaurant tab-1',$tab);
+
+        $tab = new TabMeal();
+        $tab->setName("Tab number 2");
+        $tab->setPosition(2);
+        $tab->setStatus(1);
+        $tab->setRestaurant($this->getReference("thirdRestaurant"));
+        $arrayMeals="[16,17,18]";
+        $tab->setMealsIds($arrayMeals);
+        $manager->persist($tab);
+        $manager->flush();
+        $this->addReference('thirdRestaurant tab-2',$tab);
 
 
-        }
 
-        //CATEGORIES & MEALS
-        for($i=1;$i<=3;$i++){
-            $countPos = 1;
-            for($j=1;$j<=2;$j++) {
-                $category = new Content();
-                $category->setName("Category number " . $j . " tab" . $i);
-                $category->setStatus(1);
-                $category->setType(Content::TYPE_CATEGORY);
-                $category->setPosition($countPos);
-                $countPos++;
-                $category->setRestaurant($this->getReference('firstRestaurant'));
-                $category->setTab($this->getReference('firstRestaurant tab-' . $i));
-                $manager->persist($category);
-                $manager->flush();
-                for ($k = 1; $k <= 2; $k++) {
-                    $meal = new Content();
-                    $meal->setName("Burger");
-                    $meal->setStatus(1);
-                    $meal->setType(Content::TYPE_MEAL);
-                    $meal->setPosition($countPos);
-                    $countPos++;
-                    $meal->setDescription("Lorem ipsum toussa toussa vive la recette");
-                    $meal->setPrice($i + $j + 0.99);
-                    $meal->setAvailability(1);
-                    $meal->setRestaurant($this->getReference('firstRestaurant'));
-                    $meal->setDescription("Good meal");
-                    $meal->setTab($this->getReference('firstRestaurant tab-' . $i));
-                    $meal->addIngredient($this->getReference('firstRestaurant ingredient-'.$i));
-                    $manager->persist($meal);
-                    $manager->flush();
-                    $this->setReference('firstRestaurant tab-'.$i.'-meal-'.$k,$meal);
-                }
-            }
-        }
 
-        for($i=1;$i<=3;$i++){
-            $countPos = 1;
-            for($j=1;$j<=2;$j++) {
-                $category = new Content();
-                $category->setName("Category number " . $j . " tab" . $i);
-                $category->setStatus(1);
-                $category->setType(Content::TYPE_CATEGORY);
-                $category->setPosition($countPos);
-                $countPos++;
-                $category->setRestaurant($this->getReference('secondRestaurant'));
-                $category->setTab($this->getReference('secondRestaurant tab-' . $i));
-                $manager->persist($category);
-                $manager->flush();
-                for ($k = 1; $k <= 2; $k++) {
-                    $meal = new Content();
-                    $meal->setName("Ramen");
-                    $meal->setStatus(1);
-                    $meal->setType(Content::TYPE_MEAL);
-                    $meal->setPosition($countPos);
-                    $countPos++;
-                    $meal->setDescription("Lorem ipsum toussa toussa vive la recette");
-                    $meal->setPrice($i + $j + 0.99);
-                    $meal->setAvailability(1);
-                    $meal->setRestaurant($this->getReference('secondRestaurant'));
-                    $meal->setDescription("Good meal");
-                    $meal->setTab($this->getReference('secondRestaurant tab-' . $i));
-                    $meal->addIngredient($this->getReference('secondRestaurant ingredient-'.$i));
-                    $manager->persist($meal);
-                    $manager->flush();
-                    $this->setReference('secondRestaurant tab-'.$i.'-meal-'.$k,$meal);
-
-                }
-            }
-
-        }
-
-        for($i=1;$i<=3;$i++){
-            $countPos = 1;
-            for($j=1;$j<=2;$j++) {
-                $category = new Content();
-                $category->setName("Category number " . $j . " tab" . $i);
-                $category->setStatus(1);
-                $category->setType(Content::TYPE_CATEGORY);
-                $category->setPosition($countPos);
-                $countPos++;
-                $category->setRestaurant($this->getReference('thirdRestaurant'));
-                $category->setTab($this->getReference('thirdRestaurant tab-' . $i));
-                $manager->persist($category);
-                $manager->flush();
-                for ($k = 1; $k <= 2; $k++) {
-                    $meal = new Content();
-                    $meal->setName("Curry");
-                    $meal->setStatus(1);
-                    $meal->setType(Content::TYPE_MEAL);
-                    $meal->setPosition($countPos);
-                    $countPos++;
-                    $meal->setDescription("Lorem ipsum toussa toussa vive la recette");
-                    $meal->setPrice($i + $j + 0.99);
-                    $meal->setAvailability(1);
-                    $meal->setRestaurant($this->getReference('thirdRestaurant'));
-                    $meal->setDescription("Good meal");
-                    $meal->setTab($this->getReference('thirdRestaurant tab-' . $i));
-                    $meal->addIngredient($this->getReference('thirdRestaurant ingredient-'.$i));
-                    $manager->persist($meal);
-                    $manager->flush();
-                    $this->setReference('thirdRestaurant tab-'.$i.'-meal-'.$k,$meal);
-
-                }
-            }
-
-        }
 
         //Reservations
         $reservationUser = $this->getReference('firstclient@test.com');
@@ -450,9 +461,9 @@ class AppFixtures extends Fixture
         $reservation->setNbParticipants(4);
         $reservation->setState(1);
         $reservation->setTimeStep("17h30");
-        $firstMeal=$this->getReference('firstRestaurant tab-1-meal-1');
-        $secondMeal=$this->getReference('firstRestaurant tab-2-meal-2');
-        $thirdMeal=$this->getReference('firstRestaurant tab-2-meal-1');
+        $firstMeal=$this->getReference('firstRestaurant meal-1');
+        $secondMeal=$this->getReference('firstRestaurant meal-2');
+        $thirdMeal=$this->getReference('firstRestaurant meal-1');
         $total = $firstMeal->getPrice() + $secondMeal->getPrice() + $thirdMeal->getPrice();
         $reservation->setTotal($total);
         $manager->persist($reservation);
@@ -499,9 +510,9 @@ class AppFixtures extends Fixture
         $reservation->setNbParticipants(4);
         $reservation->setTimeStep("11h30");
         $reservation->setState(1);
-        $firstMeal=$this->getReference('secondRestaurant tab-1-meal-2');
-        $secondMeal=$this->getReference('secondRestaurant tab-1-meal-1');
-        $thirdMeal=$this->getReference('secondRestaurant tab-2-meal-1');
+        $firstMeal=$this->getReference('secondRestaurant meal-2');
+        $secondMeal=$this->getReference('secondRestaurant meal-1');
+        $thirdMeal=$this->getReference('secondRestaurant meal-3');
         $total = $firstMeal->getPrice() + $secondMeal->getPrice() + $thirdMeal->getPrice();
         $reservation->setTotal($total);
         $manager->persist($reservation);
@@ -544,9 +555,9 @@ class AppFixtures extends Fixture
         $reservation->setDate($date);
         $reservation->setNbParticipants(4);
         $reservation->setState(1);
-        $firstMeal=$this->getReference('firstRestaurant tab-1-meal-1');
-        $secondMeal=$this->getReference('firstRestaurant tab-1-meal-2');
-        $thirdMeal=$this->getReference('firstRestaurant tab-2-meal-2');
+        $firstMeal=$this->getReference('firstRestaurant meal-1');
+        $secondMeal=$this->getReference('firstRestaurant meal-2');
+        $thirdMeal=$this->getReference('firstRestaurant meal-5');
         $total = $firstMeal->getPrice() + $secondMeal->getPrice() + $thirdMeal->getPrice();
         $reservation->setTotal($total);
         $manager->persist($reservation);

@@ -55,7 +55,7 @@ class ContentRepository extends Repository
         $boolQuery->addMust($nestedQuery);
 
         $query = new Query($boolQuery);
-        $query->addSort(array('position' => 'asc'));
+        $query->addSort(array('id' => 'asc'));
 
         return $this->find($query);
     }
