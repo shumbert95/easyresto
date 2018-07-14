@@ -13,6 +13,7 @@ use AppBundle\Form\TagType;
 use FOS\RestBundle\Controller\Annotations as REST;
 use FOS\RestBundle\Request\ParamFetcher;
 use Symfony\Component\HttpFoundation\Request;
+use FOS\RestBundle\Controller\Annotations\QueryParam;
 
 class TagController extends ApiBaseController
 {
@@ -117,5 +118,45 @@ class TagController extends ApiBaseController
             $tag[]=array();
 
         return $this->helper->success($tag, 200);
+    }
+
+    /**
+     * @QueryParam(name="name", nullable=true)
+     * @REST\Get("/tags/search/count", name="api_count_tag_name")
+     */
+    public function getTagCount(Request $request,ParamFetcher $paramFetcher)
+    {
+        $params = $paramFetcher->all();
+
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+        $meals = $elasticaManager->getRepository('AppBundle:Content')->findAll();
+
+
+        $name = $params['name'];
+        $tags = $elasticaManager->getRepository('AppBundle:Tag')->findByNameBest($name);
+
+        if (!$tags) {
+            return $this->helper->elementNotFound('Tag');
+        }
+
+        $count = 0;
+        foreach($tags as $tag){
+            $count = 0;
+            foreach($meals as $meal){
+                $compareTags = $meal->getTags();
+                foreach($compareTags as $compareTag){
+                    if($tag == $compareTag){
+                        $count++;
+                    }
+                }
+            }
+
+            $json[]=array(
+                "name" => $tag->getName(),
+                "count" => $count
+            );
+        }
+
+        return $this->helper->success($json, 200);
     }
 }

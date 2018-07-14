@@ -58,4 +58,20 @@ class TagRepository extends Repository
 
         return $this->find($boolQuery,10000);
     }
+
+    public function findByNameBest($name)
+    {
+        $boolQuery = new BoolQuery();
+        $fieldQuery = new Match();
+
+
+        if($name != ""){
+            $queryString = new Query\QueryString();
+            $queryString->setQuery("*".$name."*");
+            $queryString->setDefaultField('name');
+            $boolQuery->addMust($queryString);
+        }
+
+        return $this->find($boolQuery,10000);
+    }
 }

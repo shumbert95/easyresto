@@ -120,4 +120,14 @@ class ContentRepository extends Repository
 
         return isset($contents[0]) ? true : false;
     }
+
+    public function findAll() {
+        $boolQuery = new BoolQuery();
+        $fieldQueryStatus = new Match();
+
+        $query = new Query($boolQuery);
+        $query->addSort(array('name' => 'desc'));
+
+        return $this->find($boolQuery,10000);
+    }
 }
