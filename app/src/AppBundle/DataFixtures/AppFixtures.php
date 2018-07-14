@@ -303,7 +303,6 @@ class AppFixtures extends Fixture
 
         //Tags
         $tag = new Tag();
-        $tag->setRestaurant($this->getReference('firstRestaurant'));
         $tag->setStatus(Content::STATUS_ONLINE);
         $tag->setName('Gluten full');
         $manager->persist($tag);
@@ -312,7 +311,6 @@ class AppFixtures extends Fixture
 
 
         $tag = new Tag();
-        $tag->setRestaurant($this->getReference('secondRestaurant'));
         $tag->setStatus(Content::STATUS_ONLINE);
         $tag->setName('Gluten Free');
         $manager->persist($tag);
@@ -321,7 +319,6 @@ class AppFixtures extends Fixture
 
 
         $tag = new Tag();
-        $tag->setRestaurant($this->getReference('thirdRestaurant'));
         $tag->setStatus(Content::STATUS_ONLINE);
         $tag->setName('Regime');
         $manager->persist($tag);

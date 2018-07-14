@@ -17,7 +17,7 @@ class MomentController extends ApiBaseController
     /**
      * @param ParamFetcher $paramFetcher
      *
-     * @REST\Post("/restaurants/moments/create", name="api_create_moment")
+     * @REST\Post("/moments/create", name="api_create_moment")
      * @REST\RequestParam(name="name")
      * @REST\RequestParam(name="moment")
      */
@@ -59,7 +59,7 @@ class MomentController extends ApiBaseController
 
     /**
      *
-     * @REST\Get("/restaurants/moments/{id}", name="api_show_moment")
+     * @REST\Get("/moments/{id}", name="api_show_moment")
      *
      */
     public function getMoment(Request $request)
@@ -80,7 +80,7 @@ class MomentController extends ApiBaseController
     }
 
     /**
-     * @REST\Delete("/restaurants/moments/{id}", name="api_delete_moment")
+     * @REST\Delete("/moments/{id}", name="api_delete_moment")
      */
     public function deleteMoment(Request $request)
     {
@@ -110,7 +110,7 @@ class MomentController extends ApiBaseController
 
     /**
      *
-     * @REST\Get("/restaurants/moments", name="api_list_moments")
+     * @REST\Get("/moments", name="api_list_moments")
      *
      */
     public function getMoments()

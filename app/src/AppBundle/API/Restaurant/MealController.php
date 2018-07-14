@@ -302,7 +302,7 @@ class MealController extends ApiBaseController
     }
 
     /**
-     * @REST\Get("/restaurants/{id}/ingredients/{idIngredient}/meals/{idMeal}/add", name="api_add_ingredient_to_meal")
+     * @REST\Get("/restaurants/{id}/meals/{idMeal}/ingredients/{idIngredient}/add", name="api_add_ingredient_to_meal")
      *
      */
     public function addIngredient(Request $request)
@@ -360,7 +360,7 @@ class MealController extends ApiBaseController
 
     /**
      *
-     * @REST\Get("/restaurants/{id}/ingredients/{idIngredient}/meals/{idMeal}/remove", name="api_remove_ingredient_from_meal")
+     * @REST\Get("/restaurants/{id}/meals/{idMeal}/ingredients/{idIngredient}/remove", name="api_remove_ingredient_from_meal")
      */
     public function removeIngredient(Request $request)
     {
@@ -418,7 +418,7 @@ class MealController extends ApiBaseController
     }
 
     /**
-     * @REST\Get("/restaurants/{id}/tags/{idTag}/meals/{idMeal}/add", name="api_add_tag_to_meal")
+     * @REST\Get("/restaurants/{id}/meals/{idMeal}/tags/{idTag}/add", name="api_add_tag_to_meal")
      *
      */
     public function addTag(Request $request)
@@ -454,9 +454,6 @@ class MealController extends ApiBaseController
         if (!$tag) {
             return $this->helper->elementNotFound('Tag');
         }
-        if($tag->getRestaurant() != $restaurant){
-            return $this->helper->error('Ce n\'est pas un ingrédient de ce restaurant');
-        }
 
         $meal = $elasticaManager->getRepository('AppBundle:Content')->findById($request->get('idMeal'));
         if (!$meal) {
@@ -478,7 +475,7 @@ class MealController extends ApiBaseController
 
     /**
      *
-     * @REST\Get("/restaurants/{id}/tags/{idTag}/meals/{idMeal}/remove", name="api_remove_tag_from_meal")
+     * @REST\Get("/restaurants/{id}/meals/{idMeal}/tags/{idTag}/remove", name="api_remove_tag_from_meal")
      */
     public function removeTag(Request $request)
     {
@@ -512,9 +509,6 @@ class MealController extends ApiBaseController
         $tag = $elasticaManager->getRepository('AppBundle:Tag')->findById($request->get('idTag'));
         if (!$tag) {
             return $this->helper->elementNotFound('Tag');
-        }
-        if($tag->getRestaurant() != $restaurant){
-            return $this->helper->error('Ce n\'est pas un ingrédient de ce restaurant');
         }
 
         $meal = $elasticaManager->getRepository('AppBundle:Content')->findById($request->get('idMeal'));

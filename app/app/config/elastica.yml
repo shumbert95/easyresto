@@ -223,12 +223,6 @@ fos_elastica:
                       id:
                           type: integer
                       name: ~
-                      restaurant:
-                        type: "nested"
-                        properties:
-                          id:
-                            type: integer
-                          name: ~
                   persistence:
                       driver: orm
                       model: AppBundle\Entity\Tag

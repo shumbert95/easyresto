@@ -90,9 +90,8 @@ class CheckoutController extends ApiBaseController
         if(isset($params['nbParticipants'])) {
             $verifMobile=true;
             $nbParticipants = $params['nbParticipants'];
-            unset($params['nbParticipants']);
-
         }
+        unset($params['nbParticipants']);
 
 
         if(!$checkMeal){

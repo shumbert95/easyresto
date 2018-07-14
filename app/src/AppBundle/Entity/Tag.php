@@ -23,13 +23,6 @@ class Tag
     protected $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Restaurant")
-     * @ORM\JoinColumn(name="restaurant_id")
-     */
-    protected $restaurant;
-
-
-    /**
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=255, nullable=true)
@@ -79,24 +72,6 @@ class Tag
     {
         $this->name = $name;
     }
-
-    /**
-     * @return mixed
-     */
-    public function getRestaurant()
-    {
-        return $this->restaurant;
-    }
-
-    /**
-     * @param mixed $restaurant
-     */
-    public function setRestaurant($restaurant)
-    {
-        $this->restaurant = $restaurant;
-    }
-
-
 
     /**
      * @return bool

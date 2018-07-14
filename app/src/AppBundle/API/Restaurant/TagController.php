@@ -19,35 +19,25 @@ class TagController extends ApiBaseController
     /**
      * @param ParamFetcher $paramFetcher
      *
-     * @REST\Post("/restaurants/{id}/tags/create", name="api_create_tag")
+     * @REST\Post("/tags/create", name="api_create_tag")
      * @REST\RequestParam(name="name", nullable=true)
      */
     public function createTag(Request $request,ParamFetcher $paramFetcher)
     {
-        $user = $this->container->get('security.token_storage')->getToken()->getUser();
-
-        if (!$request->get('id')) {
-            return $this->helper->error('id', true);
-        } elseif (!preg_match('/\d/', $request->get('id'))) {
-            return $this->helper->error('param \'id\' must be an integer');
-        }
-
-        $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
-        if(!$restaurant){
-            return $this->helper->elementNotFound('Restaurant');
-
-        }
-        $restaurantUsers = $restaurant->getUsers();
-
         if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
-            !$restaurantUsers->contains($user)){
+            !$this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')){
             return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
         }
         $params = $paramFetcher->all();
         $elasticaManager = $this->container->get('fos_elastica.manager');
+        $tag = $elasticaManager->getRepository('AppBundle:Tag')->findByName($params['name']);
+
+        if ($tag instanceof Tag) {
+            return $this->helper->warning('Ce tag existe déjà.',403);
+        }
+
         $tag = new Tag();
         $tag->setStatus(CategoryRestaurant::STATUS_ONLINE);
-        $tag->setRestaurant($restaurant);
 
         $form = $this->createForm(TagType::class, $tag);
         $form->submit($params);
@@ -66,7 +56,7 @@ class TagController extends ApiBaseController
 
     /**
      *
-     * @REST\Get("/restaurants/{id}/tags/{idTag}", name="api_show_tag")
+     * @REST\Get("/tags/{id}", name="api_show_tag")
      *
      */
     public function getTag(Request $request)
@@ -87,28 +77,17 @@ class TagController extends ApiBaseController
     }
 
     /**
-     * @REST\Delete("/restaurants/{id}/tags/{idTag}", name="api_delete_tag")
+     * @REST\Delete("/tags/{id}", name="api_delete_tag")
      */
     public function deleteTag(Request $request)
     {
-
-        $user = $this->container->get('security.token_storage')->getToken()->getUser();
-
         if (!$request->get('id')) {
             return $this->helper->error('id', true);
         } elseif (!preg_match('/\d/', $request->get('id'))) {
             return $this->helper->error('param \'id\' must be an integer');
         }
 
-        $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
-        if(!$restaurant){
-            return $this->helper->elementNotFound('Restaurant');
-
-        }
-        $restaurantUsers = $restaurant->getUsers();
-
-        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
-            !$restaurantUsers->contains($user)){
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')){
             return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
         }
 
@@ -127,18 +106,13 @@ class TagController extends ApiBaseController
 
     /**
      *
-     * @REST\Get("/restaurants/{id}/tags", name="api_list_tags")
+     * @REST\Get("/tags", name="api_list_tags")
      *
      */
     public function getTags(Request $request)
     {
-        $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
-        if(!$restaurant){
-            return $this->helper->elementNotFound('Restaurant');
-
-        }
         $elasticaManager = $this->container->get('fos_elastica.manager');
-        $tag = $elasticaManager->getRepository('AppBundle:Tag')->findAllByRestaurant($restaurant);
+        $tag = $elasticaManager->getRepository('AppBundle:Tag')->findAll();
         if(!isset($tag[0]))
             $tag[]=array();
 

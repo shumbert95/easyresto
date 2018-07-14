@@ -15,7 +15,7 @@ class CategoryRestaurantController extends ApiBaseController
     /**
      * @param ParamFetcher $paramFetcher
      *
-     * @REST\Post("/restaurants/categories/create", name="api_create_category_restaurant")
+     * @REST\Post("/categories/create", name="api_create_category_restaurant")
      * @REST\RequestParam(name="name")
      */
     public function createCategory(ParamFetcher $paramFetcher)
@@ -56,7 +56,7 @@ class CategoryRestaurantController extends ApiBaseController
 
     /**
      *
-     * @REST\Get("/restaurants/categories/{id}", name="api_show_category_restaurant")
+     * @REST\Get("/categories/{id}", name="api_show_category_restaurant")
      *
      */
     public function getCategoryRestaurant(Request $request)
@@ -77,7 +77,7 @@ class CategoryRestaurantController extends ApiBaseController
     }
 
     /**
-     * @REST\Delete("/restaurants/categories/{id}", name="api_delete_category_restaurant")
+     * @REST\Delete("/categories/{id}", name="api_delete_category_restaurant")
      */
     public function deleteCategoryRestaurant(Request $request)
     {
@@ -107,7 +107,7 @@ class CategoryRestaurantController extends ApiBaseController
 
     /**
      *
-     * @REST\Get("/restaurants/categories", name="api_list_restaurants_categories")
+     * @REST\Get("/categories", name="api_list_restaurants_categories")
      *
      */
     public function getRestaurantsCategories()
