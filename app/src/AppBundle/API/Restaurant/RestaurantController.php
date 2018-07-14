@@ -7,6 +7,7 @@ use AppBundle\Entity\Restaurant;
 use AppBundle\Entity\User;
 use AppBundle\Form\RestaurantType;
 use AppBundle\Model\RestaurantSearch;
+use Doctrine\Common\Collections\ArrayCollection;
 use FOS\RestBundle\Controller\Annotations as REST;
 use FOS\RestBundle\Request\ParamFetcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -245,85 +246,9 @@ class RestaurantController extends ApiBaseController
     /**
      * @param Request $request
      *
-     * @REST\Get("/restaurants/{id}/categories/{idCat}/add", name="api_add_category")
+     * @REST\Put("/restaurants/{id}/categories", name="api_update_restaurant_categories")
      */
-    public function addCategory(Request $request)
-    {
-        $user = $this->container->get('security.token_storage')->getToken()->getUser();
-
-        if (!$request->get('id')) {
-            return $this->helper->error('id', true);
-        } elseif (!preg_match('/\d/', $request->get('id'))) {
-            return $this->helper->error('param \'id\' must be an integer');
-        }
-
-        $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
-        if(!$restaurant){
-            return $this->helper->elementNotFound('Restaurant');
-
-        }
-        $restaurantUsers = $restaurant->getUsers();
-
-        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
-            !$restaurantUsers->contains($user)){
-            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
-        }
-        $category = $this->getCategoryRestaurantRepository()->findOneBy(array("id" => $request->get('idCat')));
-        if(!$category){
-            return $this->helper->elementNotFound('Category');
-
-        }
-        $restaurant->addCategory($category);
-        $this->getEntityManager()->persist($restaurant);
-        $this->getEntityManager()->flush();
-
-        return $this->helper->success($restaurant, 200);
-    }
-
-    /**
-     * @param Request $request
-     *
-     * @REST\Get("/restaurants/{id}/categories/{idCat}/remove", name="api_remove_category")
-     */
-    public function removeCategory(Request $request)
-    {
-        $user = $this->container->get('security.token_storage')->getToken()->getUser();
-
-        if (!$request->get('id')) {
-            return $this->helper->error('id', true);
-        } elseif (!preg_match('/\d/', $request->get('id'))) {
-            return $this->helper->error('param \'id\' must be an integer');
-        }
-
-        $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
-        if(!$restaurant){
-            return $this->helper->elementNotFound('Restaurant');
-
-        }
-        $restaurantUsers = $restaurant->getUsers();
-
-        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
-            !$restaurantUsers->contains($user)){
-            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
-        }
-        $category = $this->getCategoryRestaurantRepository()->findOneBy(array("id" => $request->get('idCat')));
-        if(!$category){
-            return $this->helper->elementNotFound('Category');
-
-        }
-        $restaurant->removeCategory($category);
-        $this->getEntityManager()->persist($restaurant);
-        $this->getEntityManager()->flush();
-
-        return $this->helper->success($restaurant, 200);
-    }
-
-    /**
-     * @param Request $request
-     *
-     * @REST\Get("/restaurants/{id}/moments/{idMoment}/add", name="api_add_moment")
-     */
-    public function addMoment(Request $request)
+    public function updateCategories(Request $request)
     {
         $user = $this->container->get('security.token_storage')->getToken()->getUser();
 
@@ -345,14 +270,23 @@ class RestaurantController extends ApiBaseController
             return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
         }
         $elasticaManager = $this->container->get('fos_elastica.manager');
-        $moment = $elasticaManager->getRepository('AppBundle:Moment')->findById($request->get('idMoment'));
-        if(!$moment){
-            return $this->helper->elementNotFound('Category');
 
+        $request_data = $request->request->all();
+        if(isset($request_data['categories'])){
+            $categories = $request_data['categories'];
+            $arrayCategories = new ArrayCollection();
+            foreach($categories as $categoryId){
+                $category = $elasticaManager->getRepository('AppBundle:CategoryRestaurant')->findById($categoryId["id"]);
+                if($category && !$arrayCategories->contains($category)){
+                    $arrayCategories->add($category);
+                }
+            }
+            $restaurant->setCategories($arrayCategories);
         }
-        $restaurant->addMoment($moment);
-        $this->getEntityManager()->persist($restaurant);
-        $this->getEntityManager()->flush();
+
+        $em = $this->getEntityManager();
+        $em->persist($restaurant);
+        $em->flush();
 
         return $this->helper->success($restaurant, 200);
     }
@@ -360,9 +294,9 @@ class RestaurantController extends ApiBaseController
     /**
      * @param Request $request
      *
-     * @REST\Get("/restaurants/{id}/moments/{idMoment}/remove", name="api_remove_moment")
+     * @REST\Put("/restaurants/{id}/moments", name="api_update_restaurant_moments")
      */
-    public function removeMoment(Request $request)
+    public function updateMoments(Request $request)
     {
         $user = $this->container->get('security.token_storage')->getToken()->getUser();
 
@@ -384,18 +318,86 @@ class RestaurantController extends ApiBaseController
             return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
         }
         $elasticaManager = $this->container->get('fos_elastica.manager');
-        $moment = $elasticaManager->getRepository('AppBundle:Moment')->findById($request->get('idMoment'));
-        if(!$moment){
-            return $this->helper->elementNotFound('Moment');
 
+        $request_data = $request->request->all();
+        if(isset($request_data['moments'])){
+            $moments = $request_data['moments'];
+            $arrayMoments = new ArrayCollection();
+            foreach($moments as $momentId){
+                $moment = $elasticaManager->getRepository('AppBundle:Moment')->findById($momentId["id"]);
+                if($moment && !$arrayMoments->contains($moment)){
+                    $arrayMoments->add($moment);
+                }
+            }
+            $restaurant->setMoments($arrayMoments);
         }
-        $restaurant->removeMoment($moment);
-        $this->getEntityManager()->persist($restaurant);
-        $this->getEntityManager()->flush();
+
+        $em = $this->getEntityManager();
+        $em->persist($restaurant);
+        $em->flush();
 
         return $this->helper->success($restaurant, 200);
     }
 
+    /**
+     * @param Request $request
+     *
+     * @REST\Put("/restaurants/{id}/categories_moments", name="api_update_restaurant_moments_categories")
+     */
+    public function updateCategoriesAndMoments(Request $request)
+    {
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
+        $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
+        if(!$restaurant){
+            return $this->helper->elementNotFound('Restaurant');
+
+        }
+        $restaurantUsers = $restaurant->getUsers();
+
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
+            !$restaurantUsers->contains($user)){
+            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
+        }
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+
+        $request_data = $request->request->all();
+        if(isset($request_data['moments'])){
+            $moments = $request_data['moments'];
+            $arrayMoments = new ArrayCollection();
+            foreach($moments as $momentId){
+                $moment = $elasticaManager->getRepository('AppBundle:Moment')->findById($momentId["id"]);
+                if($moment && !$arrayMoments->contains($moment)){
+                    $arrayMoments->add($moment);
+                }
+            }
+            $restaurant->setMoments($arrayMoments);
+        }
+
+        if(isset($request_data['categories'])){
+            $categories = $request_data['categories'];
+            $arrayCategories = new ArrayCollection();
+            foreach($categories as $categoryId){
+                $category = $elasticaManager->getRepository('AppBundle:CategoryRestaurant')->findById($categoryId["id"]);
+                if($category && !$arrayCategories->contains($category)){
+                    $arrayCategories->add($category);
+                }
+            }
+            $restaurant->setCategories($arrayCategories);
+        }
+
+        $em = $this->getEntityManager();
+        $em->persist($restaurant);
+        $em->flush();
+
+        return $this->helper->success($restaurant, 200);
+    }
 
 
     /**
