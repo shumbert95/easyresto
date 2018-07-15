@@ -399,8 +399,8 @@ class UserController extends ApiBaseController
             $user->setFirstName($tokenUser['first_name']);
             $user->setLastName($tokenUser['last_name']);
             $user->setEmail($tokenUser['email']);
-            $user->setCivility(1);
-            $user->setType(1);
+            $user->setCivility(User::CIVILITY_MALE);
+            $user->setType(User::TYPE_CLIENT);
             $user->setPlainPassword(substr(str_shuffle(str_repeat($x = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil(10 / strlen($x)))), 1, 10));
             $user->setEnabled(true);
             $fosUserManager->updateUser($user);
@@ -409,7 +409,7 @@ class UserController extends ApiBaseController
         $jwtManager = $this->get("lexik_jwt_authentication.jwt_manager");
         $token = $jwtManager->create($user);
 
-        return ['token' => $token];
+        return $this->helper->success($token,200);
     }
 
 
