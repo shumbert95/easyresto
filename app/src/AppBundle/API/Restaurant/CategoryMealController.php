@@ -14,7 +14,7 @@ class CategoryMealController extends ApiBaseController
     /**
      * @param Request $request
      *
-     * @REST\Post("/restaurants/{id}/tabs/{idTab}/categories/create", name="api_create_meal_category")
+     * @REST\Post("/restaurants/{id}/tabs/{idTab}/categories", name="api_create_meal_category")
      * @REST\RequestParam(name="name", nullable=true)
      * @REST\RequestParam(name="position", nullable=true)
      */

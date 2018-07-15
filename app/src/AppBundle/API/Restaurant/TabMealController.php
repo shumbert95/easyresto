@@ -17,7 +17,7 @@ class TabMealController extends ApiBaseController
      * @param Request $request
      *
      *
-     * @REST\Post("/restaurants/{id}/tabs/create", name="api_create_meal_tab")
+     * @REST\Post("/restaurants/{id}/tabs", name="api_create_meal_tab")
      * @REST\RequestParam(name="name")
      * @REST\RequestParam(name="position")
      *

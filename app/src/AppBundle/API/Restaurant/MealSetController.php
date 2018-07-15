@@ -20,7 +20,7 @@ class MealSetController extends ApiBaseController
      * @param Request $request
      *
      *
-     * @REST\Post("/restaurants/{id}/meal_sets/create", name="api_create_meal_set")
+     * @REST\Post("/restaurants/{id}/meal_sets", name="api_create_meal_set")
      * @REST\RequestParam(name="name", nullable=true)
      * @REST\RequestParam(name="description", nullable=true)
      * @REST\RequestParam(name="price", nullable=true)

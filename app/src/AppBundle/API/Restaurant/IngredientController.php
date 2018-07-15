@@ -19,7 +19,7 @@ class IngredientController extends ApiBaseController
      * @param Request $request
      *
      *
-     * @REST\Post("/restaurants/{id}/ingredients/create", name="api_create_ingredient")
+     * @REST\Post("/restaurants/{id}/ingredients", name="api_create_ingredient")
      * @REST\RequestParam(name="name")
      * @REST\RequestParam(name="stock", default=0)
      *

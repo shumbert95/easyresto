@@ -28,3 +28,5 @@ AppBundle\Entity\User:
         exclude_if: "object.getType() == 1"
       favorites:
         exclude: true
+      facebookAccessToken:
+        exclude: true

@@ -20,7 +20,7 @@ class RestaurantController extends ApiBaseController
     /**
      * @param ParamFetcher $paramFetcher
      *
-     * @REST\Post("/restaurants/create", name="api_create_restaurant")
+     * @REST\Post("/restaurants", name="api_create_restaurant")
      * @REST\RequestParam(name="name")
      * @REST\RequestParam(name="address")
      * @REST\RequestParam(name="region", nullable=true)

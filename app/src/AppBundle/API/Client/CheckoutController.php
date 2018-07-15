@@ -206,11 +206,11 @@ class CheckoutController extends ApiBaseController
     /**
      * @param Request $request
      *
-     * @REST\Get("/restaurants/{id}/reservations/{idReservation}/confirm", name="api_confirm_reservation")
+     * @REST\Get("/restaurants/{id}/reservations/{idReservation}/paypalconfirm/{idPaypalId}", name="api_confirm_reservation_paypal")
      *
      * @return View
      */
-    public function confirmReservation(Request $request)
+    public function confirmReservationPaypal(Request $request)
     {
         $user = $this->container->get('security.token_storage')->getToken()->getUser();
 
@@ -233,12 +233,12 @@ class CheckoutController extends ApiBaseController
             return $this->helper->elementNotFound('Restaurant');
         }
 
-        $restaurantUsers = $restaurant->getUsers();
+        /*$restaurantUsers = $restaurant->getUsers();
 
         if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
             !$restaurantUsers->contains($user)){
             return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
-        }
+        }*/
 
         $reservation = $elasticaManager->getRepository('AppBundle:Reservation')->findById($request->get('idReservation'));
         if(!$reservation){
@@ -253,6 +253,7 @@ class CheckoutController extends ApiBaseController
         }
 
         $reservation->setState(Reservation::STATE_PAID);
+        $reservation->setPaymentMethod("Paypal");
         $em = $this->getEntityManager();
         $em->persist($reservation);
         $em->flush();

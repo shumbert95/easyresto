@@ -17,7 +17,7 @@ class MomentController extends ApiBaseController
     /**
      * @param ParamFetcher $paramFetcher
      *
-     * @REST\Post("/moments/create", name="api_create_moment")
+     * @REST\Post("/moments", name="api_create_moment")
      * @REST\RequestParam(name="name")
      * @REST\RequestParam(name="moment")
      */

@@ -15,7 +15,7 @@ class CategoryRestaurantController extends ApiBaseController
     /**
      * @param ParamFetcher $paramFetcher
      *
-     * @REST\Post("/categories/create", name="api_create_category_restaurant")
+     * @REST\Post("/categories", name="api_create_category_restaurant")
      * @REST\RequestParam(name="name")
      */
     public function createCategory(ParamFetcher $paramFetcher)

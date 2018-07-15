@@ -20,7 +20,7 @@ class TagController extends ApiBaseController
     /**
      * @param ParamFetcher $paramFetcher
      *
-     * @REST\Post("/tags/create", name="api_create_tag")
+     * @REST\Post("/tags", name="api_create_tag")
      * @REST\RequestParam(name="name", nullable=true)
      */
     public function createTag(Request $request,ParamFetcher $paramFetcher)

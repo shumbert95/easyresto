@@ -18,7 +18,7 @@ class UserController extends ApiBaseController
      * @param ParamFetcher $paramFetcher
      *
      *
-     * @REST\Post("/users/create", name="api_create_user")
+     * @REST\Post("/users", name="api_create_user")
      * @REST\RequestParam(name="email")
      * @REST\RequestParam(name="firstName")
      * @REST\RequestParam(name="lastName")
@@ -387,9 +387,9 @@ class UserController extends ApiBaseController
         }
 
         $user = $this->getUserRepository()->findOneByEmail($tokenUser['email']);
+        $fosUserManager = $this->get('fos_user.user_manager');
 
         if ($user === null) {
-            $fosUserManager = $this->get('fos_user.user_manager');
             $user = new User();
             $user->setFacebookID($tokenUser['id']);
             $user->setFacebookAccessToken($token);
@@ -399,12 +399,18 @@ class UserController extends ApiBaseController
             $user->setFirstName($tokenUser['first_name']);
             $user->setLastName($tokenUser['last_name']);
             $user->setEmail($tokenUser['email']);
-            $user->setCivility(User::CIVILITY_MALE);
             $user->setType(User::TYPE_CLIENT);
             $user->setPlainPassword(substr(str_shuffle(str_repeat($x = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil(10 / strlen($x)))), 1, 10));
             $user->setEnabled(true);
             $fosUserManager->updateUser($user);
         }
+        elseif(!($user->getFacebookId())){
+            $user->setFacebookID($tokenUser['id']);
+            $user->setFacebookAccessToken($token);
+            //$user->setUsername($tokenUser['id']);
+            $fosUserManager->updateUser($user);
+        }
+
 
         $jwtManager = $this->get("lexik_jwt_authentication.jwt_manager");
         $token = $jwtManager->create($user);
