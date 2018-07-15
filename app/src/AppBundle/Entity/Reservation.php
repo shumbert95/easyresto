@@ -81,7 +81,7 @@ class Reservation{
     /**
      * @var string
      *
-     * @ORM\Column(name="payment_method", type="string", length=255)
+     * @ORM\Column(name="payment_method", type="string", length=255, nullable=true)
      */
     protected $paymentMethod;
 
