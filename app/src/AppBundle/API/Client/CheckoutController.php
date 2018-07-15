@@ -194,7 +194,7 @@ class CheckoutController extends ApiBaseController
     public function confirmReservationPaypal(Request $request)
     {
         $paypalResponse = $request->request->all();
-        $paypalId = $request->get('paypalId');
+        $paypalId = $request->get('idPaypal');
 
         if (!$request->get('id')) {
             return $this->helper->error('id', true);
