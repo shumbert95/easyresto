@@ -373,17 +373,17 @@ class UserController extends ApiBaseController
 
         @$tokenAppResp = file_get_contents('https://graph.facebook.com/app/?access_token=' . $token);
         if (!$tokenAppResp) {
-            throw new AccessDeniedHttpException('Bad credentials.');
+            throw new AccessDeniedHttpException('Bad credentials Fb.');
         }
 
         @$tokenUserResp = file_get_contents('https://graph.facebook.com/me/?access_token=' . $token);
         if (!$tokenUserResp) {
-            throw new AccessDeniedHttpException('Bad credentials.');
+            throw new AccessDeniedHttpException('Bad credentials Fb.');
         }
 
         $tokenUser = json_decode($tokenUserResp, true);
         if (!$tokenUser || !isset($tokenUser['id'])) {
-            throw new AccessDeniedHttpException('Bad credentials.');
+            throw new AccessDeniedHttpException('Bad credentials Fb.');
         }
 
         $user = $this->getUserRepository()->findOneByEmail($tokenUser['email']);
