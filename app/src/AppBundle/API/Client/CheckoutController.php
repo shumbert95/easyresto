@@ -208,7 +208,7 @@ class CheckoutController extends ApiBaseController
             return $this->helper->error('param \'id\' must be an integer');
         }
 
-        if($paypalResponse['id'] != $paypalId || $paypalResponse['staet'] != 'approved'){
+        if($paypalResponse['id'] != $paypalId || $paypalResponse['state'] != 'approved'){
             return $this->helper->error('Paiement refusé');
         }
 
