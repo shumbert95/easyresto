@@ -180,26 +180,6 @@ class CheckoutController extends ApiBaseController
         $em->persist($reservation);
         $em->flush();
 
-        //TODO remove this
-        return $this->helper->success($reservation, 200);
-
-
-        $mailer = $this->container->get('mailer');
-        $message = (new \Swift_Message('Réservation effectuée N°'.$reservation->getId()))
-            ->setFrom($this->container->getParameter('mailer_user'))
-            ->setTo($user->getEmail())
-            ->setBody(
-                $this->renderView(
-                    '@App/mails/submit_reservation.html.twig',
-                    array(
-                        'user' => $user,
-                        'reservation' => $reservation,
-                        'restaurant' => $restaurant
-                    )
-                ),
-                'text/html'
-            );
-        $mailer->send($message);
 
         return $this->helper->success($reservation, 200);
     }
@@ -213,9 +193,7 @@ class CheckoutController extends ApiBaseController
      */
     public function confirmReservationPaypal(Request $request)
     {
-        //$user = $this->container->get('security.token_storage')->getToken()->getUser();
-        $request_data = $request->request->all();
-        $paypalResponse = $request_data["response"];
+        $paypalResponse = $request->request->all();
         $paypalId = $request->get('paypalId');
 
         if (!$request->get('id')) {
@@ -230,7 +208,7 @@ class CheckoutController extends ApiBaseController
             return $this->helper->error('param \'id\' must be an integer');
         }
 
-        if($paypalResponse['id'] != $paypalId || $paypalResponse['status'] != 'approved'){
+        if($paypalResponse['id'] != $paypalId || $paypalResponse['staet'] != 'approved'){
             return $this->helper->error('Paiement refusé');
         }
 
