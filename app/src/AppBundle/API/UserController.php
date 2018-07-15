@@ -369,14 +369,14 @@ class UserController extends ApiBaseController
      */
     public function facebookLoginAction(Request $request)
     {
-        $token = $request->get("access_token");
+        $token = $request->get("accessToken");
 
-        @$tokenAppResp = file_get_contents('https://graph.facebook.com/app/?access_token=' . $token);
+        $tokenAppResp = file_get_contents('https://graph.facebook.com/app/?access_token=' . $token);
         if (!$tokenAppResp) {
             throw new AccessDeniedHttpException('Bad credentials Fb. 1');
         }
 
-        @$tokenUserResp = file_get_contents('https://graph.facebook.com/me/?access_token=' . $token);
+        $tokenUserResp = file_get_contents('https://graph.facebook.com/me/?fields=id,email,first_name,last_name&access_token=' . $token);
         if (!$tokenUserResp) {
             throw new AccessDeniedHttpException('Bad credentials Fb. 2');
         }
