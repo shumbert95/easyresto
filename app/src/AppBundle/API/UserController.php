@@ -375,7 +375,7 @@ class UserController extends ApiBaseController
             "token" => $token,
             "request" => $request
         );
-        return $this->helper->success($token);
+        return $this->helper->success($jsonDebug);
 
         @$tokenAppResp = file_get_contents('https://graph.facebook.com/app/?access_token=' . $token);
         if (!$tokenAppResp) {
