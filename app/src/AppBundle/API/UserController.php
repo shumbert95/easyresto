@@ -370,12 +370,6 @@ class UserController extends ApiBaseController
     public function facebookLoginAction(Request $request)
     {
         $token = $request->get("access_token");
-        $request->request->all();
-        $jsonDebug = array(
-            "token" => $token,
-            "request" => $request
-        );
-        return $this->helper->success($jsonDebug);
 
         @$tokenAppResp = file_get_contents('https://graph.facebook.com/app/?access_token=' . $token);
         if (!$tokenAppResp) {
