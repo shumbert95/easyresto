@@ -9,6 +9,7 @@ use FOS\RestBundle\Controller\Annotations as REST;
 use FOS\RestBundle\Request\ParamFetcher;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class UserController extends ApiBaseController
 {
@@ -360,6 +361,58 @@ class UserController extends ApiBaseController
             return $this->helper->empty();
         return $this->helper->success($restorers, 200);
     }
+
+    /**
+     *
+     * @REST\Post("/login/facebook", name="api_login_facebook")
+     *
+     */
+    public function facebookLoginAction(Request $request)
+    {
+        $token = $request->get("access_token");
+
+        @$tokenAppResp = file_get_contents('https://graph.facebook.com/app/?access_token=' . $token);
+        if (!$tokenAppResp) {
+            throw new AccessDeniedHttpException('Bad credentials.');
+        }
+
+        @$tokenUserResp = file_get_contents('https://graph.facebook.com/me/?access_token=' . $token);
+        if (!$tokenUserResp) {
+            throw new AccessDeniedHttpException('Bad credentials.');
+        }
+
+        $tokenUser = json_decode($tokenUserResp, true);
+        if (!$tokenUser || !isset($tokenUser['id'])) {
+            throw new AccessDeniedHttpException('Bad credentials.');
+        }
+
+        $user = $this->getUserRepository()->findOneByEmail($tokenUser['email']);
+
+        if ($user === null) {
+            $fosUserManager = $this->get('fos_user.user_manager');
+            $user = new User();
+            $user->setFacebookID($tokenUser['id']);
+            $user->setFacebookAccessToken($token);
+            //I have set all requested data with the user's username
+            //modify here with relevant data
+            $user->setUsername($tokenUser['email']);
+            $user->setFirstName($tokenUser['first_name']);
+            $user->setLastName($tokenUser['last_name']);
+            $user->setEmail($tokenUser['email']);
+            $user->setCivility(1);
+            $user->setType(1);
+            $user->setPlainPassword(substr(str_shuffle(str_repeat($x = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil(10 / strlen($x)))), 1, 10));
+            $user->setEnabled(true);
+            $fosUserManager->updateUser($user);
+        }
+
+        $jwtManager = $this->get("lexik_jwt_authentication.jwt_manager");
+        $token = $jwtManager->create($user);
+
+        return ['token' => $token];
+    }
+
+
 
 
 

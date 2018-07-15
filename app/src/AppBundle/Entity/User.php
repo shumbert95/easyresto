@@ -29,7 +29,7 @@ class User extends BaseUser
     /**
      * @var integer
      *
-     * @ORM\Column(name="civility", type="integer", length=1)
+     * @ORM\Column(name="civility", type="integer", length=1,nullable=true)
      */
     protected $civility;
 
@@ -71,7 +71,7 @@ class User extends BaseUser
     /**
      * @var string
      *
-     * @ORM\Column(name="phoneNumber", type="string", length=10)
+     * @ORM\Column(name="phoneNumber", type="string", length=10, nullable=true)
      */
     protected $phoneNumber;
 
@@ -97,6 +97,21 @@ class User extends BaseUser
      *      )
      */
     protected $favorites;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="facebook_id", type="string", length=255, nullable=true)
+     */
+    protected $facebookId;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="facebook_access_token", type="string", length=255, nullable=true)
+     */
+    protected $facebookAccessToken;
+
 
 
     const CIVILITY_MALE = 1;
@@ -312,6 +327,40 @@ class User extends BaseUser
 
         return $this;
     }
+
+    /**
+     * @return string
+     */
+    public function getFacebookId()
+    {
+        return $this->facebookId;
+    }
+
+    /**
+     * @param string $facebookId
+     */
+    public function setFacebookId($facebookId)
+    {
+        $this->facebookId = $facebookId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFacebookAccessToken()
+    {
+        return $this->facebookAccessToken;
+    }
+
+    /**
+     * @param string $facebookAccessToken
+     */
+    public function setFacebookAccessToken($facebookAccessToken)
+    {
+        $this->facebookAccessToken = $facebookAccessToken;
+    }
+
+
 
 
 
