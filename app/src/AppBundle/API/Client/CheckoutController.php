@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations as REST;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Validator\Constraints\DateTime;
+use Unirest\Request\Body;
 
 
 class CheckoutController extends ApiBaseController
@@ -187,6 +188,25 @@ class CheckoutController extends ApiBaseController
     public function confirmReservationPaypal(Request $request)
     {
         $paypalResponse = $request->request->all();
+        $headers = array('Accept' => 'application/json');
+        $data = array('grant_type' => 'client_credentials');
+        $body = Body::form($data);
+        $idUser = $this->container->getParameter('paypal_id');
+        $idSecret = $this->container->getParameter('paypal_secret');
+
+
+        $response = \Unirest\Request::post('https://api.sandbox.paypal.com/v1/oauth2/token',$headers,$body,$idUser,$idSecret);
+        $result = json_decode($response->raw_body,true);
+
+        $paypalToken = $result["access_token"];
+
+        $headers = array(
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer '.$paypalToken,
+        );
+
+        $responsePaypal = \Unirest\Request::get('https://api.sandbox.paypal.com/v1/payments/payment/'.$paypalResponse['id'],$headers);
+        $resultPaypal = json_decode($responsePaypal->raw_body,true);
 
         if (!$request->get('id')) {
             return $this->helper->error('id', true);
@@ -220,7 +240,7 @@ class CheckoutController extends ApiBaseController
             return $this->helper->error('Cette commande a été annulée');
         }
 
-        if($paypalResponse['state'] != 'approved'){
+        if($resultPaypal['state'] != 'approved'){
             $reservation->setState(Reservation::STATE_CANCELED);
             $reservation->setDateCanceled(New \DateTime());
             $em = $this->getEntityManager();
@@ -249,7 +269,7 @@ class CheckoutController extends ApiBaseController
 
         $reservation->setState(Reservation::STATE_PAID);
         $reservation->setPaymentMethod("Paypal");
-        $reservation->setPaymentId($paypalResponse["id"]);
+        $reservation->setPaymentId($resultPaypal["id"]);
         $em = $this->getEntityManager();
         $em->persist($reservation);
         $em->flush();
