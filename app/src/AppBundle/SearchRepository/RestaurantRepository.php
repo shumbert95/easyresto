@@ -98,7 +98,7 @@ class RestaurantRepository extends Repository
         if($restaurantSearch->getName()!= ""){
             $queryString = new Query\QueryString();
             $queryString->setQuery("*".$restaurantSearch->getName()."*");
-            $queryString->setDefaultField('name');
+            $queryString->setFields(array('name','city','address'));
             $boolQuery->addMust($queryString);
 
         }
