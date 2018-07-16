@@ -3,6 +3,7 @@
 namespace AppBundle\API\Restaurant;
 
 use AppBundle\API\ApiBaseController;
+use AppBundle\Entity\Reservation;
 use AppBundle\Entity\Restaurant;
 use FOS\RestBundle\Controller\Annotations as REST;
 use FOS\RestBundle\Request\ParamFetcher;
@@ -55,60 +56,64 @@ class ReservationController extends ApiBaseController
             return $this->helper->empty();
 
         foreach($reservations as $reservation) {
-            $jsonContents = array();
-            $contents = $elasticaManager->getRepository('AppBundle:ReservationContent')->findByReservation($reservation);
+            if($reservation->getState() == Reservation::STATE_PAID) {
+                $jsonContents = array();
+                $contents = $elasticaManager->getRepository('AppBundle:ReservationContent')->findByReservation($reservation);
 
-            $lastSeat = array();
-            if (is_array($contents)) {
+                $lastSeat = array();
+                if (is_array($contents)) {
 
-                foreach ($contents as $contentSeat) {
+                    foreach ($contents as $contentSeat) {
 
-                    $allContents = $elasticaManager->getRepository('AppBundle:ReservationContent')->findBySeat($contentSeat->getSeat());
-                    $currentSeat = $contentSeat->getSeat()->getId();
-                    foreach ($allContents as $content) {
-                        if ($currentSeat != $lastSeat) {
-                            $jsonContents[] = array(
-                                "id" => $content->getContent()->getId(),
-                                "name" => $content->getContent()->getName(),
-                                "picture" => $content->getContent()->getPicture(),
-                                "quantity" => $content->getQuantity(),
-                                "totalPrice" => $content->getTotalPrice()
+                        $allContents = $elasticaManager->getRepository('AppBundle:ReservationContent')->findBySeat($contentSeat->getSeat());
+                        $currentSeat = $contentSeat->getSeat()->getId();
+                        foreach ($allContents as $content) {
+                            if ($currentSeat != $lastSeat) {
+                                $jsonContents[] = array(
+                                    "id" => $content->getContent()->getId(),
+                                    "name" => $content->getContent()->getName(),
+                                    "picture" => $content->getContent()->getPicture(),
+                                    "quantity" => $content->getQuantity(),
+                                    "totalPrice" => $content->getTotalPrice()
+                                );
+                            }
+                        }
+                        if (!in_array($currentSeat, $lastSeat)) {
+                            $seatArray[] = array(
+                                "name" => $contentSeat->getSeat()->getName(),
+                                "content" => $jsonContents
                             );
                         }
+                        array_push($lastSeat, $currentSeat);
+                        $jsonContents = array();
                     }
-                    if(!in_array($currentSeat,$lastSeat)) {
-                        $seatArray[] = array(
-                            "name" => $contentSeat->getSeat()->getName(),
-                            "content" => $jsonContents
-                        );
-                    }
-                    array_push($lastSeat,$currentSeat);
-                    $jsonContents = array();
+                    $reservationArray[] = array(
+                        "id" => $reservation->getId(),
+                        "date" => $reservation->getDate(),
+                        "nbParticipants" => $reservation->getNbParticipants(),
+                        "total" => $reservation->getTotal(),
+                        "timeStep" => $reservation->getTimeStep(),
+                        "state" => $reservation->getState(),
+                        "user" => array(
+                            "id" => $reservation->getUser()->getId(),
+                            "lastname" => $reservation->getUser()->getLastName(),
+                            "firstname" => $reservation->getUser()->getFirstName(),
+                            "phoneNumber" => $reservation->getUser()->getPhoneNumber(),
+                        ),
+                        "date" => $reservation->getDate(),
+                        "restaurant" => array(
+                            "id" => $reservation->getRestaurant()->getId(),
+                            "name" => $reservation->getRestaurant()->getName(),
+                            "picture" => $reservation->getRestaurant()->getPicture(),
+                        ),
+                        "seats" => $seatArray,
+                    );
+                    $seatArray = array();
                 }
-                $reservationArray[] = array(
-                    "id" => $reservation->getId(),
-                    "date" => $reservation->getDate(),
-                    "nbParticipants" => $reservation->getNbParticipants(),
-                    "total" => $reservation->getTotal(),
-                    "timeStep" => $reservation->getTimeStep(),
-                    "state" => $reservation->getState(),
-                    "user" => array(
-                        "id" => $reservation->getUser()->getId(),
-                        "lastname" => $reservation->getUser()->getLastName(),
-                        "firstname" => $reservation->getUser()->getFirstName(),
-                        "phoneNumber" => $reservation->getUser()->getPhoneNumber(),
-                    ),
-                    "date" => $reservation->getDate(),
-                    "restaurant" => array(
-                        "id" => $reservation->getRestaurant()->getId(),
-                        "name" => $reservation->getRestaurant()->getName(),
-                        "picture" => $reservation->getRestaurant()->getPicture(),
-                    ),
-                    "seats" => $seatArray,
-                );
-                $seatArray=array();
             }
         }
+        if(!isset($reservationArray))
+            return $this->helper->empty();
 
         return $this->helper->success($reservationArray, 200);
     }
@@ -330,7 +335,7 @@ class ReservationController extends ApiBaseController
         $seats = $restaurant->getSeats();
         if(isset($reservations)){
             foreach ($reservations as $reservation){
-                if($reservation->getState() != Reservation::STATE_CANCELED)
+                if($reservation->getState() == Reservation::STATE_PAID)
                     $seats = $seats-$reservation->getNbParticipants();
             }
         }

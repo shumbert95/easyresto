@@ -38,8 +38,8 @@ class JWTCreatedListener {
         $doctrine = $this->container->get('doctrine');
         $payload       = $event->getData();
         $user = $this->container->get('security.token_storage')->getToken()->getUser();
-        $type = $user->getType();
-        $payload['type'] = $type;
+        /*$type = $user->getType();
+        $payload['type'] = $type;*/
 
         $event->setData($payload);
     }

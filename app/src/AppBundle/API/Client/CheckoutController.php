@@ -13,7 +13,9 @@ use FOS\RestBundle\Request\ParamFetcher;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations as REST;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Validator\Constraints\DateTime;
+use Unirest\Request\Body;
 
 
 class CheckoutController extends ApiBaseController
@@ -112,7 +114,7 @@ class CheckoutController extends ApiBaseController
 
         if(isset($reservations)){
             foreach ($reservations as $reservation){
-                if($reservation->getState() != Reservation::STATE_CANCELED)
+                if($reservation->getState() == Reservation::STATE_PAID)
                     $seats = $seats-$reservation->getNbParticipants();
             }
         }
@@ -162,13 +164,6 @@ class CheckoutController extends ApiBaseController
 
                     }
                     $total = $total + $meal->getPrice();
-                    if($meal->getIngredients()) {
-                        foreach ($meal->getIngredients() as $ingredient) {
-                            $ingredient->setStock($ingredient->getStock() - 1);
-                            $em->persist($ingredient);
-                            $em->flush();
-                        }
-                    }
                     $em->persist($reservationContent);
                     $em->flush();
                 }
@@ -179,26 +174,6 @@ class CheckoutController extends ApiBaseController
         $em->persist($reservation);
         $em->flush();
 
-        //TODO remove this
-        return $this->helper->success($reservation, 200);
-
-
-        $mailer = $this->container->get('mailer');
-        $message = (new \Swift_Message('Réservation effectuée N°'.$reservation->getId()))
-            ->setFrom($this->container->getParameter('mailer_user'))
-            ->setTo($user->getEmail())
-            ->setBody(
-                $this->renderView(
-                    '@App/mails/submit_reservation.html.twig',
-                    array(
-                        'user' => $user,
-                        'reservation' => $reservation,
-                        'restaurant' => $restaurant
-                    )
-                ),
-                'text/html'
-            );
-        $mailer->send($message);
 
         return $this->helper->success($reservation, 200);
     }
@@ -206,13 +181,32 @@ class CheckoutController extends ApiBaseController
     /**
      * @param Request $request
      *
-     * @REST\Get("/restaurants/{id}/reservations/{idReservation}/confirm", name="api_confirm_reservation")
+     * @REST\Post("/restaurants/{id}/reservations/{idReservation}/paypalconfirm", name="api_confirm_reservation_paypal")
      *
      * @return View
      */
-    public function confirmReservation(Request $request)
+    public function confirmReservationPaypal(Request $request)
     {
-        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+        $paypalResponse = $request->request->all();
+        $headers = array('Accept' => 'application/json');
+        $data = array('grant_type' => 'client_credentials');
+        $body = Body::form($data);
+        $idUser = $this->container->getParameter('paypal_id');
+        $idSecret = $this->container->getParameter('paypal_secret');
+
+
+        $response = \Unirest\Request::post('https://api.sandbox.paypal.com/v1/oauth2/token',$headers,$body,$idUser,$idSecret);
+        $result = json_decode($response->raw_body,true);
+
+        $paypalToken = $result["access_token"];
+
+        $headers = array(
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer '.$paypalToken,
+        );
+
+        $responsePaypal = \Unirest\Request::get('https://api.sandbox.paypal.com/v1/payments/payment/'.$paypalResponse['id'],$headers);
+        $resultPaypal = json_decode($responsePaypal->raw_body,true);
 
         if (!$request->get('id')) {
             return $this->helper->error('id', true);
@@ -233,12 +227,6 @@ class CheckoutController extends ApiBaseController
             return $this->helper->elementNotFound('Restaurant');
         }
 
-        $restaurantUsers = $restaurant->getUsers();
-
-        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
-            !$restaurantUsers->contains($user)){
-            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
-        }
 
         $reservation = $elasticaManager->getRepository('AppBundle:Reservation')->findById($request->get('idReservation'));
         if(!$reservation){
@@ -252,7 +240,36 @@ class CheckoutController extends ApiBaseController
             return $this->helper->error('Cette commande a été annulée');
         }
 
+        if($resultPaypal['state'] != 'approved'){
+            $reservation->setState(Reservation::STATE_CANCELED);
+            $reservation->setDateCanceled(New \DateTime());
+            $em = $this->getEntityManager();
+            $em->persist($reservation);
+            $em->flush();
+
+            $mailer = $this->container->get('mailer');
+            $message = (new \Swift_Message('Réservation N°'.$reservation->getId()." annulée"))
+                ->setFrom($this->container->getParameter('mailer_user'))
+                ->setTo($reservation->getUser()->getEmail())
+                ->setBody(
+                    $this->renderView(
+                        '@App/mails/canceled_reservation.html.twig',
+                        array(
+                            'user' => $reservation->getUser(),
+                            'reservation' => $reservation,
+                            'restaurant' => $restaurant
+                        )
+                    ),
+                    'text/html'
+                );
+            $mailer->send($message);
+
+            return $this->helper->success($reservation, 200);
+        }
+
         $reservation->setState(Reservation::STATE_PAID);
+        $reservation->setPaymentMethod("Paypal");
+        $reservation->setPaymentId($resultPaypal["id"]);
         $em = $this->getEntityManager();
         $em->persist($reservation);
         $em->flush();
@@ -273,6 +290,19 @@ class CheckoutController extends ApiBaseController
                 'text/html'
             );
         $mailer->send($message);
+
+
+        $reservationContents = $elasticaManager->getRepository('AppBundle:ReservationContent')->findByReservation($reservation);
+        foreach($reservationContents as $content){
+            $meal = $content->getContent();
+            if($meal->getIngredients()) {
+                foreach ($meal->getIngredients() as $ingredient) {
+                    $ingredient->setStock($ingredient->getStock() - 1);
+                    $em->persist($ingredient);
+                    $em->flush();
+                }
+            }
+        }
 
         return $this->helper->success($reservation, 200);
     }

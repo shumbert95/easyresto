@@ -5,7 +5,7 @@ AppBundle\Entity\MealSetElement:
         exclude: true
       status:
         exclude: true
-      mealSetTypes:
+      types:
         exclude: true
       mealSet:
         exclude: true

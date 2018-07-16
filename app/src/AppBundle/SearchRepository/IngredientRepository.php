@@ -37,12 +37,14 @@ class IngredientRepository extends Repository
         $boolQuery = new BoolQuery();
         $nestedQuery = new Nested();
         $fieldQueryStatus = new Match();
+        $fieldQuery = new Match();
+
+        $fieldQuery->setFieldQuery('status',Restaurant::STATUS_ONLINE);
+        $boolQuery->addMust($fieldQuery);
 
         $fieldQueryStatus->setFieldQuery('name', $name);
         $fieldQueryStatus->setFieldMinimumShouldMatch('name','100%');
         $boolQuery->addMust($fieldQueryStatus);
-
-
 
         $nestedQuery->setPath('restaurant')
             ->setQuery(new Match('restaurant.id', $restaurant->getId()));
@@ -100,6 +102,10 @@ class IngredientRepository extends Repository
     {
         $boolQuery = new BoolQuery();
         $nestedQuery = new Nested();
+        $fieldQuery = new Match();
+
+        $fieldQuery->setFieldQuery('status',Restaurant::STATUS_ONLINE);
+        $boolQuery->addMust($fieldQuery);
 
         $nestedQuery->setPath('restaurant')
             ->setQuery(new Match('restaurant.id', $restaurant->getId()));

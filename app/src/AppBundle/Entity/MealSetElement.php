@@ -13,6 +13,9 @@ use Doctrine\ORM\Mapping as ORM;
 class MealSetElement
 {
 
+    const STATUS_OFFLINE = false;
+    const STATUS_ONLINE = true;
+
     /**
      * @var int
      *
@@ -38,25 +41,25 @@ class MealSetElement
     /**
      * @var integer
      *
-     * @ORM\Column(name="meal_set_type", type="integer")
+     * @ORM\Column(name="type", type="integer")
      */
-    protected $mealSetType;
+    protected $type;
 
 
 
-    const MEALSETTYPE_STARTER = 1;
-    const MEALSETTYPE_DISH = 2;
-    const MEALSETTYPE_SIDE = 3;
-    const MEALSETTYPE_DRINK = 4;
-    const MEALSETTYPE_DESSERT = 5;
+    const TYPE_STARTER = 1;
+    const TYPE_DISH = 2;
+    const TYPE_SIDE = 3;
+    const TYPE_DRINK = 4;
+    const TYPE_DESSERT = 5;
 
 
-    public static $mealSetTypes = array(
-        self::MEALSETTYPE_STARTER => 'starter',
-        self::MEALSETTYPE_DISH => 'dish',
-        self::MEALSETTYPE_SIDE => 'side',
-        self::MEALSETTYPE_DRINK => 'drink',
-        self::MEALSETTYPE_DESSERT => 'dessert'
+    public static $types = array(
+        self::TYPE_STARTER => 'starter',
+        self::TYPE_DISH => 'dish',
+        self::TYPE_SIDE => 'side',
+        self::TYPE_DRINK => 'drink',
+        self::TYPE_DESSERT => 'dessert'
     );
 
     public function __construct()
@@ -68,17 +71,17 @@ class MealSetElement
     /**
      * @return int
      */
-    public function getMealSetType()
+    public function getType()
     {
-        return $this->mealSetType;
+        return $this->type;
     }
 
     /**
-     * @param int $mealSetType
+     * @param int $type
      */
-    public function setMealSetType($mealSetType)
+    public function setType($type)
     {
-        $this->mealSetType = $mealSetType;
+        $this->type = $type;
     }
 
 

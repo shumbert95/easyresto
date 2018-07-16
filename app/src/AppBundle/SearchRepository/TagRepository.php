@@ -74,4 +74,19 @@ class TagRepository extends Repository
 
         return $this->find($boolQuery,10000);
     }
+
+    public function findByNameUpsert($name) {
+        $boolQuery = new BoolQuery();
+        $fieldQueryStatus = new Match();
+        $fieldQuery = new Match();
+
+        $fieldQueryStatus->setFieldQuery('name', $name);
+        $fieldQueryStatus->setFieldMinimumShouldMatch('name','100%');
+        $boolQuery->addMust($fieldQueryStatus);
+
+        $tags = $this->find($boolQuery);
+
+        return $tags ? $tags[0] : $tags;
+
+    }
 }

@@ -7,6 +7,7 @@ use AppBundle\Entity\CategoryMeal;
 use AppBundle\Entity\Content;
 use AppBundle\Entity\Meal;
 use AppBundle\Entity\Menu;
+use AppBundle\Entity\Tag;
 use AppBundle\Form\CategoryMealType;
 use AppBundle\Form\MealType;
 use AppBundle\Form\MenuType;
@@ -23,13 +24,15 @@ class MealController extends ApiBaseController
      * @param Request $request
      *
      *
-     * @REST\Post("/restaurants/{id}/meals/create", name="api_create_meal")
+     * @REST\Post("/restaurants/{id}/meals", name="api_create_meal")
      * @REST\RequestParam(name="name", nullable=true)
      * @REST\RequestParam(name="description", nullable=true)
      * @REST\RequestParam(name="price", nullable=true)
      * @REST\RequestParam(name="availability", nullable=true)
      * @REST\RequestParam(name="position", nullable=true)
      * @REST\RequestParam(name="picture", nullable=true)
+     * @REST\RequestParam(name="tags", nullable=true)
+     * @REST\RequestParam(name="ingredients", nullable=true)
      *
      */
     public function createMeal(Request $request, ParamFetcher $paramFetcher)
@@ -62,6 +65,42 @@ class MealController extends ApiBaseController
         $meal->setStatus(Content::STATUS_ONLINE);
         $meal->setType(Content::TYPE_MEAL);
         $meal->setRestaurant($restaurant);
+        $em = $this->getEntityManager();
+
+
+        if(isset($params['tags'])){
+            $tags = $params['tags'];
+            $arrayTags = new ArrayCollection();
+
+            foreach($tags as $data){
+                $tag = $elasticaManager->getRepository('AppBundle:Tag')->findByNameUpsert($data["name"]);
+                if(!$tag){
+                    $tag=new Tag();
+                    $tag->setName($data["name"]);
+                    $tag->setStatus(Tag::STATUS_ONLINE);
+                    $em->persist($tag);
+                    $em->flush();
+                }
+                if($tag && !$arrayTags->contains($tag)){
+                    $arrayTags->add($tag);
+                }
+            }
+            $meal->setTags($arrayTags);
+        }
+        if(isset($params['ingredients'])){
+            $ingredients = $params['ingredients'];
+            $arrayIngredients = new ArrayCollection();
+            foreach($ingredients as $ingredientId){
+                $ingredient = $elasticaManager->getRepository('AppBundle:Ingredient')->findById($ingredientId["id"]);
+                if($ingredient && !$arrayIngredients->contains($ingredient) && $ingredient->getRestaurant() == $restaurant){
+                    $arrayIngredients->add($ingredient);
+                }
+            }
+            $meal->setIngredients($arrayIngredients);
+        }
+
+        unset($params['tags']);
+        unset($params['ingredients']);
 
         $form = $this->createForm(MealType::class, $meal);
         $form->submit($params);
@@ -70,8 +109,6 @@ class MealController extends ApiBaseController
             return $this->helper->error($form->getErrors());
         }
 
-
-        $em = $this->getEntityManager();
         $em->persist($meal);
         $em->flush();
 
@@ -122,6 +159,9 @@ class MealController extends ApiBaseController
         if($meal->getRestaurant() != $restaurant){
             return $this->helper->error('Ce n\'est pas un plat de ce restaurant');
         }
+        if(!$meal->isStatus()){
+            return $this->helper->error('Ce plat a été supprimé');
+        }
 
         $request_data = $request->request->all();
 
@@ -137,17 +177,28 @@ class MealController extends ApiBaseController
         if(isset($request_data['picture'])){
             $meal->setPicture($request_data['picture']);
         }
+        $em = $this->getEntityManager();
+
         if(isset($request_data['tags'])){
             $tags = $request_data['tags'];
             $arrayTags = new ArrayCollection();
-            foreach($tags as $tagId){
-                $tag = $elasticaManager->getRepository('AppBundle:Tag')->findById($tagId["id"]);
+
+            foreach($tags as $data){
+                $tag = $elasticaManager->getRepository('AppBundle:Tag')->findByNameUpsert($data["name"]);
+                if(!$tag){
+                    $tag=new Tag();
+                    $tag->setName($data["name"]);
+                    $tag->setStatus(Tag::STATUS_ONLINE);
+                    $em->persist($tag);
+                    $em->flush();
+                }
                 if($tag && !$arrayTags->contains($tag)){
                     $arrayTags->add($tag);
                 }
             }
             $meal->setTags($arrayTags);
         }
+
         if(isset($request_data['ingredients'])){
             $ingredients = $request_data['ingredients'];
             $arrayIngredients = new ArrayCollection();
@@ -160,7 +211,6 @@ class MealController extends ApiBaseController
             $meal->setIngredients($arrayIngredients);
         }
 
-        $em = $this->getEntityManager();
         $em->persist($meal);
         $em->flush();
 
@@ -198,6 +248,9 @@ class MealController extends ApiBaseController
         }
         if($meal->getRestaurant() != $restaurant){
             return $this->helper->error('Ce n\'est pas un plat de ce restaurant');
+        }
+        if(!$meal->isStatus()){
+            return $this->helper->error('Ce plat a été supprimé');
         }
         if($meal->getType() != Content::TYPE_MEAL){
             return $this->helper->error('Ce n\'est pas un plat.');
@@ -245,9 +298,15 @@ class MealController extends ApiBaseController
         if($meal->getRestaurant() != $restaurant){
             return $this->helper->error('Ce n\'est pas un plat de ce restaurant');
         }
+        if(!$meal->isStatus()){
+            return $this->helper->error('Ce plat a été supprimé');
+        }
 
+        $meal->setStatus(Content::STATUS_OFFLINE);
+        $meal->setIngredients(new ArrayCollection());
+        $meal->setTags(new ArrayCollection());
         $em = $this->getEntityManager();
-        $em->remove($meal);
+        $em->persist($meal);
         $em->flush();
 
         return $this->helper->success($meal, 200);
@@ -275,7 +334,7 @@ class MealController extends ApiBaseController
         $meals = $elasticaManager->getRepository('AppBundle:Content')->findByRestaurant($restaurant, Content::TYPE_MEAL);
 
         if(!isset($meals[0])){
-            $meals=array();
+            return $this->helper->empty();
         }
 
         return $this->helper->success($meals, 200);
@@ -318,7 +377,7 @@ class MealController extends ApiBaseController
         $meals = $elasticaManager->getRepository('AppBundle:Content')->findByTab($tab, Content::TYPE_MEAL);
 
         if(!isset($meals[0])){
-            $meals=array();
+            return $this->helper->empty();
         }
 
         return $this->helper->success($meals, 200);

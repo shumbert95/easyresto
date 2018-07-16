@@ -17,7 +17,7 @@ class MomentController extends ApiBaseController
     /**
      * @param ParamFetcher $paramFetcher
      *
-     * @REST\Post("/moments/create", name="api_create_moment")
+     * @REST\Post("/moments", name="api_create_moment")
      * @REST\RequestParam(name="name")
      * @REST\RequestParam(name="moment")
      */
@@ -41,7 +41,7 @@ class MomentController extends ApiBaseController
             return $this->helper->warning('Nom déjà utilisé',400);
         }
         $moment = new Moment();
-        $moment->setStatus(CategoryRestaurant::STATUS_ONLINE);
+        $moment->setStatus(Moment::STATUS_ONLINE);
 
         $form = $this->createForm(MomentType::class, $moment);
         $form->submit($params);

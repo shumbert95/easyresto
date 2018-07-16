@@ -17,7 +17,7 @@ class TabMealController extends ApiBaseController
      * @param Request $request
      *
      *
-     * @REST\Post("/restaurants/{id}/tabs/create", name="api_create_meal_tab")
+     * @REST\Post("/restaurants/{id}/tabs", name="api_create_meal_tab")
      * @REST\RequestParam(name="name")
      * @REST\RequestParam(name="position")
      *
@@ -97,9 +97,13 @@ class TabMealController extends ApiBaseController
 
         if (!$tab) {
             return $this->helper->elementNotFound('TabMeal');
-        } else {
-            return $this->helper->success($tab, 200);
         }
+
+        if(!$tab->isStatus()){
+            return $this->helper->error("Cet onglet a été supprimé");
+        }
+
+        return $this->helper->success($tab, 200);
     }
 
     /**
@@ -144,6 +148,9 @@ class TabMealController extends ApiBaseController
         }
         if($tab->getRestaurant() != $restaurant){
             return $this->helper->error('Ce n\'est pas un onglet de ce restaurant');
+        }
+        if(!$tab->isStatus()){
+            return $this->helper->error("Cet onglet a été supprimé");
         }
 
         $tab->setPosition($params['position']);
@@ -190,11 +197,17 @@ class TabMealController extends ApiBaseController
         if(!$tab)
             return $this->helper->elementNotFound('Onglet');
 
+        if(!$tab->isStatus()){
+            return $this->helper->error("Cet onglet a été supprimé");
+        }
+
         if($tab->getRestaurant() != $restaurant){
             return $this->helper->error('Ce n\'est pas un onglet de ce restaurant');
         }
         $em = $this->getEntityManager();
-        $em->remove($tab);
+        $tab->setStatus(TabMeal::STATUS_OFFLINE);
+        $tab->setMealsIds(null);
+        $em->persist($tab);
         $em->flush();
 
         return $this->helper->success($tab, 200);
@@ -231,7 +244,7 @@ class TabMealController extends ApiBaseController
     /**
      * @param Request $request
      *
-     * @REST\Put("/restaurants/{id}/tabs/{idTab}/contents", name="api_put_tab_contents")
+     * @REST\Put("/restaurants/{id}/tabs/{idTab}", name="api_put_tab_contents")
      */
     public function updateTabContents(Request $request)
     {
@@ -262,16 +275,20 @@ class TabMealController extends ApiBaseController
             return $this->helper->warning('Ce n\'est pas un onglet de votre restaurant',403);
 
         }
-        $errors = array();
+        if(!$tab->isStatus()){
+            return $this->helper->error("Cet onglet a été supprimé");
+        }
         $request_data = $request->request->all();
 
-        if (!$request_data['contents']) {
-            return $this->helper->error('contents', true);
+        if (isset($request_data['contents'])) {
+            $contents = json_encode($request_data['contents']);
+            $tab->setMealsIds($contents);
+        }
+        if (isset($request_data['name'])) {
+            $tab->setName($request_data['name']);
         }
 
 
-        $contents = json_encode($request_data['contents']);
-        $tab->setMealsIds($contents);
         $this->getEntityManager()->persist($tab);
         $this->getEntityManager()->flush();
 

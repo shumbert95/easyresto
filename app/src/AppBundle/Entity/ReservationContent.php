@@ -13,6 +13,9 @@ use Doctrine\ORM\Mapping as ORM;
 class ReservationContent
 {
 
+    const STATUS_OFFLINE = false;
+    const STATUS_ONLINE = true;
+
     /**
      * @var int
      *

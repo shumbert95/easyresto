@@ -29,6 +29,10 @@ class MealSetRepository extends Repository
     public function findByRestaurant(Restaurant $restaurant) {
         $boolQuery = new BoolQuery();
         $nestedQuery = new Nested();
+        $fieldQuery = new Match();
+
+        $fieldQuery->setFieldQuery('status',Restaurant::STATUS_ONLINE);
+        $boolQuery->addMust($fieldQuery);
 
         $nestedQuery->setPath('restaurant')->setQuery(new Match('restaurant.id',$restaurant->getId()));
         $boolQuery->addMust($nestedQuery);

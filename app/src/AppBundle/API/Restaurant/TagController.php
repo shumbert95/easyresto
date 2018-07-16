@@ -20,7 +20,7 @@ class TagController extends ApiBaseController
     /**
      * @param ParamFetcher $paramFetcher
      *
-     * @REST\Post("/tags/create", name="api_create_tag")
+     * @REST\Post("/tags", name="api_create_tag")
      * @REST\RequestParam(name="name", nullable=true)
      */
     public function createTag(Request $request,ParamFetcher $paramFetcher)
@@ -38,7 +38,7 @@ class TagController extends ApiBaseController
         }
 
         $tag = new Tag();
-        $tag->setStatus(CategoryRestaurant::STATUS_ONLINE);
+        $tag->setStatus(Tag::STATUS_ONLINE);
 
         $form = $this->createForm(TagType::class, $tag);
         $form->submit($params);

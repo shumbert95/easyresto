@@ -20,11 +20,12 @@ class MealSetController extends ApiBaseController
      * @param Request $request
      *
      *
-     * @REST\Post("/restaurants/{id}/meal_sets/create", name="api_create_meal_set")
+     * @REST\Post("/restaurants/{id}/meal_sets", name="api_create_meal_set")
      * @REST\RequestParam(name="name", nullable=true)
      * @REST\RequestParam(name="description", nullable=true)
      * @REST\RequestParam(name="price", nullable=true)
      * @REST\RequestParam(name="position")
+     * @REST\RequestParam(name="content", nullable=true)
      *
      */
     public function createMealSet(Request $request, ParamFetcher $paramFetcher)
@@ -51,24 +52,53 @@ class MealSetController extends ApiBaseController
         }
 
         $params = $paramFetcher->all();
-
+        if(isset($params['content'])) {
+            $contents = $params['content'];
+            unset($params['content']);
+        }
 
         $mealSet = new MealSet();
-        $mealSet->setStatus(Content::STATUS_ONLINE);
+        $mealSet->setStatus(MealSet::STATUS_ONLINE);
         $mealSet->setRestaurant($restaurant);
         $em = $this->getEntityManager();
-
-
         $form = $this->createForm(MealSetType::class, $mealSet);
         $form->submit($params);
+        $em->persist($mealSet);
+        $em->flush();
 
         if (!$form->isValid()) {
             return $this->helper->error($form->getErrors());
         }
 
-        $em->persist($mealSet);
-        $em->flush();
+        if(isset($contents)){
 
+            $mealSetElements = $elasticaManager->getRepository('AppBundle:MealSetElement')->findBySet($mealSet);
+            if($mealSetElements) {
+                foreach ($mealSetElements as $mealSetElement) {
+                    $em->remove($mealSetElement);
+                    $em->flush();
+                }
+            }
+            foreach($contents as $content){
+                $meal = $elasticaManager->getRepository('AppBundle:Content')->findById($content["id"]);
+                if($meal->getRestaurant() == $restaurant){
+                    $type=$content["type"];
+
+
+                    $mealSetElement = $this->getMealSetElementRepository()->findOneBy(array("id" => $mealSet->getId(),"type" => $type,"content" => $content));
+                    if(!$mealSetElement) {
+                        $mealSetElement = new MealSetElement();
+                        $mealSetElement->setContent($meal);
+                        $mealSetElement->setMealSet($mealSet);
+                        $mealSetElement->setType($type);
+                        $em->persist($mealSetElement);
+                        $em->flush();
+
+                    }
+                }
+
+            }
+        }
         return $this->helper->success($mealSet, 200);
     }
 
@@ -139,12 +169,12 @@ class MealSetController extends ApiBaseController
                 if($meal->getRestaurant() == $restaurant){
                     $type=$content["type"];
 
-                    $mealSetElement = $this->getMealSetElementRepository()->findOneBy(array("mealSetType" => $type,"content" => $content));
+                    $mealSetElement = $this->getMealSetElementRepository()->findOneBy(array("id" => $mealSet->getId(),"type" => $type,"content" => $content));
                     if(!$mealSetElement) {
                         $mealSetElement = new MealSetElement();
                         $mealSetElement->setContent($meal);
                         $mealSetElement->setMealSet($mealSet);
-                        $mealSetElement->setMealSetType($type);
+                        $mealSetElement->setType($type);
                         $em = $this->getEntityManager();
                         $em->persist($mealSetElement);
                         $em->flush();
@@ -218,7 +248,7 @@ class MealSetController extends ApiBaseController
             $mealSetElement = new MealSetElement();
             $mealSetElement->setContent($meal);
             $mealSetElement->setMealSet($mealSet);
-            $mealSetElement->setMealSetType($params['type']);
+            $mealSetElement->setType($params['type']);
             $em = $this->getEntityManager();
             $em->persist($mealSetElement);
             $em->flush();
@@ -362,5 +392,55 @@ class MealSetController extends ApiBaseController
 
         return $this->helper->success($json, 200);
 
+    }
+
+    /**
+     * @REST\Delete("/restaurants/{id}/meal_sets/{idMealSet}", name="api_delete_meal_set")
+     */
+    public function deleteMealSet(Request $request)
+    {
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
+        if (!$request->get('idMealSet')) {
+            return $this->helper->error('idMealSet', true);
+        } elseif (!preg_match('/\d/', $request->get('idMealSet'))) {
+            return $this->helper->error('param \'idMealSet\' must be an integer');
+        }
+
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+        $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
+        if (!$restaurant) {
+            return $this->helper->elementNotFound('Restaurant');
+        }
+
+        $restaurantUsers = $restaurant->getUsers();
+
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
+            !$restaurantUsers->contains($user)){
+            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
+        }
+
+        $mealSet = $elasticaManager->getRepository('AppBundle:MealSet')->findById($request->get('idMealSet'));
+        if (!$mealSet) {
+            return $this->helper->elementNotFound('Menu');
+        }
+        if($mealSet->getRestaurant() != $restaurant){
+            return $this->helper->error('Ce n\'est pas un menu à vous');
+        }
+        if(!$mealSet->isStatus()){
+            return $this->helper->error('Ce plat a été supprimé');
+        }
+        $mealSet->setStatus(MealSet::STATUS_OFFLINE);
+        $em = $this->getEntityManager();
+        $em->persist($mealSet);
+        $em->flush();
+
+        return $this->helper->success($mealSet, 200);
     }
 }

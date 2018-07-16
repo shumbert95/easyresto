@@ -78,6 +78,20 @@ class Reservation{
      */
     protected $nbParticipants;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="payment_method", type="string", length=255, nullable=true)
+     */
+    protected $paymentMethod;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="payment_id", type="string", length=255, nullable=true)
+     */
+    protected $paymentId;
+
     public function __construct(User $user, Restaurant $restaurant){
         $this->user = $user;
         $this->restaurant = $restaurant;
@@ -257,6 +271,42 @@ class Reservation{
     {
         $this->timeStep = $timeStep;
     }
+
+    /**
+     * @return string
+     */
+    public function getPaymentMethod()
+    {
+        return $this->paymentMethod;
+    }
+
+    /**
+     * @param string $paymentMethod
+     */
+    public function setPaymentMethod($paymentMethod)
+    {
+        $this->paymentMethod = $paymentMethod;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPaymentId()
+    {
+        return $this->paymentId;
+    }
+
+    /**
+     * @param string $paymentId
+     */
+    public function setPaymentId($paymentId)
+    {
+        $this->paymentId = $paymentId;
+    }
+
+
+
+
 
 
 

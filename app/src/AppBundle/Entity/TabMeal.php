@@ -98,25 +98,23 @@ class TabMeal
         $this->position = $position;
     }
 
-
-
     /**
-     * @return Boolean
+     * @return bool
      */
-    public function getStatus()
+    public function isStatus()
     {
         return $this->status;
     }
 
     /**
-     * @param Boolean $status
+     * @param bool $status
      */
     public function setStatus($status)
     {
         $this->status = $status;
-
-        return $this;
     }
+
+
 
     /**
      * @return mixed

@@ -9,6 +9,7 @@ use FOS\RestBundle\Controller\Annotations as REST;
 use FOS\RestBundle\Request\ParamFetcher;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class UserController extends ApiBaseController
 {
@@ -17,7 +18,7 @@ class UserController extends ApiBaseController
      * @param ParamFetcher $paramFetcher
      *
      *
-     * @REST\Post("/users/create", name="api_create_user")
+     * @REST\Post("/users", name="api_create_user")
      * @REST\RequestParam(name="email")
      * @REST\RequestParam(name="firstName")
      * @REST\RequestParam(name="lastName")
@@ -360,6 +361,64 @@ class UserController extends ApiBaseController
             return $this->helper->empty();
         return $this->helper->success($restorers, 200);
     }
+
+    /**
+     *
+     * @REST\Post("/login/facebook", name="api_login_facebook")
+     *
+     */
+    public function facebookLoginAction(Request $request)
+    {
+        $token = $request->get("accessToken");
+
+        $tokenAppResp = file_get_contents('https://graph.facebook.com/app/?access_token=' . $token);
+        if (!$tokenAppResp) {
+            throw new AccessDeniedHttpException('Bad credentials Fb. 1');
+        }
+
+        $tokenUserResp = file_get_contents('https://graph.facebook.com/me/?fields=id,email,first_name,last_name&access_token=' . $token);
+        if (!$tokenUserResp) {
+            throw new AccessDeniedHttpException('Bad credentials Fb. 2');
+        }
+
+        $tokenUser = json_decode($tokenUserResp, true);
+        if (!$tokenUser || !isset($tokenUser['id'])) {
+            throw new AccessDeniedHttpException('Bad credentials Fb. 3');
+        }
+
+        $user = $this->getUserRepository()->findOneByEmail($tokenUser['email']);
+        $fosUserManager = $this->get('fos_user.user_manager');
+
+        if ($user === null) {
+            $user = new User();
+            $user->setFacebookID($tokenUser['id']);
+            $user->setFacebookAccessToken($token);
+            //I have set all requested data with the user's username
+            //modify here with relevant data
+            $user->setUsername($tokenUser['email']);
+            $user->setFirstName($tokenUser['first_name']);
+            $user->setLastName($tokenUser['last_name']);
+            $user->setEmail($tokenUser['email']);
+            $user->setType(User::TYPE_CLIENT);
+            $user->setPlainPassword(substr(str_shuffle(str_repeat($x = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil(10 / strlen($x)))), 1, 10));
+            $user->setEnabled(true);
+            $fosUserManager->updateUser($user);
+        }
+        elseif(!($user->getFacebookId())){
+            $user->setFacebookID($tokenUser['id']);
+            $user->setFacebookAccessToken($token);
+            //$user->setUsername($tokenUser['id']);
+            $fosUserManager->updateUser($user);
+        }
+
+
+        $jwtManager = $this->get("lexik_jwt_authentication.jwt_manager");
+        $token = $jwtManager->create($user);
+
+        return $this->helper->success($token,200);
+    }
+
+
 
 
 

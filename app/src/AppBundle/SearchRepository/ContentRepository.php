@@ -38,7 +38,7 @@ class ContentRepository extends Repository
         return $this->find($query);
     }
 
-    public function findByRestaurant(Restaurant $restaurant, $type = Content::TYPE_CATEGORY) {
+    public function findByRestaurant(Restaurant $restaurant, $type = Content::TYPE_MEAL) {
         $boolQuery = new BoolQuery();
         $nestedQuery = new Nested();
         $fieldQuery = new Match();
@@ -96,6 +96,9 @@ class ContentRepository extends Repository
     public function findByType($type) {
         $boolQuery = new BoolQuery();
         $fieldQuery = new Match();
+
+        $fieldQuery->setFieldQuery('status',Restaurant::STATUS_ONLINE);
+        $boolQuery->addMust($fieldQuery);
 
         $fieldQuery->setFieldQuery('type', $type);
         $boolQuery->addMust($fieldQuery);
