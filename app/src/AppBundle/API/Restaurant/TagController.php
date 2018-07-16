@@ -38,7 +38,7 @@ class TagController extends ApiBaseController
         }
 
         $tag = new Tag();
-        $tag->setStatus(CategoryRestaurant::STATUS_ONLINE);
+        $tag->setStatus(Tag::STATUS_ONLINE);
 
         $form = $this->createForm(TagType::class, $tag);
         $form->submit($params);

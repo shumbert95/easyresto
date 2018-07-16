@@ -303,7 +303,7 @@ class AppFixtures extends Fixture
 
         //Tags
         $tag = new Tag();
-        $tag->setStatus(Content::STATUS_ONLINE);
+        $tag->setStatus(Tag::STATUS_ONLINE);
         $tag->setName('Gluten full');
         $manager->persist($tag);
         $manager->flush();
@@ -311,7 +311,7 @@ class AppFixtures extends Fixture
 
 
         $tag = new Tag();
-        $tag->setStatus(Content::STATUS_ONLINE);
+        $tag->setStatus(Tag::STATUS_ONLINE);
         $tag->setName('Gluten Free');
         $manager->persist($tag);
         $manager->flush();
@@ -319,7 +319,7 @@ class AppFixtures extends Fixture
 
 
         $tag = new Tag();
-        $tag->setStatus(Content::STATUS_ONLINE);
+        $tag->setStatus(Tag::STATUS_ONLINE);
         $tag->setName('Regime');
         $manager->persist($tag);
         $manager->flush();

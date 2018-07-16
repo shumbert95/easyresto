@@ -113,7 +113,7 @@ class CheckoutController extends ApiBaseController
 
         if(isset($reservations)){
             foreach ($reservations as $reservation){
-                if($reservation->getState() != Reservation::STATE_CANCELED)
+                if($reservation->getState() == Reservation::STATE_PAID)
                     $seats = $seats-$reservation->getNbParticipants();
             }
         }
@@ -208,10 +208,6 @@ class CheckoutController extends ApiBaseController
             return $this->helper->error('param \'id\' must be an integer');
         }
 
-        if($paypalResponse['id'] != $paypalId || $paypalResponse['state'] != 'approved'){
-            return $this->helper->error('Paiement refusé');
-        }
-
         $elasticaManager = $this->container->get('fos_elastica.manager');
 
         $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
@@ -230,6 +226,31 @@ class CheckoutController extends ApiBaseController
         }
         if($reservation->getState() == Reservation::STATE_CANCELED){
             return $this->helper->error('Cette commande a été annulée');
+        }
+
+        if($paypalResponse['id'] != $paypalId || $paypalResponse['state'] != 'approved'){
+            $reservation->setState(Reservation::STATE_CANCELED);
+            $reservation->setDateCanceled(New \DateTime());
+            $em = $this->getEntityManager();
+            $em->persist($reservation);
+            $em->flush();
+
+            $mailer = $this->container->get('mailer');
+            $message = (new \Swift_Message('Réservation N°'.$reservation->getId()." annulée"))
+                ->setFrom($this->container->getParameter('mailer_user'))
+                ->setTo($reservation->getUser()->getEmail())
+                ->setBody(
+                    $this->renderView(
+                        '@App/mails/canceled_reservation.html.twig',
+                        array(
+                            'user' => $reservation->getUser(),
+                            'reservation' => $reservation,
+                            'restaurant' => $restaurant
+                        )
+                    ),
+                    'text/html'
+                );
+            $mailer->send($message);
         }
 
         $reservation->setState(Reservation::STATE_PAID);

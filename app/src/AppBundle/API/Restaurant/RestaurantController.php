@@ -146,6 +146,12 @@ class RestaurantController extends ApiBaseController
         $elasticaManager = $this->container->get('fos_elastica.manager');
 
         $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
+        if (!$restaurant instanceof Restaurant) {
+            return $this->helper->elementNotFound('Restaurant', 404);
+        }
+        if(!$restaurant->isStatus()){
+            return $this->helper->error("Ce restaurant a été supprimé");
+        }
         $restaurantUsers = $restaurant->getUsers();
 
         if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
@@ -246,6 +252,9 @@ class RestaurantController extends ApiBaseController
         if (!$restaurant instanceof Restaurant) {
             return $this->helper->elementNotFound('Restaurant', 404);
         }
+        if(!$restaurant->isStatus()){
+            return $this->helper->error("Ce restaurant a été supprimé");
+        }
         $restaurantUsers = $restaurant->getUsers();
 
         if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
@@ -288,6 +297,9 @@ class RestaurantController extends ApiBaseController
         if(!$restaurant){
             return $this->helper->elementNotFound('Restaurant');
 
+        }
+        if(!$restaurant->isStatus()){
+            return $this->helper->error("Ce restaurant a été supprimé");
         }
         $restaurantUsers = $restaurant->getUsers();
 
@@ -337,6 +349,9 @@ class RestaurantController extends ApiBaseController
             return $this->helper->elementNotFound('Restaurant');
 
         }
+        if(!$restaurant->isStatus()){
+            return $this->helper->error("Ce restaurant a été supprimé");
+        }
         $restaurantUsers = $restaurant->getUsers();
 
         if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
@@ -384,6 +399,9 @@ class RestaurantController extends ApiBaseController
         if(!$restaurant){
             return $this->helper->elementNotFound('Restaurant');
 
+        }
+        if(!$restaurant->isStatus()){
+            return $this->helper->error("Ce restaurant a été supprimé");
         }
         $restaurantUsers = $restaurant->getUsers();
 
@@ -485,13 +503,20 @@ class RestaurantController extends ApiBaseController
         }
 
         $elasticaManager = $this->container->get('fos_elastica.manager');
-        $result = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
+        $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
 
-        if (!$result) {
+        if (!$restaurant) {
             return $this->helper->elementNotFound('Restaurant');
-        } else {
-            return $this->helper->success($result, 200);
         }
+        if (!$restaurant instanceof Restaurant) {
+            return $this->helper->elementNotFound('Restaurant', 404);
+        }
+        if(!$restaurant->isStatus()){
+            return $this->helper->error("Ce restaurant a été supprimé");
+        }
+
+        return $this->helper->success($restaurant, 200);
+
     }
 
     /**
@@ -510,6 +535,9 @@ class RestaurantController extends ApiBaseController
         $restaurant = $this->getRestaurantRepository()->findOneBy(array("id" => $request->get('id')));
         if (!$restaurant instanceof Restaurant) {
             return $this->helper->elementNotFound('Restaurant', 404);
+        }
+        if(!$restaurant->isStatus()){
+            return $this->helper->error("Ce restaurant a été supprimé");
         }
         if(!$restaurant->getSchedule())
             return $this->helper->elementNotFound('Schedule', 404);

@@ -58,7 +58,7 @@ class MealSetController extends ApiBaseController
         }
 
         $mealSet = new MealSet();
-        $mealSet->setStatus(Content::STATUS_ONLINE);
+        $mealSet->setStatus(MealSet::STATUS_ONLINE);
         $mealSet->setRestaurant($restaurant);
         $em = $this->getEntityManager();
         $form = $this->createForm(MealSetType::class, $mealSet);
@@ -392,5 +392,55 @@ class MealSetController extends ApiBaseController
 
         return $this->helper->success($json, 200);
 
+    }
+
+    /**
+     * @REST\Delete("/restaurants/{id}/meal_sets/{idMealSet}", name="api_delete_meal_set")
+     */
+    public function deleteMealSet(Request $request)
+    {
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
+        if (!$request->get('idMealSet')) {
+            return $this->helper->error('idMealSet', true);
+        } elseif (!preg_match('/\d/', $request->get('idMealSet'))) {
+            return $this->helper->error('param \'idMealSet\' must be an integer');
+        }
+
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+        $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
+        if (!$restaurant) {
+            return $this->helper->elementNotFound('Restaurant');
+        }
+
+        $restaurantUsers = $restaurant->getUsers();
+
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
+            !$restaurantUsers->contains($user)){
+            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
+        }
+
+        $mealSet = $elasticaManager->getRepository('AppBundle:MealSet')->findById($request->get('idMealSet'));
+        if (!$mealSet) {
+            return $this->helper->elementNotFound('Menu');
+        }
+        if($mealSet->getRestaurant() != $restaurant){
+            return $this->helper->error('Ce n\'est pas un menu à vous');
+        }
+        if(!$mealSet->isStatus()){
+            return $this->helper->error('Ce plat a été supprimé');
+        }
+        $mealSet->setStatus(MealSet::STATUS_OFFLINE);
+        $em = $this->getEntityManager();
+        $em->persist($mealSet);
+        $em->flush();
+
+        return $this->helper->success($mealSet, 200);
     }
 }

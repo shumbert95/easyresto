@@ -19,7 +19,7 @@ class IngredientController extends ApiBaseController
      * @param Request $request
      *
      *
-     * @REST\Post("/restaurants/{id}/ingredients", name="api_create_ingredient")
+     * @REST\Post("/restaurants/{id}/ingredients/create", name="api_create_ingredient")
      * @REST\RequestParam(name="name")
      * @REST\RequestParam(name="stock", default=0)
      *
@@ -213,9 +213,8 @@ class IngredientController extends ApiBaseController
             return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
         }
 
-        $ingredients = $this->getIngredientRepository()->findBy(array(
-            'restaurant' => $restaurant
-        ));
+        $ingredients = $elasticaManager->getRepository('AppBundle:Ingredient')->findByRestaurant($restaurant);
+
         if(!$ingredients)
             return $this->helper->empty();
 
@@ -303,8 +302,15 @@ class IngredientController extends ApiBaseController
             'restaurant' => $restaurant,
             'id'        => $request->get('idIngredient'),
         ));
-        if(!$ingredient)
-            return $this->helper->empty();
+        if (!$ingredient) {
+            return $this->helper->elementNotFound('Ingredient');
+        }
+        if($ingredient->getRestaurant() != $restaurant){
+            return $this->helper->error('Ce n\'est pas un ingrédient à vous');
+        }
+        if(!$ingredient->isStatus()){
+            return $this->helper->error('Cet ingrédient a été supprimé');
+        }
 
 
         return $this->helper->success($ingredient, 200);
@@ -344,6 +350,7 @@ class IngredientController extends ApiBaseController
 
         $em = $this->getEntityManager();
 
+
         foreach($request_data as $data){
             $ingredient = $elasticaManager->getRepository('AppBundle:Ingredient')->findByNameAndRestaurant($data['name'],$restaurant);
 
@@ -377,6 +384,75 @@ class IngredientController extends ApiBaseController
 
 
         return $this->helper->success($return_data, 200);
+    }
+
+    /**
+     * @REST\Delete("/restaurants/{id}/ingredients/{idIngredient}", name="api_delete_ingredient")
+     */
+    public function deleteIngredient(Request $request)
+    {
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+
+        if (!$request->get('id')) {
+            return $this->helper->error('id', true);
+        } elseif (!preg_match('/\d/', $request->get('id'))) {
+            return $this->helper->error('param \'id\' must be an integer');
+        }
+
+        if (!$request->get('idIngredient')) {
+            return $this->helper->error('idIngredient', true);
+        } elseif (!preg_match('/\d/', $request->get('idIngredient'))) {
+            return $this->helper->error('param \'idIngredient\' must be an integer');
+        }
+
+        $elasticaManager = $this->container->get('fos_elastica.manager');
+        $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
+        if (!$restaurant) {
+            return $this->helper->elementNotFound('Restaurant');
+        }
+
+        $restaurantUsers = $restaurant->getUsers();
+
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
+            !$restaurantUsers->contains($user)){
+            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
+        }
+
+        $ingredient = $elasticaManager->getRepository('AppBundle:Ingredient')->findById($request->get('idIngredient'));
+        if (!$ingredient) {
+            return $this->helper->elementNotFound('Ingredient');
+        }
+        if($ingredient->getRestaurant() != $restaurant){
+            return $this->helper->error('Ce n\'est pas un ingrédient à vous');
+        }
+        /*$em = $this->getEntityManager();
+
+        $ingredient->setStatus(Ingredient::STATUS_ONLINE);
+        $em->persist($ingredient);
+        $em->flush();*/
+
+        if(!$ingredient->isStatus()){
+            return $this->helper->error('Cet ingrédient a été supprimé');
+        }
+        $ingredient->setStatus(Ingredient::STATUS_OFFLINE);
+        $ingredient->setStock(0);
+        $em = $this->getEntityManager();
+        $em->persist($ingredient);
+        $em->flush();
+
+        $meals = $elasticaManager->getRepository('AppBundle:Content')->findByRestaurant($restaurant);
+        foreach($meals as $meal){
+            $ingredients = $meal->getIngredients();
+
+            if($ingredients->contains($ingredient)){
+                $meal->removeIngredient($ingredient);
+                $em->persist($meal);
+                $em->flush();
+            }
+
+        }
+
+        return $this->helper->success($ingredient, 200);
     }
 
 

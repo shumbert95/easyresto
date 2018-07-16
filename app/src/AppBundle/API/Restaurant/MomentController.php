@@ -41,7 +41,7 @@ class MomentController extends ApiBaseController
             return $this->helper->warning('Nom déjà utilisé',400);
         }
         $moment = new Moment();
-        $moment->setStatus(CategoryRestaurant::STATUS_ONLINE);
+        $moment->setStatus(Moment::STATUS_ONLINE);
 
         $form = $this->createForm(MomentType::class, $moment);
         $form->submit($params);

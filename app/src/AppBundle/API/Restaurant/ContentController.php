@@ -3,6 +3,8 @@
 namespace AppBundle\API\Restaurant;
 
 use AppBundle\API\ApiBaseController;
+use AppBundle\Entity\Content;
+use Doctrine\Common\Collections\ArrayCollection;
 use FOS\RestBundle\Controller\Annotations as REST;
 use FOS\RestBundle\Request\ParamFetcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -134,6 +136,9 @@ class ContentController extends ApiBaseController
         if($content->getRestaurant() != $restaurant){
             return $this->helper->error('Ce n\'est pas un plat de ce restaurant');
         }
+        if(!$content->isStatus()){
+            return $this->helper->error('Ce plat a été supprimé');
+        }
 
         return $this->helper->success($content, 200);
     }
@@ -177,9 +182,14 @@ class ContentController extends ApiBaseController
         if($content->getRestaurant() != $restaurant){
             return $this->helper->error('Ce n\'est pas un contenu à vous');
         }
-
+        if(!$content->isStatus()){
+            return $this->helper->error('Ce plat a été supprimé');
+        }
+        $content->setStatus(Content::STATUS_OFFLINE);
+        $content->setIngredients(new ArrayCollection());
+        $content->setTags(new ArrayCollection());
         $em = $this->getEntityManager();
-        $em->remove($content);
+        $em->persist($content);
         $em->flush();
 
         return $this->helper->success($content, 200);

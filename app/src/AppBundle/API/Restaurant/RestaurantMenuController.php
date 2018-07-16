@@ -4,6 +4,7 @@ namespace AppBundle\API\Restaurant;
 
 use AppBundle\API\ApiBaseController;
 use AppBundle\Entity\Content;
+use AppBundle\Entity\Ingredient;
 use AppBundle\Entity\Restaurant;
 use FOS\RestBundle\Controller\Annotations as REST;
 use Symfony\Component\HttpFoundation\Request;
@@ -40,22 +41,25 @@ class RestaurantMenuController extends ApiBaseController
         if(isset($restaurant) && isset($tabs)) {
             foreach ($tabs as $tab) {
                 if (isset ($tab)) {
-                    if($tab->getMealsIds()){
+                    if($tab->isStatus() && $tab->getMealsIds()){
                         $meals = json_decode($tab->getMealsIds());
 
                         if(is_array($meals)) {
                             foreach ($meals as $meal) {
                                 $content = $elasticaManager->getRepository('AppBundle:Content')->findById($meal);
-                                if ($content->getType() == Content::TYPE_MEAL) {
+                                if ($content->getType() == Content::TYPE_MEAL && $content->isStatus()) {
                                     $maxValue = -1;
 
                                     if ($content->getIngredients()) {
                                         foreach ($content->getIngredients() as $ingredient) {
-                                            if ($maxValue == -1)
-                                                $maxValue = $ingredient->getStock();
+                                            if($ingredient->isStatus())
+                                            {
+                                                if ($maxValue == -1)
+                                                    $maxValue = $ingredient->getStock();
 
-                                            elseif ($ingredient->getStock() < $maxValue)
-                                                $maxValue = $ingredient->getStock();
+                                                elseif ($ingredient->getStock() < $maxValue)
+                                                    $maxValue = $ingredient->getStock();
+                                            }
                                         }
                                     }
                                     $arrayContent[$tab->getId()][] = array(

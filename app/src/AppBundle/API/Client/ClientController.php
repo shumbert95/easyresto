@@ -238,68 +238,70 @@ class ClientController extends ApiBaseController
         $reservations = $elasticaManager->getRepository('AppBundle:Reservation')->findByClient($user);
         if($reservations) {
             foreach ($reservations as $reservation) {
-                $userFavorites = $reservation->getUser()->getFavorites();
-                $note = $this->getNoteRepository()->findOneBy(array('restaurant' => $reservation->getRestaurant(), 'user' => $user, 'reservation' => $reservation));
-                $verif = false;
+                if($reservation->getState() == Reservation::STATE_PAID) {
+                    $userFavorites = $reservation->getUser()->getFavorites();
+                    $note = $this->getNoteRepository()->findOneBy(array('restaurant' => $reservation->getRestaurant(), 'user' => $user, 'reservation' => $reservation));
+                    $verif = false;
 
-                if ($note) {
-                    $verif = true;
-                }
-                $jsonContents = array();
-                $contents = $elasticaManager->getRepository('AppBundle:ReservationContent')->findByReservation($reservation);
+                    if ($note) {
+                        $verif = true;
+                    }
+                    $jsonContents = array();
+                    $contents = $elasticaManager->getRepository('AppBundle:ReservationContent')->findByReservation($reservation);
 
-                $lastSeat = array();
-                if (is_array($contents)) {
+                    $lastSeat = array();
+                    if (is_array($contents)) {
 
-                    foreach ($contents as $contentSeat) {
+                        foreach ($contents as $contentSeat) {
 
-                        $allContents = $elasticaManager->getRepository('AppBundle:ReservationContent')->findBySeat($contentSeat->getSeat());
-                        $currentSeat = $contentSeat->getSeat()->getId();
-                        foreach ($allContents as $content) {
-                            if ($currentSeat != $lastSeat) {
-                                $jsonContents[] = array(
-                                    "id" => $content->getContent()->getId(),
-                                    "name" => $content->getContent()->getName(),
-                                    "picture" => $content->getContent()->getPicture(),
-                                    "quantity" => $content->getQuantity(),
-                                    "totalPrice" => $content->getTotalPrice()
+                            $allContents = $elasticaManager->getRepository('AppBundle:ReservationContent')->findBySeat($contentSeat->getSeat());
+                            $currentSeat = $contentSeat->getSeat()->getId();
+                            foreach ($allContents as $content) {
+                                if ($currentSeat != $lastSeat) {
+                                    $jsonContents[] = array(
+                                        "id" => $content->getContent()->getId(),
+                                        "name" => $content->getContent()->getName(),
+                                        "picture" => $content->getContent()->getPicture(),
+                                        "quantity" => $content->getQuantity(),
+                                        "totalPrice" => $content->getTotalPrice()
+                                    );
+                                }
+                            }
+                            if (!in_array($currentSeat, $lastSeat)) {
+                                $seatArray[] = array(
+                                    "name" => $contentSeat->getSeat()->getName(),
+                                    "content" => $jsonContents
                                 );
                             }
+                            array_push($lastSeat, $currentSeat);
+                            $jsonContents = array();
                         }
-                        if (!in_array($currentSeat, $lastSeat)) {
-                            $seatArray[] = array(
-                                "name" => $contentSeat->getSeat()->getName(),
-                                "content" => $jsonContents
-                            );
-                        }
-                        array_push($lastSeat, $currentSeat);
-                        $jsonContents = array();
-                    }
-                    $reservationArray[] = array(
-                        "id" => $reservation->getId(),
-                        "date" => $reservation->getDate(),
-                        "nbParticipants" => $reservation->getNbParticipants(),
-                        "total" => $reservation->getTotal(),
-                        "timeStep" => $reservation->getTimeStep(),
-                        "state" => $reservation->getState(),
-                        "hasNote" => $verif,
-                        "user" => array(
-                            "id" => $reservation->getUser()->getId(),
-                            "lastname" => $reservation->getUser()->getLastName(),
-                            "firstname" => $reservation->getUser()->getFirstName(),
-                            "phoneNumber" => $reservation->getUser()->getPhoneNumber(),
-                        ),
-                        "date" => $reservation->getDate(),
-                        "restaurant" => array(
-                            "id" => $reservation->getRestaurant()->getId(),
-                            "name" => $reservation->getRestaurant()->getName(),
-                            "picture" => $reservation->getRestaurant()->getPicture(),
-                            "favorite" => $userFavorites->contains($reservation->getRestaurant()) ? true : false
+                        $reservationArray[] = array(
+                            "id" => $reservation->getId(),
+                            "date" => $reservation->getDate(),
+                            "nbParticipants" => $reservation->getNbParticipants(),
+                            "total" => $reservation->getTotal(),
+                            "timeStep" => $reservation->getTimeStep(),
+                            "state" => $reservation->getState(),
+                            "hasNote" => $verif,
+                            "user" => array(
+                                "id" => $reservation->getUser()->getId(),
+                                "lastname" => $reservation->getUser()->getLastName(),
+                                "firstname" => $reservation->getUser()->getFirstName(),
+                                "phoneNumber" => $reservation->getUser()->getPhoneNumber(),
+                            ),
+                            "date" => $reservation->getDate(),
+                            "restaurant" => array(
+                                "id" => $reservation->getRestaurant()->getId(),
+                                "name" => $reservation->getRestaurant()->getName(),
+                                "picture" => $reservation->getRestaurant()->getPicture(),
+                                "favorite" => $userFavorites->contains($reservation->getRestaurant()) ? true : false
 
-                        ),
-                        "seats" => $seatArray,
-                    );
-                    $seatArray = array();
+                            ),
+                            "seats" => $seatArray,
+                        );
+                        $seatArray = array();
+                    }
                 }
             }
         }
@@ -325,8 +327,6 @@ class ClientController extends ApiBaseController
         if($reservation->getUser() != $user){
             return $this->helper->error("Cette réservation n'est pas la vôtre");
         }
-
-
 
         $jsonContents=array();
         $restaurant = $reservation->getRestaurant();
