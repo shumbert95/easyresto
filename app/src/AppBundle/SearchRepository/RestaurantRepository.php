@@ -102,11 +102,13 @@ class RestaurantRepository extends Repository
             $boolQuery->addMust($queryString);
 
         }
-        $filter = new Query\GeoDistance('location', array('lat' => $restaurantSearch->getLatitude(),
-                                                                'lon' => $restaurantSearch->getLongitude()),
-                                                            !$restaurantSearch->isExact() ? '20km' : '1m');
+        if($restaurantSearch->getLatitude() != 0 && $restaurantSearch->getLongitude() != 0) {
+            $filter = new Query\GeoDistance('location', array('lat' => $restaurantSearch->getLatitude(),
+                'lon' => $restaurantSearch->getLongitude()),
+                !$restaurantSearch->isExact() ? '20km' : '1m');
 
-        $boolQuery->addFilter($filter);
+            $boolQuery->addFilter($filter);
+        }
         return $this->find($boolQuery,10000);
     }
 

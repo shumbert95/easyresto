@@ -460,11 +460,11 @@ class RestaurantController extends ApiBaseController
         $params = $paramFetcher->all();
         $restaurantSearch = new RestaurantSearch();
 
-        if (!$params['longitude']) {
+        if ($params['longitude'] == ""  && $params['latitude'] != "") {
             return $this->helper->error('longitude', true);
         }
 
-        if (!$params['latitude']) {
+        if ($params['latitude'] == "" && $params['longitude'] != "") {
             return $this->helper->error('latitude', true);
         }
 

@@ -8,9 +8,9 @@ class RestaurantSearch
 {
     protected $name;
 
-    protected $longitude;
+    protected $longitude = 0;
 
-    protected $latitude;
+    protected $latitude = 0;
 
     protected $exact;
 
