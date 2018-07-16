@@ -180,14 +180,13 @@ class CheckoutController extends ApiBaseController
     /**
      * @param Request $request
      *
-     * @REST\Post("/restaurants/{id}/reservations/{idReservation}/paypalconfirm/{idPaypal}", name="api_confirm_reservation_paypal")
+     * @REST\Post("/restaurants/{id}/reservations/{idReservation}/paypalconfirm", name="api_confirm_reservation_paypal")
      *
      * @return View
      */
     public function confirmReservationPaypal(Request $request)
     {
         $paypalResponse = $request->request->all();
-        $paypalId = $request->get('idPaypal');
 
         if (!$request->get('id')) {
             return $this->helper->error('id', true);
@@ -221,7 +220,7 @@ class CheckoutController extends ApiBaseController
             return $this->helper->error('Cette commande a été annulée');
         }
 
-        if($paypalResponse['id'] != $paypalId || $paypalResponse['state'] != 'approved'){
+        if($paypalResponse['state'] != 'approved'){
             $reservation->setState(Reservation::STATE_CANCELED);
             $reservation->setDateCanceled(New \DateTime());
             $em = $this->getEntityManager();
@@ -250,7 +249,7 @@ class CheckoutController extends ApiBaseController
 
         $reservation->setState(Reservation::STATE_PAID);
         $reservation->setPaymentMethod("Paypal");
-        $reservation->setPaymentId($paypalId);
+        $reservation->setPaymentId($paypalResponse["id"]);
         $em = $this->getEntityManager();
         $em->persist($reservation);
         $em->flush();
