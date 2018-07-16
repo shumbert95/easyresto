@@ -56,7 +56,7 @@ class ReservationController extends ApiBaseController
             return $this->helper->empty();
 
         foreach($reservations as $reservation) {
-            if($reservation->getState() != Reservation::STATE_CANCELED) {
+            if($reservation->getState() == Reservation::STATE_PAID) {
                 $jsonContents = array();
                 $contents = $elasticaManager->getRepository('AppBundle:ReservationContent')->findByReservation($reservation);
 
@@ -112,6 +112,8 @@ class ReservationController extends ApiBaseController
                 }
             }
         }
+        if(!isset($reservationArray))
+            return $this->helper->empty();
 
         return $this->helper->success($reservationArray, 200);
     }
