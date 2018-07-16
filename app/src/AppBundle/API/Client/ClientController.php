@@ -305,7 +305,7 @@ class ClientController extends ApiBaseController
                 }
             }
         }
-        else
+        if(!isset($reservationArray))
             return $this->helper->empty();
 
 

@@ -163,13 +163,6 @@ class CheckoutController extends ApiBaseController
 
                     }
                     $total = $total + $meal->getPrice();
-                    if($meal->getIngredients()) {
-                        foreach ($meal->getIngredients() as $ingredient) {
-                            $ingredient->setStock($ingredient->getStock() - 1);
-                            $em->persist($ingredient);
-                            $em->flush();
-                        }
-                    }
                     $em->persist($reservationContent);
                     $em->flush();
                 }
@@ -251,6 +244,8 @@ class CheckoutController extends ApiBaseController
                     'text/html'
                 );
             $mailer->send($message);
+
+            return $this->helper->success($reservation, 200);
         }
 
         $reservation->setState(Reservation::STATE_PAID);
@@ -276,6 +271,19 @@ class CheckoutController extends ApiBaseController
                 'text/html'
             );
         $mailer->send($message);
+
+
+        $reservationContents = $elasticaManager->getRepository('AppBundle:ReservationContent')->findByReservation($reservation);
+        foreach($reservationContents as $content){
+            $meal = $content->getContent();
+            if($meal->getIngredients()) {
+                foreach ($meal->getIngredients() as $ingredient) {
+                    $ingredient->setStock($ingredient->getStock() - 1);
+                    $em->persist($ingredient);
+                    $em->flush();
+                }
+            }
+        }
 
         return $this->helper->success($reservation, 200);
     }
