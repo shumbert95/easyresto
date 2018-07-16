@@ -47,7 +47,7 @@ class RestaurantMenuController extends ApiBaseController
                         if(is_array($meals)) {
                             foreach ($meals as $meal) {
                                 $content = $elasticaManager->getRepository('AppBundle:Content')->findById($meal);
-                                if ($content->getType() == Content::TYPE_MEAL && $content->isStatus()) {
+                                if ($content->getType() == Content::TYPE_MEAL && $content->isStatus() && $content->getRestaurant() == $restaurant) {
                                     $maxValue = -1;
 
                                     if ($content->getIngredients()) {
