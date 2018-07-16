@@ -280,11 +280,11 @@ class TabMealController extends ApiBaseController
         }
         $request_data = $request->request->all();
 
-        if ($request_data['contents']) {
+        if (isset($request_data['contents'])) {
             $contents = json_encode($request_data['contents']);
             $tab->setMealsIds($contents);
         }
-        if ($request_data['name']) {
+        if (isset($request_data['name'])) {
             $tab->setName($request_data['name']);
         }
 
