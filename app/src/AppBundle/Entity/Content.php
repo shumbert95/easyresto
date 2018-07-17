@@ -21,12 +21,6 @@ class Content
      */
     protected $restaurant;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\TabMeal")
-     * @ORM\JoinColumn(name="tab_id")
-     */
-    protected $tab;
-
 
     /**
      * @var integer
@@ -64,20 +58,6 @@ class Content
      * @ORM\Column(name="price", type="float", length=10, nullable=true)
      */
     protected $price;
-
-    /**
-     * @var bool
-     *
-     * @ORM\Column(name="availability", type="boolean", nullable=true)
-     */
-    protected $availability;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="position", type="integer", length=10, nullable=true)
-     */
-    protected $position;
 
     /**
      * @ORM\ManyToMany(targetEntity="AppBundle\Entity\Ingredient")
@@ -206,37 +186,7 @@ class Content
         $this->price = $price;
     }
 
-    /**
-     * @return bool
-     */
-    public function isAvailability()
-    {
-        return $this->availability;
-    }
 
-    /**
-     * @param bool $availability
-     */
-    public function setAvailability($availability)
-    {
-        $this->availability = $availability;
-    }
-
-    /**
-     * @return int
-     */
-    public function getPosition()
-    {
-        return $this->position;
-    }
-
-    /**
-     * @param int $position
-     */
-    public function setPosition($position)
-    {
-        $this->position = $position;
-    }
 
     /**
      * @return int
@@ -253,24 +203,6 @@ class Content
     {
         $this->type = $type;
     }
-
-    /**
-     * @return mixed
-     */
-    public function getTab()
-    {
-        return $this->tab;
-    }
-
-    /**
-     * @param mixed $tab
-     */
-    public function setTab($tab)
-    {
-        $this->tab = $tab;
-    }
-
-
 
     /**
      * @return bool

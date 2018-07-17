@@ -56,29 +56,29 @@ class Restaurant
 
     /**
      * @var string
-     * @Assert\NotBlank()
-     * @ORM\Column(name="name", type="string", length=255)
+     *
+     * @ORM\Column(name="name", type="string", length=255, nullable=true)
      */
     protected $name;
 
     /**
      * @var string
-     * @Assert\NotBlank()
-     * @ORM\Column(name="city", type="string", length=255)
+     *
+     * @ORM\Column(name="city", type="string", length=255, nullable=true)
      */
     protected $city;
 
     /**
      * @var int
-     * @Assert\NotBlank()
-     * @ORM\Column(name="postal_code", type="integer", length=10)
+     *
+     * @ORM\Column(name="postal_code", type="integer", length=10, nullable=true)
      */
     protected $postalCode;
 
     /**
      * @var string
-     * @Assert\NotBlank()
-     * @ORM\Column(name="address", type="string", length=255)
+     *
+     * @ORM\Column(name="address", type="string", length=255, nullable=true)
      */
     protected $address;
 
@@ -100,15 +100,15 @@ class Restaurant
 
     /**
      * @var string
-     * @Assert\NotBlank()
-     * @ORM\Column(name="phone", type="string")
+     *
+     * @ORM\Column(name="phone", type="string", nullable=true)
      */
     protected $phone;
 
     /**
      * @var string
-     * @Assert\NotBlank()
-     * @ORM\Column(name="description", type="text")
+     *
+     * @ORM\Column(name="description", type="text", nullable=true)
      */
     protected $description;
 

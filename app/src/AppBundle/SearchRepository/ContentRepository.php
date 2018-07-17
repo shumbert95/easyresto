@@ -118,7 +118,6 @@ class ContentRepository extends Repository
         $nestedQuery->setPath('mealSetElements.content')->setQuery(new Match('mealSetElements.content.id',$meal->getId()));
         $boolQuery->addMust($nestedQuery);
 
-        //return $boolQuery;
         $contents = $this->find($boolQuery,10000);
 
         return isset($contents[0]) ? true : false;

@@ -36,7 +36,6 @@ class RestaurantMenuController extends ApiBaseController
         }
 
         $tabs = $elasticaManager->getRepository('AppBundle:TabMeal')->findByRestaurant($restaurant);
-        //$mealSets = $elasticaManager->getRepository('AppBundle:MealSet')->findByRestaurant($restaurant);
 
         $json = array();
         if(isset($restaurant)) {
@@ -87,46 +86,7 @@ class RestaurantMenuController extends ApiBaseController
                 }
 
             }
-            /*if(isset($mealSets)){
-                foreach ($mealSets as $mealSet) {
-                    $maxValue = -1;
-                    $mealSetElements = $elasticaManager->getRepository('AppBundle:MealSetElement')->findBySet($mealSet);
-                    if(isset($mealSetElements)) {
-                        $mealSetElements = $elasticaManager->getRepository('AppBundle:MealSetElement')->findBySet($mealSet);
-                        foreach($mealSetElements as $mealSetElement){
-                            $content = $mealSetElement->getContent();
-                            if ($content->getIngredients()) {
-                                foreach ($content->getIngredients() as $ingredient) {
-                                    if ($ingredient->isStatus()) {
-                                        if ($maxValue == -1)
-                                            $maxValue = $ingredient->getStock();
 
-                                        elseif ($ingredient->getStock() < $maxValue)
-                                            $maxValue = $ingredient->getStock();
-                                    }
-                                }
-                            }
-                            $jsonMealSetElements[] = array(
-                                "id" => $content->getId(),
-                                "type" => $mealSetElement->getType(),
-                                "name" => $content->getName(),
-                                "tags" => $content->getTags(),
-                            );
-                        }
-                        $json[] =array(
-                            "id" => $mealSet->getId(),
-                            "isMealSet" => true,
-                            "name" => $mealSet->getName(),
-                            "description" => $mealSet->getDescription(),
-                            "price" => $mealSet->getPrice(),
-                            "position" => $mealSet->getPosition(),
-                            "availability" => $maxValue,
-                            "content" => isset($jsonMealSetElements) ? $jsonMealSetElements : array()
-                        );
-
-                    }
-                }
-            }*/
         }
         else {
             $json[] = array();

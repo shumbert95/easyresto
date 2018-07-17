@@ -21,7 +21,6 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 class ClientController extends ApiBaseController
 {
 
-    //TODO securiser
     /**
      * @REST\Get("/clients/{id}", name="api_detail_client")
      *
