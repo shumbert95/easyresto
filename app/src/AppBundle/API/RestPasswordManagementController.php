@@ -79,7 +79,6 @@ class RestPasswordManagementController extends ApiBaseController
             return $event->getResponse();
         }
 
-        //$this->get('fos_user.mailer')->sendResettingEmailMessage($user);
 
         $mailer = $this->container->get('mailer');
         $message = (new \Swift_Message('Réinitialisation de mot de passe !'))
@@ -140,7 +139,6 @@ class RestPasswordManagementController extends ApiBaseController
 
         if (null === $user) {
             return new JsonResponse(
-            // no translation provided for this in \FOS\UserBundle\Controller\ResettingController
                 sprintf('The user with "confirmation token" does not exist for value "%s"', $token),
                 JsonResponse::HTTP_BAD_REQUEST
             );
@@ -154,7 +152,6 @@ class RestPasswordManagementController extends ApiBaseController
         }
 
         $form = $formFactory->createForm([
-            //'csrf_protection'    => false,
             'allow_extra_fields' => true,
         ]);
         $form->setData($user);
@@ -176,7 +173,6 @@ class RestPasswordManagementController extends ApiBaseController
             );
         }
 
-        // unsure if this is now needed / will work the same
         $dispatcher->dispatch(FOSUserEvents::RESETTING_RESET_COMPLETED, new FilterUserResponseEvent($user, $request, $response));
 
         return new JsonResponse(

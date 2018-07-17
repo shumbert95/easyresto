@@ -340,48 +340,5 @@ class MealController extends ApiBaseController
         return $this->helper->success($meals, 200);
     }
 
-    /**
-     *
-     * @REST\Get("/restaurants/{id}/tabs/{idTab}/meals", name="api_list_meals_by_tab")
-     *
-     */
-    public function getMealsFromTab(Request $request)
-    {
-        if (!$request->get('id')) {
-            return $this->helper->error('id', true);
-        } elseif (!preg_match('/\d/', $request->get('id'))) {
-            return $this->helper->error('param \'id\' must be an integer');
-        }
-
-        if (!$request->get('idTab')) {
-            return $this->helper->error('idTab', true);
-        } elseif (!preg_match('/\d/', $request->get('idTab'))) {
-            return $this->helper->error('param \'idTab\' must be an integer');
-        }
-
-        $elasticaManager = $this->container->get('fos_elastica.manager');
-        $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
-        if (!$restaurant) {
-            return $this->helper->elementNotFound('Restaurant');
-        }
-
-        $tab = $elasticaManager->getRepository('AppBundle:TabMeal')->findById($request->get('idTab'));
-        if (!$tab) {
-            return $this->helper->elementNotFound('TabMeal');
-        }
-        if($tab->getRestaurant() != $restaurant){
-            return $this->helper->error('Ce n\'est pas un onglet de ce restaurant');
-        }
-
-
-        $meals = $elasticaManager->getRepository('AppBundle:Content')->findByTab($tab, Content::TYPE_MEAL);
-
-        if(!isset($meals[0])){
-            return $this->helper->empty();
-        }
-
-        return $this->helper->success($meals, 200);
-    }
-
 
 }

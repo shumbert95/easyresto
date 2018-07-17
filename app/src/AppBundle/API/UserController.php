@@ -55,7 +55,6 @@ class UserController extends ApiBaseController
         $fosUserManager->updateUser($user);
         $user = $this->getUserRepository()->find($user);
 
-        //$this->container->get('app.mail.manager')->sendConfirmationEmailMessage($user);
 
         return $this->json(array(
             'newUser' => array(
@@ -126,19 +125,6 @@ class UserController extends ApiBaseController
 
     /**
      *
-     * @REST\Get("/users/{id}", name="api_detail_user")
-     *
-     */
-    public function getUserById(Request $request)
-    {
-        $user = $this->getUserRepository()->find($request->get('id'));
-        if(!$user)
-            return $this->helper->empty();
-        return $this->helper->success($user, 200);
-    }
-
-    /**
-     *
      * @REST\Get("/profile", name="api_detail_logged_user")
      *
      */
@@ -169,20 +155,6 @@ class UserController extends ApiBaseController
             $return_data["user"]=$user;
 
         return $this->helper->success($return_data, 200);
-    }
-
-    /**
-     * @return View
-     *
-     * @REST\Get("/users", name="api_list_users")
-     *
-     */
-    public function getUsers()
-    {
-        $users = $this->getUserRepository()->findAll();
-        if(!$users)
-            return $this->helper->empty();
-        return $this->helper->success($users, 200);
     }
 
     /**
@@ -256,21 +228,6 @@ class UserController extends ApiBaseController
 
     }
 
-
-    /**
-     * @return View
-     *
-     * @REST\Get("/clients", name="api_list_clients")
-     *
-     */
-    public function getClients()
-    {
-        $clients = $this->getUserRepository()->findBy(array("type" => 1));
-        if(!$clients)
-            return $this->helper->empty();
-        return $this->helper->success($clients, 200);
-    }
-
     /**
      * @param ParamFetcher $paramFetcher
      *
@@ -313,7 +270,6 @@ class UserController extends ApiBaseController
         $user->setType($user::TYPE_RESTORER);
         $user->addRole('ROLE_ADMIN');
         $user->setEnabled(1);
-        //$fosUserManager->updateUser($user);
 
         $mailer = $this->container->get('mailer');
         $message = (new \Swift_Message('Bienvenue sur Easyresto !'))
@@ -349,20 +305,6 @@ class UserController extends ApiBaseController
     }
 
     /**
-     * @return View
-     *
-     * @REST\Get("/restorers", name="api_list_restorers")
-     *
-     */
-    public function getRestorers()
-    {
-        $restorers = $this->getUserRepository()->findBy(array('type' => 2));
-        if(!$restorers)
-            return $this->helper->empty();
-        return $this->helper->success($restorers, 200);
-    }
-
-    /**
      *
      * @REST\Post("/login/facebook", name="api_login_facebook")
      *
@@ -393,8 +335,6 @@ class UserController extends ApiBaseController
             $user = new User();
             $user->setFacebookID($tokenUser['id']);
             $user->setFacebookAccessToken($token);
-            //I have set all requested data with the user's username
-            //modify here with relevant data
             $user->setUsername($tokenUser['email']);
             $user->setFirstName($tokenUser['first_name']);
             $user->setLastName($tokenUser['last_name']);
@@ -407,7 +347,6 @@ class UserController extends ApiBaseController
         elseif(!($user->getFacebookId())){
             $user->setFacebookID($tokenUser['id']);
             $user->setFacebookAccessToken($token);
-            //$user->setUsername($tokenUser['id']);
             $fosUserManager->updateUser($user);
         }
 

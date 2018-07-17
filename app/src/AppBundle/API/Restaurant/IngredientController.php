@@ -125,65 +125,6 @@ class IngredientController extends ApiBaseController
         return $this->helper->success($ingredient, 200);
     }
 
-    /**
-     *
-     * @REST\Put("/restaurants/{id}/ingredients/{idIngredient}/stock", name="api_ingredient_stock")
-     * @REST\RequestParam(name="stock")
-     */
-    public function editStock(Request $request, ParamFetcher $paramFetcher)
-    {
-        $user = $this->container->get('security.token_storage')->getToken()->getUser();
-
-        if (!$request->get('id')) {
-            return $this->helper->error('id', true);
-        } elseif (!preg_match('/\d/', $request->get('id'))) {
-            return $this->helper->error('param \'id\' must be an integer');
-        }
-
-        if (!$request->get('idMeal')) {
-            return $this->helper->error('idMeal', true);
-        } elseif (!preg_match('/\d/', $request->get('idMeal'))) {
-            return $this->helper->error('param \'idMeal\' must be an integer');
-        }
-
-        if (!$request->get('initialStock')) {
-            return $this->helper->error('initialStock', true);
-        } elseif (!preg_match('/\d/', $request->get('initialStock'))) {
-            return $this->helper->error('param \'initialStock\' must be an integer');
-        }
-
-        $elasticaManager = $this->container->get('fos_elastica.manager');
-        $restaurant = $elasticaManager->getRepository('AppBundle:Restaurant')->findById($request->get('id'));
-        if (!$restaurant) {
-            return $this->helper->elementNotFound('Restaurant');
-        }
-
-        $restaurantUsers = $restaurant->getUsers();
-
-        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') &&
-            !$restaurantUsers->contains($user)){
-            return $this->helper->error('Vous n\'êtes pas autorisé à effectuer cette action');
-        }
-
-        $params=$paramFetcher->all();
-        $ingredient = $elasticaManager->getRepository('AppBundle:Ingredient')->findById($request->get('idIngredient'));
-        if (!$ingredient) {
-            return $this->helper->elementNotFound('Ingredient');
-        }
-        if($ingredient->getRestaurant() != $restaurant){
-            return $this->helper->error('Ce n\'est pas un ingrédient de ce restaurant');
-
-        }
-
-        $ingredient->setStock($ingredient->getStock() + $params['initialStock']);
-        $ingredient->setStock($ingredient->getInitialStock());
-        $em = $this->getEntityManager();
-        $em->persist($ingredient);
-        $em->flush();
-
-        return $this->helper->success($ingredient, 200);
-    }
-
 
     /**
      *
